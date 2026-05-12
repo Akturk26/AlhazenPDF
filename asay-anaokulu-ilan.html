@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asay Anaokulu – Satılık</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --cream: #F5EFE0;
+    --dark: #0E0E0E;
+    --dark2: #1A1916;
+    --dark3: #252320;
+    --text-muted: #8A8270;
+    --green-accent: #2D6A4F;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--dark);
+    color: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    height: 100vh;
+    min-height: 700px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to bottom, rgba(14,14,14,0.3) 0%, rgba(14,14,14,0.0) 30%, rgba(14,14,14,0.85) 75%, rgba(14,14,14,1) 100%),
+      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4"><rect width="4" height="4" fill="%230E0E0E"/><rect width="1" height="1" fill="%23ffffff08"/></svg>');
+    background-size: cover, 4px 4px;
+    z-index: 1;
+  }
+
+  .hero-photo {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, #1a2a1e 0%, #0d1a10 40%, #0a0f0a 100%);
+    z-index: 0;
+  }
+
+  .hero-photo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><rect width="800" height="600" fill="%23142b18"/><rect x="200" y="150" width="300" height="350" fill="%230d1f10" rx="4"/><rect x="350" y="100" width="60" height="400" fill="%230a1a0d" rx="2"/><rect x="150" y="200" width="180" height="280" fill="%23102214" rx="4"/><circle cx="120" cy="200" r="60" fill="%23193d1e" opacity="0.7"/><circle cx="300" cy="180" r="80" fill="%231a4020" opacity="0.6"/><circle cx="500" cy="160" r="100" fill="%231e4a24" opacity="0.5"/></svg>') center/cover no-repeat;
+    opacity: 0.8;
+  }
+
+  .hero-top-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28px 48px;
+    z-index: 10;
+  }
+
+  .badge-satilik {
+    background: var(--green-accent);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    border-radius: 2px;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .brand-top {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 12px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(245,239,224,0.6);
+    animation: fadeDown 0.8s 0.1s ease both;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    padding: 0 48px 52px;
+    animation: fadeUp 1s 0.2s ease both;
+  }
+
+  .hero-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 16px;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: clamp(52px, 8vw, 96px);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    color: var(--cream);
+    margin-bottom: 4px;
+  }
+
+  .hero-title span {
+    color: var(--gold);
+    display: block;
+  }
+
+  .hero-price {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+    color: var(--gold-light);
+    margin-top: 20px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .hero-price .currency {
+    font-size: 0.55em;
+    font-weight: 400;
+    color: var(--gold);
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .hero-divider {
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+    margin: 24px 0;
+    opacity: 0.6;
+  }
+
+  /* ── SPECS BAR ── */
+  .specs-bar {
+    background: var(--dark2);
+    border-top: 1px solid rgba(201,168,76,0.15);
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    padding: 0 48px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr) 1.5fr;
+    animation: fadeUp 1s 0.4s ease both;
+  }
+
+  .spec-item {
+    padding: 28px 24px;
+    border-right: 1px solid rgba(255,255,255,0.06);
+    transition: background 0.3s;
+  }
+  .spec-item:last-child { border-right: none; }
+  .spec-item:hover { background: rgba(201,168,76,0.04); }
+
+  .spec-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .spec-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--cream);
+  }
+
+  .spec-value .unit {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--text-muted);
+    margin-left: 4px;
+  }
+
+  .spec-item.heating .spec-value {
+    font-size: 16px;
+    font-weight: 400;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--cream);
+  }
+
+  /* ── GALLERY ── */
+  .gallery-section {
+    padding: 64px 48px;
+    animation: fadeUp 1s 0.5s ease both;
+  }
+
+  .section-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .section-eyebrow::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(201,168,76,0.2);
+  }
+
+  .eyebrow-text {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .gallery-item {
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 4/3;
+    background: var(--dark3);
+    cursor: pointer;
+  }
+
+  .gallery-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, #1a2a1e 0%, #0d1a10 40%, #0a0f0a 100%);
+    z-index: 0;
+    transition: transform 0.6s ease;
+  }
+
+  .gallery-item:hover::before { transform: scale(1.05); }
+
+  .gallery-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 40%, rgba(14,14,14,0.5) 100%);
+    z-index: 1;
+  }
+
+  .gallery-item .corner {
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 32px; height: 32px;
+    border-top: 1px solid var(--gold);
+    border-right: 1px solid var(--gold);
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .gallery-item:hover .corner { opacity: 0.7; }
+
+  /* ── INFO SECTION ── */
+  .info-section {
+    padding: 0 48px 64px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    animation: fadeUp 1s 0.6s ease both;
+  }
+
+  .info-card {
+    background: var(--dark2);
+    border: 1px solid rgba(201,168,76,0.12);
+    border-radius: 4px;
+    padding: 36px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .info-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+  }
+
+  .info-card-title {
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  .address-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 300;
+    line-height: 1.5;
+    color: var(--cream);
+  }
+
+  .phone-display {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--cream);
+    letter-spacing: 0.05em;
+    margin-top: 8px;
+  }
+
+  .phone-display a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .phone-display a:hover { color: var(--gold-light); }
+
+  .call-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    background: var(--green-accent);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 14px 28px;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+    border: none;
+    cursor: pointer;
+  }
+  .call-btn:hover { background: #3a8a64; transform: translateY(-1px); }
+
+  /* ── FOOTER ── */
+  .footer {
+    border-top: 1px solid rgba(201,168,76,0.15);
+    padding: 28px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--dark2);
+  }
+
+  .footer-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+  }
+
+  .footer-note {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+
+  /* ── GOLD LINE ── */
+  .gold-line {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+    opacity: 0.3;
+    margin: 0;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─────────────────────────────────────
+     AlhazenPDF Marka Şeridi
+  ───────────────────────────────────── */
+  .az-brand {
+    background: linear-gradient(180deg, #07091C 0%, #0D1330 55%, #060A18 100%);
+    border-top: 1px solid rgba(201,168,76,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 16px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .az-brand::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 340px; height: 1px;
+    background: linear-gradient(90deg, transparent, #C9A84C 25%, #F0D060 50%, #C9A84C 75%, transparent);
+    opacity: 0.55;
+  }
+
+  .az-brand .az-glow-l {
+    position: absolute; pointer-events: none;
+    left: calc(50% - 170px); top: 50%; transform: translateY(-50%);
+    width: 130px; height: 60px;
+    background: radial-gradient(ellipse, rgba(201,168,76,0.14) 0%, transparent 70%);
+  }
+
+  .az-brand .az-glow-r {
+    position: absolute; pointer-events: none;
+    left: calc(50% + 40px); top: 50%; transform: translateY(-50%);
+    width: 130px; height: 60px;
+    background: radial-gradient(ellipse, rgba(58,110,245,0.1) 0%, transparent 70%);
+  }
+
+  .az-icon {
+    flex-shrink: 0; position: relative; z-index: 2;
+    filter: drop-shadow(0 0 8px rgba(201,168,76,0.42)) drop-shadow(0 0 14px rgba(58,110,245,0.24));
+    animation: azGlow 3s ease-in-out infinite;
+  }
+
+  .az-sparkle-svg {
+    flex-shrink: 0; position: relative; z-index: 2;
+    animation: azSparkle 4s ease-in-out infinite;
+  }
+  .az-sparkle-svg:last-of-type { animation-delay: 2s; }
+
+  .az-texts {
+    display: flex; flex-direction: column; gap: 3px;
+    position: relative; z-index: 2;
+  }
+
+  .az-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px; font-weight: 700;
+    color: #fff; letter-spacing: 0.12em; line-height: 1;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .az-pdf {
+    background: linear-gradient(135deg, #E04020 0%, #B02800 100%);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.1em; padding: 2px 8px 2px;
+    border-radius: 3px; display: inline-block; line-height: 1.5;
+    box-shadow: 0 2px 10px rgba(200,40,0,0.4);
+  }
+
+  .az-tagline {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 9px; font-weight: 300;
+    color: rgba(255,255,255,0.36);
+    letter-spacing: 0.14em; text-transform: uppercase;
+  }
+
+  @keyframes azGlow {
+    0%,100% { filter: drop-shadow(0 0 6px rgba(201,168,76,0.32)) drop-shadow(0 0 10px rgba(58,110,245,0.18)); }
+    50%      { filter: drop-shadow(0 0 14px rgba(201,168,76,0.58)) drop-shadow(0 0 22px rgba(58,110,245,0.32)); }
+  }
+  @keyframes azSparkle {
+    0%,100% { opacity: 0.5; transform: scale(1) rotate(0deg); }
+    50%      { opacity: 0.9; transform: scale(1.2) rotate(18deg); }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .hero-top-bar, .hero-content, .specs-bar,
+    .gallery-section, .info-section, .footer { padding-left: 24px; padding-right: 24px; }
+    .specs-bar { grid-template-columns: 1fr 1fr; }
+    .spec-item:nth-child(2) { border-right: none; }
+    .spec-item:nth-child(4) { border-right: none; }
+    .gallery-grid { grid-template-columns: 1fr; }
+    .info-section { grid-template-columns: 1fr; gap: 20px; }
+    .footer { flex-direction: column; gap: 12px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-photo"></div>
+  <div class="hero-bg"></div>
+  <div class="hero-top-bar">
+    <span class="badge-satilik">Satılık</span>
+    <span class="brand-top">Asay Anaokulu</span>
+  </div>
+  <div class="hero-content">
+    <p class="hero-label">Ticari Gayrimenkul · Eğitim Binası</p>
+    <h1 class="hero-title">
+      Asay
+      <span>Anaokulu</span>
+    </h1>
+    <div class="hero-divider"></div>
+    <div class="hero-price">
+      <span class="currency">₺</span>
+      22.500.000
+    </div>
+  </div>
+</section>
+
+<div class="gold-line"></div>
+
+<!-- ── SPECS BAR ── -->
+<div class="specs-bar">
+  <div class="spec-item">
+    <div class="spec-label">Oda</div>
+    <div class="spec-value">4<span class="unit">+1</span></div>
+  </div>
+  <div class="spec-item">
+    <div class="spec-label">Alan</div>
+    <div class="spec-value">750<span class="unit">m²</span></div>
+  </div>
+  <div class="spec-item">
+    <div class="spec-label">Bina Yaşı</div>
+    <div class="spec-value">15<span class="unit">yıl</span></div>
+  </div>
+  <div class="spec-item">
+    <div class="spec-label">Kat</div>
+    <div class="spec-value">1</div>
+  </div>
+  <div class="spec-item heating">
+    <div class="spec-label">Isıtma</div>
+    <div class="spec-value">Merkezi Isıtma</div>
+  </div>
+</div>
+
+<div class="gold-line"></div>
+
+<!-- ── GALLERY ── -->
+<section class="gallery-section">
+  <div class="section-eyebrow">
+    <span class="eyebrow-text">Fotoğraflar</span>
+  </div>
+  <div class="gallery-grid">
+    <div class="gallery-item"><div class="corner"></div></div>
+    <div class="gallery-item"><div class="corner"></div></div>
+  </div>
+</section>
+
+<!-- ── INFO CARDS ── -->
+<section class="info-section">
+  <div class="info-card">
+    <div class="info-card-title">Adres</div>
+    <div class="address-text">
+      71 Evler Mahallesi<br>
+      Duruhan Sokak No 104
+    </div>
+  </div>
+  <div class="info-card">
+    <div class="info-card-title">İletişim</div>
+    <div class="phone-display">
+      <a href="tel:5424499625">542 449 96 25</a>
+    </div>
+    <a class="call-btn" href="tel:5424499625">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 11 19.79 19.79 0 01.1 2.38 2 2 0 012.08.18h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.18 7.9a16 16 0 006.29 6.29l1.29-1.29a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+      </svg>
+      Hemen Ara
+    </a>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<div class="gold-line"></div>
+<footer class="footer">
+  <div class="footer-brand">Asay Anaokulu</div>
+  <div class="footer-note">71 Evler Mah. Duruhan Sk. No 104 &nbsp;·&nbsp; 542 449 96 25</div>
+</footer>
+
+<!-- ═══════════════════════════════════
+     AlhazenPDF Marka Şeridi
+═══════════════════════════════════ -->
+<div class="az-brand">
+  <div class="az-glow-l"></div>
+  <div class="az-glow-r"></div>
+
+  <!-- Altın kıvılcım -->
+  <svg class="az-sparkle-svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+    <line x1="7" y1="0" x2="7" y2="14" stroke="#C9A84C" stroke-width="1.1"/>
+    <line x1="0" y1="7" x2="14" y2="7" stroke="#C9A84C" stroke-width="1.1"/>
+    <line x1="2" y1="2" x2="12" y2="12" stroke="#C9A84C" stroke-width="0.6" opacity="0.5"/>
+    <line x1="12" y1="2" x2="2" y2="12" stroke="#C9A84C" stroke-width="0.6" opacity="0.5"/>
+  </svg>
+
+  <!-- Mini heksagon logo -->
+  <svg class="az-icon" width="44" height="44" viewBox="0 0 48 48" fill="none">
+    <!-- Dış altın heksagon -->
+    <polygon points="24,2 43.5,13 43.5,35 24,46 4.5,35 4.5,13"
+      stroke="#C9A84C" stroke-width="1.5" fill="none" opacity="0.88"/>
+    <!-- İç mavi heksagon -->
+    <polygon points="24,7.5 38,16 38,32 24,40.5 10,32 10,16"
+      stroke="#4F8EF7" stroke-width="2" fill="rgba(58,110,245,0.07)"/>
+    <!-- A harfi -->
+    <text x="24" y="30.5" text-anchor="middle"
+      font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="17"
+      fill="rgba(255,255,255,0.93)">A</text>
+    <!-- Altın çizgi -->
+    <line x1="15" y1="33.5" x2="33" y2="33.5"
+      stroke="#F0D060" stroke-width="1.5" stroke-linecap="round" opacity="0.75"/>
+    <!-- Üst altın nokta (göz) -->
+    <circle cx="24" cy="3.8" r="2" fill="#F0D060" opacity="0.88"/>
+  </svg>
+
+  <!-- Marka metni -->
+  <div class="az-texts">
+    <div class="az-name">ALHAZEN <span class="az-pdf">PDF</span></div>
+    <div class="az-tagline">Bu ilan AlhazenPDF ile hazırlandı</div>
+  </div>
+
+  <!-- Mavi kıvılcım -->
+  <svg class="az-sparkle-svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+    <line x1="7" y1="0" x2="7" y2="14" stroke="#4F8EF7" stroke-width="1.1"/>
+    <line x1="0" y1="7" x2="14" y2="7" stroke="#4F8EF7" stroke-width="1.1"/>
+    <line x1="2" y1="2" x2="12" y2="12" stroke="#4F8EF7" stroke-width="0.6" opacity="0.5"/>
+    <line x1="12" y1="2" x2="2" y2="12" stroke="#4F8EF7" stroke-width="0.6" opacity="0.5"/>
+  </svg>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>A5 Cam Sticker – Emlak Afişi</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --red:      #D62828;
+  --red-dark: #A01F1F;
+  --black:    #0F0F0F;
+  --white:    #FFFFFF;
+  --offwhite: #F7F4EF;
+  --gold:     #E8A020;
+  --gray:     #999;
+}
+
+body {
+  background: #B0B0B0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 48px;
+  padding: 60px 40px;
+  font-family: 'Barlow', sans-serif;
+}
+
+.page-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #333;
+  align-self: center;
+}
+
+/* ─────────────────────────────
+   A5 = 148 × 210 mm → 559 × 794px
+───────────────────────────── */
+.sticker {
+  width: 559px;
+  height: 794px;
+  background: var(--white);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 16px 64px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+/* ── Üst kırmızı şerit ── */
+.top-stripe {
+  background: var(--red);
+  padding: 28px 36px 24px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.top-stripe::after {
+  content: '';
+  position: absolute;
+  bottom: -24px; left: 0; right: 0;
+  height: 24px;
+  background: var(--red);
+  clip-path: polygon(0 0, 100% 0, 100% 0%, 0 100%);
+  z-index: 1;
+}
+
+.badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.badge-satilik {
+  background: var(--white);
+  color: var(--red);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 0.18em;
+  padding: 5px 18px 4px;
+  border-radius: 2px;
+}
+
+.ilan-no {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase;
+}
+
+.prop-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 64px;
+  line-height: 0.87;
+  color: var(--white);
+  letter-spacing: 0.01em;
+}
+
+.prop-sub {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+/* ── Fiyat bloğu ── */
+.price-block {
+  background: var(--black);
+  padding: 22px 36px 20px;
+  margin-top: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.price-lbl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 2px;
+}
+
+.price-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 58px;
+  color: var(--gold);
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.price-val .cur {
+  font-size: 28px;
+  opacity: 0.75;
+  margin-right: 3px;
+}
+
+.price-tag {
+  background: var(--red);
+  color: white;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border-radius: 2px;
+  align-self: center;
+  white-space: nowrap;
+}
+
+/* ── Özellikler ── */
+.specs-section {
+  flex-shrink: 0;
+  background: var(--offwhite);
+  border-top: 3px solid var(--red);
+  padding: 20px 36px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 24px;
+}
+
+.spec-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.spec-icon {
+  width: 36px; height: 36px;
+  background: var(--red);
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.spec-texts .lbl {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gray);
+  font-weight: 600;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.spec-texts .val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--black);
+  line-height: 1;
+}
+.spec-texts .val small {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--gray);
+}
+
+/* ── Orta beyaz alan ── */
+.middle-fill {
+  flex: 1;
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 18px 36px;
+  gap: 16px;
+}
+
+.info-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+}
+.info-line:last-child { border-bottom: none; }
+
+.info-line .dot {
+  width: 6px; height: 6px;
+  background: var(--red);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.info-line .info-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--black);
+  letter-spacing: 0.02em;
+}
+.info-line .info-text span {
+  font-weight: 400;
+  color: var(--gray);
+  font-size: 14px;
+}
+
+/* ── Alt bilgi bandı ── */
+.bottom-band {
+  background: var(--red);
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.addr-row {
+  padding: 14px 36px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+.addr-row svg { flex-shrink: 0; opacity: 0.8; }
+.addr-row span {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  letter-spacing: 0.04em;
+}
+
+.phone-row {
+  padding: 14px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.phone-number {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 42px;
+  color: var(--white);
+  letter-spacing: 0.1em;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-tag {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  text-align: right;
+  line-height: 1.4;
+}
+
+/* ═══════════════════════════════════
+   AlhazenPDF Marka Şeridi (A5 Print)
+═══════════════════════════════════ */
+.az-brand {
+  background: linear-gradient(180deg, #07091C 0%, #0D1330 55%, #060A18 100%);
+  border-top: 1px solid rgba(201,168,76,0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 9px 16px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.az-brand::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%; transform: translateX(-50%);
+  width: 280px; height: 1px;
+  background: linear-gradient(90deg, transparent, #C9A84C 28%, #F0D060 50%, #C9A84C 72%, transparent);
+  opacity: 0.55;
+}
+
+.az-brand .az-glow-l {
+  position: absolute; pointer-events: none;
+  left: calc(50% - 140px); top: 50%; transform: translateY(-50%);
+  width: 100px; height: 44px;
+  background: radial-gradient(ellipse, rgba(201,168,76,0.13) 0%, transparent 70%);
+}
+
+.az-brand .az-glow-r {
+  position: absolute; pointer-events: none;
+  left: calc(50% + 40px); top: 50%; transform: translateY(-50%);
+  width: 100px; height: 44px;
+  background: radial-gradient(ellipse, rgba(58,110,245,0.1) 0%, transparent 70%);
+}
+
+.az-icon {
+  flex-shrink: 0; position: relative; z-index: 2;
+  filter: drop-shadow(0 0 6px rgba(201,168,76,0.38)) drop-shadow(0 0 10px rgba(58,110,245,0.2));
+}
+
+.az-sparkle-svg { flex-shrink: 0; position: relative; z-index: 2; }
+
+.az-texts {
+  display: flex; flex-direction: column; gap: 2px;
+  position: relative; z-index: 2;
+}
+
+.az-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 17px;
+  color: #fff; letter-spacing: 0.16em; line-height: 1;
+  display: flex; align-items: center; gap: 7px;
+}
+
+.az-pdf {
+  background: linear-gradient(135deg, #E04020 0%, #B02800 100%);
+  color: #fff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px; font-weight: 800;
+  letter-spacing: 0.1em; padding: 2px 7px 1px;
+  border-radius: 3px; display: inline-block; line-height: 1.5;
+  box-shadow: 0 2px 8px rgba(200,40,0,0.35);
+}
+
+.az-tagline {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 8.5px; font-weight: 400;
+  color: rgba(255,255,255,0.36);
+  letter-spacing: 0.14em; text-transform: uppercase;
+}
+
+/* ── Print ── */
+@media print {
+  body { background: none; padding: 0; }
+  .page-label { display: none; }
+  .sticker { width: 148mm; height: 210mm; box-shadow: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="page-label">A5 Cam Sticker – 148 × 210 mm</div>
+
+<div class="sticker">
+
+  <!-- BAŞLIK -->
+  <div class="top-stripe">
+    <div class="badge-row">
+      <span class="badge-satilik">SATILIK</span>
+      <span class="ilan-no">Asay Anaokulu</span>
+    </div>
+    <div class="prop-title">ASAY<br>ANAOKULU</div>
+    <div class="prop-sub">Ticari Gayrimenkul · Eğitim Binası</div>
+  </div>
+
+  <!-- FİYAT -->
+  <div class="price-block">
+    <div>
+      <div class="price-lbl">Satış Fiyatı</div>
+      <div class="price-val"><span class="cur">₺</span>22.500.000</div>
+    </div>
+    <div class="price-tag">Fiyat<br>Konuşulur</div>
+  </div>
+
+  <!-- ÖZELLİKLER -->
+  <div class="specs-section">
+    <div class="spec-row">
+      <div class="spec-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </div>
+      <div class="spec-texts">
+        <div class="lbl">Oda</div>
+        <div class="val">4<small>+1</small></div>
+      </div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="1"/>
+          <path d="M3 9h18M9 3v18"/>
+        </svg>
+      </div>
+      <div class="spec-texts">
+        <div class="lbl">Alan</div>
+        <div class="val">750<small> m²</small></div>
+      </div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <div class="spec-texts">
+        <div class="lbl">Bina Yaşı</div>
+        <div class="val">15<small> yıl</small></div>
+      </div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M12 2C6 2 2 7 2 12s4 10 10 10 10-4.5 10-10S18 2 12 2z"/>
+          <path d="M12 6v6l4 2"/>
+        </svg>
+      </div>
+      <div class="spec-texts">
+        <div class="lbl">Isıtma</div>
+        <div class="val" style="font-size:17px;font-weight:700">Merkezi</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORTA BİLGİ -->
+  <div class="middle-fill">
+    <div class="info-line">
+      <div class="dot"></div>
+      <div class="info-text">Kat: <span>1. Kat</span></div>
+    </div>
+    <div class="info-line">
+      <div class="dot"></div>
+      <div class="info-text">Kullanım: <span>Anaokulu / Ticari</span></div>
+    </div>
+    <div class="info-line">
+      <div class="dot"></div>
+      <div class="info-text">Tapu Durumu: <span>Müstakil</span></div>
+    </div>
+    <div class="info-line">
+      <div class="dot"></div>
+      <div class="info-text">Durum: <span>Hemen Teslim</span></div>
+    </div>
+  </div>
+
+  <!-- ALT BİLGİ -->
+  <div class="bottom-band">
+    <div class="addr-row">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+        <circle cx="12" cy="10" r="3"/>
+      </svg>
+      <span>71 Evler Mah. Duruhan Sokak No 104</span>
+    </div>
+    <div class="phone-row">
+      <div class="phone-number">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013 11 19.79 19.79 0 01.1 2.38 2 2 0 012.08.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.18 7.9a16 16 0 006.29 6.29l1.29-1.29a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+        </svg>
+        542 449 96 25
+      </div>
+      <div class="brand-tag">Asay<br>Anaokulu</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════
+       AlhazenPDF Marka Şeridi
+  ═══════════════════════════════════ -->
+  <div class="az-brand">
+    <div class="az-glow-l"></div>
+    <div class="az-glow-r"></div>
+
+    <svg class="az-sparkle-svg" width="12" height="12" viewBox="0 0 12 12" fill="none" opacity="0.6">
+      <line x1="6" y1="0" x2="6" y2="12" stroke="#C9A84C" stroke-width="1"/>
+      <line x1="0" y1="6" x2="12" y2="6" stroke="#C9A84C" stroke-width="1"/>
+      <line x1="1.5" y1="1.5" x2="10.5" y2="10.5" stroke="#C9A84C" stroke-width="0.5" opacity="0.5"/>
+      <line x1="10.5" y1="1.5" x2="1.5" y2="10.5" stroke="#C9A84C" stroke-width="0.5" opacity="0.5"/>
+    </svg>
+
+    <svg class="az-icon" width="38" height="38" viewBox="0 0 48 48" fill="none">
+      <polygon points="24,2 43.5,13 43.5,35 24,46 4.5,35 4.5,13"
+        stroke="#C9A84C" stroke-width="1.5" fill="none" opacity="0.88"/>
+      <polygon points="24,7.5 38,16 38,32 24,40.5 10,32 10,16"
+        stroke="#4F8EF7" stroke-width="2" fill="rgba(58,110,245,0.07)"/>
+      <text x="24" y="30.5" text-anchor="middle"
+        font-family="Arial Black,Impact,sans-serif" font-weight="900" font-size="17"
+        fill="rgba(255,255,255,0.93)">A</text>
+      <line x1="15" y1="33.5" x2="33" y2="33.5"
+        stroke="#F0D060" stroke-width="1.5" stroke-linecap="round" opacity="0.75"/>
+      <circle cx="24" cy="3.8" r="2" fill="#F0D060" opacity="0.88"/>
+    </svg>
+
+    <div class="az-texts">
+      <div class="az-name">ALHAZEN <span class="az-pdf">PDF</span></div>
+      <div class="az-tagline">Bu ilan AlhazenPDF ile hazırlandı</div>
+    </div>
+
+    <svg class="az-sparkle-svg" width="12" height="12" viewBox="0 0 12 12" fill="none" opacity="0.5">
+      <line x1="6" y1="0" x2="6" y2="12" stroke="#4F8EF7" stroke-width="1"/>
+      <line x1="0" y1="6" x2="12" y2="6" stroke="#4F8EF7" stroke-width="1"/>
+      <line x1="1.5" y1="1.5" x2="10.5" y2="10.5" stroke="#4F8EF7" stroke-width="0.5" opacity="0.5"/>
+      <line x1="10.5" y1="1.5" x2="1.5" y2="10.5" stroke="#4F8EF7" stroke-width="0.5" opacity="0.5"/>
+    </svg>
+  </div>
+
+</div><!-- /sticker -->
+
+</body>
+</html>
