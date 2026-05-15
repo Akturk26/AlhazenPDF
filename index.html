@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AlhazenPDF – Profesyonel İlan Görselleri</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #C9A84C;
+      --gold-light: #E8C96A;
+      --gold-dim: #8a6e30;
+      --ink: #0D0D0D;
+      --ink-mid: #1a1a1a;
+      --ink-soft: #2a2a2a;
+      --cream: #F5F0E8;
+      --cream-dim: #cdc8be;
+      --white: #ffffff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--ink);
+      color: var(--cream);
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 2rem;
+      background: rgba(13,13,13,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(201,168,76,0.15);
+    }
+
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.04em;
+    }
+
+    .nav-logo span { color: var(--cream); }
+
+    .nav-cta {
+      background: var(--gold);
+      color: var(--ink);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.55rem 1.2rem;
+      border-radius: 2px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--gold-light); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 7rem 1.5rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 60%, rgba(201,168,76,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 20% 20%, rgba(201,168,76,0.04) 0%, transparent 60%);
+    }
+
+    .hero-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s forwards;
+    }
+
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.8rem, 8vw, 5.5rem);
+      font-weight: 600;
+      line-height: 1.08;
+      color: var(--cream);
+      max-width: 780px;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.4s forwards;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .hero-sub {
+      margin-top: 1.8rem;
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--cream-dim);
+      max-width: 500px;
+      line-height: 1.7;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.6s forwards;
+    }
+
+    .hero-actions {
+      margin-top: 2.8rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.8s forwards;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: var(--ink);
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      padding: 0.9rem 2rem;
+      border-radius: 2px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+    .btn-secondary {
+      border: 1px solid rgba(201,168,76,0.35);
+      color: var(--cream-dim);
+      font-size: 0.85rem;
+      padding: 0.9rem 2rem;
+      border-radius: 2px;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--gold); color: var(--cream); }
+
+    /* ── DIVIDER ── */
+    .divider {
+      width: 60px;
+      height: 1px;
+      background: var(--gold);
+      margin: 0 auto 3rem;
+      opacity: 0.5;
+    }
+
+    /* ── SECTION BASE ── */
+    section { padding: 6rem 1.5rem; }
+
+    .section-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 600;
+      text-align: center;
+      color: var(--cream);
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+
+    .section-sub {
+      text-align: center;
+      color: var(--cream-dim);
+      font-size: 0.95rem;
+      font-weight: 300;
+      max-width: 480px;
+      margin: 0 auto 4rem;
+      line-height: 1.7;
+    }
+
+    /* ── FEATURES ── */
+    .features { background: var(--ink-mid); }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5px;
+      max-width: 1000px;
+      margin: 0 auto;
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.1);
+    }
+
+    .feature-card {
+      background: var(--ink-mid);
+      padding: 2.5rem 2rem;
+      transition: background 0.25s;
+    }
+    .feature-card:hover { background: var(--ink-soft); }
+
+    .feature-icon {
+      font-size: 1.6rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .feature-card h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--cream);
+      margin-bottom: 0.6rem;
+    }
+
+    .feature-card p {
+      font-size: 0.88rem;
+      color: var(--cream-dim);
+      line-height: 1.65;
+      font-weight: 300;
+    }
+
+    /* ── WHO ── */
+    .who-grid {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .who-pill {
+      border: 1px solid rgba(201,168,76,0.3);
+      color: var(--cream-dim);
+      font-size: 0.85rem;
+      padding: 0.6rem 1.4rem;
+      border-radius: 100px;
+      transition: all 0.2s;
+    }
+    .who-pill:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ── PRICING ── */
+    .pricing { background: var(--ink-mid); }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .pricing-card {
+      border: 1px solid rgba(201,168,76,0.15);
+      padding: 2.5rem 2rem;
+      border-radius: 4px;
+      position: relative;
+      background: var(--ink);
+    }
+
+    .pricing-card.featured {
+      border-color: var(--gold);
+      background: linear-gradient(135deg, rgba(201,168,76,0.07) 0%, transparent 60%);
+    }
+
+    .badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gold);
+      color: var(--ink);
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.3rem 1rem;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+
+    .plan-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--cream);
+      margin-bottom: 0.3rem;
+    }
+
+    .plan-desc {
+      font-size: 0.82rem;
+      color: var(--cream-dim);
+      margin-bottom: 1.8rem;
+      font-weight: 300;
+    }
+
+    .plan-price {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.8rem;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+
+    .plan-price span {
+      font-size: 1rem;
+      color: var(--cream-dim);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+    }
+
+    .plan-features {
+      list-style: none;
+      margin: 1.8rem 0 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .plan-features li {
+      font-size: 0.85rem;
+      color: var(--cream-dim);
+      font-weight: 300;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.7rem;
+      line-height: 1.4;
+    }
+
+    .plan-features li::before {
+      content: '—';
+      color: var(--gold);
+      flex-shrink: 0;
+      font-size: 0.7rem;
+      margin-top: 0.1rem;
+    }
+
+    .plan-features li.muted { color: rgba(205,200,190,0.4); }
+    .plan-features li.muted::before { color: rgba(201,168,76,0.2); }
+
+    .plan-btn {
+      display: block;
+      text-align: center;
+      padding: 0.85rem;
+      border-radius: 2px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .plan-btn.outline {
+      border: 1px solid rgba(201,168,76,0.3);
+      color: var(--cream-dim);
+    }
+    .plan-btn.outline:hover { border-color: var(--gold); color: var(--gold); }
+
+    .plan-btn.solid {
+      background: var(--gold);
+      color: var(--ink);
+    }
+    .plan-btn.solid:hover { background: var(--gold-light); }
+
+    /* ── CONTACT ── */
+    .contact-inner {
+      max-width: 560px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .whatsapp-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      background: #25D366;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 1rem 2.2rem;
+      border-radius: 2px;
+      text-decoration: none;
+      margin-top: 2rem;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .whatsapp-btn:hover { background: #1ebe5a; transform: translateY(-1px); }
+
+    .whatsapp-btn svg { width: 20px; height: 20px; fill: #fff; flex-shrink: 0; }
+
+    .contact-note {
+      margin-top: 1.2rem;
+      font-size: 0.8rem;
+      color: var(--cream-dim);
+      opacity: 0.6;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid rgba(201,168,76,0.1);
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 0.78rem;
+      color: var(--cream-dim);
+      opacity: 0.4;
+      font-weight: 300;
+    }
+
+    .footer-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      nav { padding: 1rem 1.2rem; }
+      section { padding: 4rem 1.2rem; }
+      .hero { padding: 6rem 1.2rem 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Alhazen<span>PDF</span></div>
+  <a href="#iletisim" class="nav-cta">Hemen Başla</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <p class="hero-eyebrow">Profesyonel İlan Görselleri</p>
+  <h1>Araç & Gayrimenkul<br>İlanlarınız <em>Artık Farklı</em><br>Görünecek</h1>
+  <p class="hero-sub">Dakikalar içinde PDF ve paylaşıma hazır görsel oluşturun. Müşterilerinizi etkileyin, satışlarınızı hızlandırın.</p>
+  <div class="hero-actions">
+    <a href="#iletisim" class="btn-primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      Ücretsiz Dene
+    </a>
+    <a href="#ozellikler" class="btn-secondary">Nasıl Çalışır?</a>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="ozellikler">
+  <p class="section-label">Özellikler</p>
+  <h2 class="section-title">Her Detay<br><em style="font-style:italic; color:var(--gold)">Tasarlandı</em></h2>
+  <p class="section-sub">Galericiler ve emlakçılar için özel olarak geliştirilen araçlar.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🎨</div>
+      <h3>Hazır Temalar</h3>
+      <p>Koyu Altın, Beyaz Gümüş, Vintage Bej ve daha fazlası. Her marka kimliğine uygun profesyonel şablonlar.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <h3>Anında Oluşturma</h3>
+      <p>Bilgileri girin, saniyeler içinde PDF indirin. Tasarım bilgisine gerek yok.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📱</div>
+      <h3>WhatsApp'a Hazır</h3>
+      <p>Oluşturulan görseller doğrudan WhatsApp ve sosyal medya paylaşımı için optimize edilmiştir.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏠</div>
+      <h3>Araç & Gayrimenkul</h3>
+      <p>İkinci el araç galerileri ve emlak ofisleri için ayrı ayrı optimize edilmiş ilan şablonları.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🖨️</div>
+      <h3>Baskıya Hazır PDF</h3>
+      <p>Yüksek çözünürlüklü, profesyonel kalitede PDF. Hem dijital hem baskı için mükemmel.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔒</div>
+      <h3>Marka Koruması</h3>
+      <p>Logo ve iletişim bilgilerinizi her şablona ekleyin. İlanlarınız her zaman sizi temsil etsin.</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHO -->
+<section>
+  <p class="section-label">Kimler Kullanır?</p>
+  <h2 class="section-title">Sizin İçin<br><em style="font-style:italic; color:var(--gold)">Tasarlandı</em></h2>
+  <p class="section-sub">Türkiye'deki galericiler ve emlakçılar artık daha profesyonel görünüyor.</p>
+  <div class="who-grid">
+    <span class="who-pill">🚗 İkinci El Araç Galerileri</span>
+    <span class="who-pill">🏢 Emlak Ofisleri</span>
+    <span class="who-pill">🏘️ Bireysel Emlakçılar</span>
+    <span class="who-pill">🔑 Müstakil Galeriler</span>
+    <span class="who-pill">📊 Filo Yöneticileri</span>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="fiyatlar">
+  <p class="section-label">Fiyatlandırma</p>
+  <h2 class="section-title">Sade & <em style="font-style:italic; color:var(--gold)">Şeffaf</em></h2>
+  <p class="section-sub">Gizli ücret yok. İstediğiniz zaman iptal edin.</p>
+
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="plan-name">Ücretsiz</div>
+      <div class="plan-desc">Denemek isteyenler için</div>
+      <div class="plan-price">₺0 <span>/ ay</span></div>
+      <ul class="plan-features">
+        <li>Aylık 5 ilan görseli</li>
+        <li>2 temel tema</li>
+        <li>PDF indirme</li>
+        <li class="muted">Filigransız görsel</li>
+        <li class="muted">Logo ekleme</li>
+        <li class="muted">Öncelikli destek</li>
+      </ul>
+      <a href="#iletisim" class="plan-btn outline">Ücretsiz Başla</a>
+    </div>
+
+    <div class="pricing-card featured">
+      <div class="badge">En Popüler</div>
+      <div class="plan-name">Premium</div>
+      <div class="plan-desc">Profesyoneller için</div>
+      <div class="plan-price">₺49 <span>/ ay</span></div>
+      <ul class="plan-features">
+        <li>Sınırsız ilan görseli</li>
+        <li>Tüm premium temalar</li>
+        <li>PDF indirme</li>
+        <li>Filigransız görsel</li>
+        <li>Logo & marka ekleme</li>
+        <li>WhatsApp desteği</li>
+      </ul>
+      <a href="#iletisim" class="plan-btn solid">Premium'a Geç</a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="iletisim">
+  <div class="contact-inner">
+    <p class="section-label">İletişim</p>
+    <h2 class="section-title">Hemen <em style="font-style:italic; color:var(--gold)">Başlayın</em></h2>
+    <p class="section-sub">Sorularınız için veya erken erişim için WhatsApp'tan ulaşın. Kısa süre içinde dönüş yapıyoruz.</p>
+    <a href="https://wa.me/905XXXXXXXXX?text=Merhaba%2C%20AlhazenPDF%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." class="whatsapp-btn" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      WhatsApp ile İletişime Geç
+    </a>
+    <p class="contact-note">Telefon numarasını güncellemek için WhatsApp linkindeki numarayı değiştirin.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">AlhazenPDF</div>
+  <p>© 2025 Alhazen Altekno · Tüm hakları saklıdır · alhazenpdf.com</p>
+</footer>
+
+</body>
+</html>
