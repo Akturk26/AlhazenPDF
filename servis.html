@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Servis Geçmişi — AlhazenPDF</title>
+<style>
+:root{
+  --gold:#C9A84C;--gold-lo:rgba(201,168,76,0.12);--gold-mid:rgba(201,168,76,0.28);
+  --bg:#060810;--bg-card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);
+  --border-hi:rgba(201,168,76,0.25);--txt:#EEF0F6;--txt-dim:rgba(238,240,246,0.55);--green:#4CAF50;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font-family:system-ui,sans-serif;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;padding:0 16px 48px;-webkit-font-smoothing:antialiased;}
+.nav{width:100%;max-width:600px;display:flex;align-items:center;justify-content:space-between;
+  padding:20px 0;margin-bottom:32px;border-bottom:1px solid var(--border);}
+.logo{font-size:20px;font-weight:700}.logo em{color:var(--gold);font-style:normal}
+.card{width:100%;max-width:600px;background:var(--bg-card);border:1px solid var(--border);
+  border-radius:12px;padding:28px;margin-bottom:16px;}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.plaka{font-family:monospace;font-size:20px;font-weight:500;letter-spacing:2px;color:var(--gold);
+  background:rgba(255,255,255,.06);border:1px solid var(--border-hi);border-radius:6px;padding:6px 14px;}
+.tarih{font-size:12px;color:var(--txt-dim)}
+.badge-new{display:inline-block;padding:3px 10px;background:rgba(76,175,80,.15);color:var(--green);
+  border:1px solid rgba(76,175,80,.3);border-radius:100px;font-size:10px;font-weight:600;letter-spacing:1px;margin-left:8px;}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.info-label{font-size:10px;letter-spacing:2px;color:var(--txt-dim);text-transform:uppercase;margin-bottom:4px}
+.info-val{font-size:15px;font-weight:500}
+.sec-title{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:8px;}
+.text-block{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;
+  padding:14px;font-size:14px;color:var(--txt-dim);line-height:1.6;white-space:pre-wrap;margin-bottom:16px;}
+.km{display:inline-flex;align-items:center;gap:8px;background:var(--gold-lo);border:1px solid var(--gold-mid);
+  border-radius:100px;padding:6px 16px;font-family:monospace;font-size:14px;color:var(--gold);margin-bottom:20px;}
+.footer-row{margin-top:8px;padding-top:16px;border-top:1px solid var(--border);font-size:11px;color:var(--txt-dim);letter-spacing:1px;}
+.empty{width:100%;max-width:600px;text-align:center;padding:80px 24px;}
+.empty-icon{font-size:64px;margin-bottom:20px;display:block}
+.empty-title{font-size:22px;font-weight:600;margin-bottom:8px}
+.empty-desc{font-size:14px;color:var(--txt-dim);line-height:1.6}
+.spinner{width:40px;height:40px;border-radius:50%;border:2px solid var(--border);
+  border-top-color:var(--gold);animation:spin 1s linear infinite;margin:0 auto 20px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.dl-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;
+  background:linear-gradient(135deg,var(--gold),#a8853a);color:#060810;font-size:12px;font-weight:700;text-decoration:none;}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="logo">Alhazen<em>PDF</em></div>
+  <a href="https://play.google.com/store/apps/details?id=com.alhazenpdf.code" class="dl-btn">Uygulamayı İndir</a>
+</nav>
+<div id="content" style="width:100%;max-width:600px;text-align:center;padding:80px 24px">
+  <div class="spinner"></div>
+  <p style="color:var(--txt-dim);font-size:14px">Servis kayıtları yükleniyor...</p>
+</div>
+<script>
+var SB_URL = 'https://cfebfglgrlbzdmhrwmra.supabase.co';
+var SB_KEY = 'sb_publishable_XyzQZvg5jFBGsSPuj_3U_A_MyGRo2V3';
+function getPlaka() {
+  var parts = window.location.pathname.split('/');
+  var last = parts[parts.length - 1];
+  if (last && last !== 'servis.html' && last !== 'servis' && last !== '') return decodeURIComponent(last).toUpperCase();
+  return (new URLSearchParams(window.location.search).get('plaka') || '').toUpperCase();
+}
+function fmt(iso) { return new Date(iso).toLocaleDateString('tr-TR',{day:'2-digit',month:'long',year:'numeric'}); }
+function esc(s) { return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
+async function load() {
+  var plaka = getPlaka(), el = document.getElementById('content');
+  if (!plaka) {
+    el.innerHTML = '<div class="empty"><span class="empty-icon">🔧</span><div class="empty-title">Plaka bulunamadı</div><div class="empty-desc">Bu QR kod geçersiz görünüyor.</div></div>';
+    return;
+  }
+  try {
+    var res = await fetch(SB_URL+'/rest/v1/servis_kayitlari?plaka=eq.'+encodeURIComponent(plaka)+'&order=created_at.desc&limit=10',
+      {headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    var data = await res.json();
+    if (!data.length) {
+      el.innerHTML = '<div class="empty"><span class="empty-icon">🔍</span><div class="empty-title">'+plaka+' için kayıt yok</div><div class="empty-desc">Bu araç için henüz servis kaydı oluşturulmamış.</div></div>';
+      return;
+    }
+    var html = '';
+    data.forEach(function(k, i) {
+      html += '<div class="card"><div class="card-header"><div><span class="plaka">'+esc(k.plaka)+'</span>'+(i===0?'<span class="badge-new">SON BAKIM</span>':'')+'</div><div class="tarih">'+fmt(k.tarih)+'</div></div>';
+      if (k.km) html += '<div class="km">'+parseInt(k.km).toLocaleString('tr-TR')+' KM</div>';
+      html += '<div class="info-grid">';
+      if (k.musteri_adi) html += '<div><div class="info-label">Müşteri</div><div class="info-val">'+esc(k.musteri_adi)+'</div></div>';
+      if (k.marka||k.model) html += '<div><div class="info-label">Araç</div><div class="info-val">'+esc([k.marka,k.model].filter(Boolean).join(' '))+'</div></div>';
+      if (k.yil) html += '<div><div class="info-label">Yıl</div><div class="info-val">'+esc(k.yil)+'</div></div>';
+      if (k.telefon) html += '<div><div class="info-label">Telefon</div><div class="info-val">'+esc(k.telefon)+'</div></div>';
+      html += '</div>';
+      if (k.yapilan_islemler) html += '<div class="sec-title">Yapılan İşlemler</div><div class="text-block">'+esc(k.yapilan_islemler)+'</div>';
+      if (k.degistirilen_parcalar) html += '<div class="sec-title">Değiştirilen Parçalar</div><div class="text-block">'+esc(k.degistirilen_parcalar)+'</div>';
+      if (k.notlar) html += '<div class="sec-title">Notlar</div><div class="text-block">'+esc(k.notlar)+'</div>';
+      html += '<div class="footer-row">ALHAZENPDF · TEKNİK SERVİS</div></div>';
+    });
+    el.className = ''; el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<div class="empty"><span class="empty-icon">⚠️</span><div class="empty-title">Bağlantı hatası</div><div class="empty-desc">Lütfen internet bağlantınızı kontrol edin.</div></div>';
+  }
+}
+load();
+</script>
+</body>
+</html>
