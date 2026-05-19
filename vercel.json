@@ -1,4 +1,5 @@
 {
+  "cleanUrls": true,
   "rewrites": [
     { "source": "/servis/:plaka", "destination": "/servis.html" }
   ]
