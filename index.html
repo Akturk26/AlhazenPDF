@@ -1,1425 +1,713 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AlhazenPDF — Profesyonel PDF Üreticisi</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-/* ═══════════════════════════════════════════
-   TOKENS
-═══════════════════════════════════════════ */
-:root {
-  --gold:       #C9A84C;
-  --gold-hi:    #E8C96A;
-  --gold-lo:    rgba(201,168,76,0.12);
-  --gold-mid:   rgba(201,168,76,0.28);
-  --cyan:       #38BDF8;
-  --cyan-lo:    rgba(56,189,248,0.1);
-  --bg:         #060810;
-  --bg-card:    rgba(255,255,255,0.032);
-  --border:     rgba(255,255,255,0.07);
-  --border-hi:  rgba(201,168,76,0.22);
-  --txt:        #EEF0F6;
-  --txt-dim:    rgba(238,240,246,0.42);
-  --txt-faint:  rgba(238,240,246,0.18);
-  --r:          8px;
-}
-
-/* ═══════════════════════════════════════════
-   RESET & BASE
-═══════════════════════════════════════════ */
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth;font-size:16px}
-body{
-  background:var(--bg);
-  color:var(--txt);
-  font-family:'Outfit',sans-serif;
-  overflow-x:hidden;
-  -webkit-font-smoothing:antialiased;
-}
-a{text-decoration:none;color:inherit}
-img{display:block;max-width:100%}
-
-/* ═══════════════════════════════════════════
-   ANIMATED CANVAS BG
-═══════════════════════════════════════════ */
-#canvas-bg{
-  position:fixed;
-  inset:0;
-  z-index:0;
-  pointer-events:none;
-  opacity:.55;
-}
-
-/* ═══════════════════════════════════════════
-   NOISE GRAIN
-═══════════════════════════════════════════ */
-body::after{
-  content:'';
-  position:fixed;
-  inset:0;
-  z-index:999;
-  pointer-events:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
-  opacity:.6;
-}
-
-/* ═══════════════════════════════════════════
-   CUSTOM CURSOR
-═══════════════════════════════════════════ */
-body{cursor:none}
-#cur{
-  position:fixed;width:10px;height:10px;
-  background:var(--gold);border-radius:50%;
-  pointer-events:none;z-index:9999;
-  transform:translate(-50%,-50%);
-  transition:width .2s,height .2s,background .2s;
-  mix-blend-mode:screen;
-}
-#cur-ring{
-  position:fixed;width:36px;height:36px;
-  border:1px solid var(--gold-mid);border-radius:50%;
-  pointer-events:none;z-index:9998;
-  transform:translate(-50%,-50%);
-  transition:transform .13s ease-out;
-}
-
-/* ═══════════════════════════════════════════
-   NAV
-═══════════════════════════════════════════ */
-nav{
-  position:fixed;top:0;left:0;right:0;
-  z-index:500;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 64px;height:68px;
-  background:rgba(6,8,16,.82);
-  backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border);
-}
-.nav-logo{display:flex;align-items:center;gap:11px}
-.nav-logo svg{width:30px;height:30px}
-.nav-logo-txt{
-  font-family:'Cormorant Garamond',serif;
-  font-size:24px;font-weight:700;
-  letter-spacing:-.3px;
-}
-.nav-logo-txt em{color:var(--gold);font-style:normal}
-.nav-links{display:flex;gap:32px;list-style:none}
-.nav-links a{
-  font-size:13px;font-weight:500;
-  letter-spacing:.5px;color:var(--txt-dim);
-  transition:color .2s;
-  position:relative;
-}
-.nav-links a::after{
-  content:'';position:absolute;bottom:-4px;left:0;right:0;
-  height:1px;background:var(--gold);
-  transform:scaleX(0);transition:transform .25s;
-}
-.nav-links a:hover{color:var(--txt)}
-.nav-links a:hover::after{transform:scaleX(1)}
-.nav-right{display:flex;gap:10px;align-items:center}
-.btn{
-  font-family:'Outfit',sans-serif;
-  font-size:13px;font-weight:600;
-  letter-spacing:.8px;
-  padding:9px 22px;border-radius:4px;
-  border:none;transition:all .22s;
-  display:inline-flex;align-items:center;gap:7px;
-}
-.btn-outline{
-  background:transparent;color:var(--txt-dim);
-  border:1px solid var(--border);
-}
-.btn-outline:hover{color:var(--txt);border-color:var(--border-hi)}
-.btn-gold{
-  background:linear-gradient(135deg,var(--gold),#a8853a);
-  color:#060810;
-  box-shadow:0 4px 24px rgba(201,168,76,.2);
-}
-.btn-gold:hover{
-  box-shadow:0 6px 32px rgba(201,168,76,.35);
-  transform:translateY(-1px);
-}
-
-/* ═══════════════════════════════════════════
-   HERO
-═══════════════════════════════════════════ */
-.hero{
-  min-height:100vh;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  align-items:center;
-  gap:0;
-  padding:100px 64px 80px;
-  position:relative;
-  overflow:hidden;
-}
-
-/* hero decorative lines */
-.hero::before{
-  content:'';
-  position:absolute;
-  top:0;right:42%;bottom:0;
-  width:1px;
-  background:linear-gradient(180deg,transparent,var(--border-hi) 30%,var(--border-hi) 70%,transparent);
-  z-index:1;
-}
-
-.hero-left{position:relative;z-index:2;padding-right:60px}
-
-.hero-tag{
-  display:inline-flex;align-items:center;gap:10px;
-  border:1px solid var(--border-hi);
-  border-radius:100px;
-  padding:6px 16px 6px 10px;
-  margin-bottom:32px;
-  background:var(--gold-lo);
-}
-.hero-tag-dot{
-  width:7px;height:7px;border-radius:50%;
-  background:var(--gold);
-  animation:pulse 2s ease infinite;
-}
-@keyframes pulse{
-  0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.5)}
-  50%{box-shadow:0 0 0 6px rgba(201,168,76,0)}
-}
-.hero-tag-txt{
-  font-size:11px;letter-spacing:2px;
-  color:var(--gold);font-weight:600;
-  text-transform:uppercase;
-}
-
-.hero-h1{
-  font-family:'Cormorant Garamond',serif;
-  font-size:clamp(52px,5.5vw,80px);
-  font-weight:700;
-  line-height:.95;
-  letter-spacing:-1.5px;
-  margin-bottom:24px;
-}
-.hero-h1 em{
-  color:var(--gold);
-  font-style:italic;
-  display:block;
-}
-.hero-h1 .cyan-line{
-  color:var(--cyan);
-  font-style:normal;
-  font-weight:300;
-  display:block;
-  font-size:.85em;
-  letter-spacing:0;
-}
-
-.hero-sub{
-  font-size:16px;font-weight:300;
-  color:var(--txt-dim);
-  line-height:1.7;
-  max-width:420px;
-  margin-bottom:40px;
-}
-
-.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:56px}
-.btn-lg{padding:14px 32px;font-size:14px;letter-spacing:1px}
-
-.hero-metrics{
-  display:flex;gap:40px;
-  padding-top:32px;
-  border-top:1px solid var(--border);
-}
-.metric{}
-.metric-val{
-  font-family:'Cormorant Garamond',serif;
-  font-size:38px;font-weight:700;
-  color:var(--txt);
-  line-height:1;
-}
-.metric-val span{color:var(--gold)}
-.metric-lbl{
-  font-size:11px;letter-spacing:2px;
-  color:var(--txt-faint);
-  text-transform:uppercase;
-  margin-top:4px;
-}
-
-/* ── HERO RIGHT ── */
-.hero-right{
-  position:relative;z-index:2;
-  display:flex;flex-direction:column;
-  align-items:center;
-  gap:16px;
-  padding-left:40px;
-}
-
-/* Stacked PDF cards */
-.pdf-stack{
-  position:relative;
-  width:320px;
-  height:420px;
-}
-.pdf-card{
-  position:absolute;
-  width:300px;
-  border-radius:10px;
-  overflow:hidden;
-  box-shadow:0 40px 80px rgba(0,0,0,.65);
-  transition:transform .5s cubic-bezier(.23,1,.32,1);
-}
-.pdf-card-1{
-  top:0;left:0;
-  z-index:3;
-  animation:cardFloat 6s ease-in-out infinite;
-}
-.pdf-card-2{
-  top:20px;left:16px;
-  z-index:2;
-  animation:cardFloat 6s 1s ease-in-out infinite;
-  opacity:.7;
-  transform:rotate(3deg) scale(.95);
-}
-.pdf-card-3{
-  top:36px;left:28px;
-  z-index:1;
-  animation:cardFloat 6s 2s ease-in-out infinite;
-  opacity:.4;
-  transform:rotate(5deg) scale(.9);
-}
-@keyframes cardFloat{
-  0%,100%{transform:translateY(0) rotate(0deg)}
-  50%{transform:translateY(-12px) rotate(-.5deg)}
-}
-
-.pcard-header{
-  padding:12px 16px;
-  display:flex;justify-content:space-between;align-items:center;
-}
-.pcard-gal{font-size:11px;font-weight:600;letter-spacing:1px}
-.pcard-badge{
-  font-size:8px;font-weight:700;letter-spacing:1px;
-  padding:3px 8px;border-radius:2px;
-}
-.pcard-title-area{padding:14px 16px 10px}
-.pcard-brand{
-  font-family:'Cormorant Garamond',serif;
-  font-size:36px;font-weight:700;
-  line-height:1;
-}
-.pcard-model{
-  font-family:'DM Mono',monospace;
-  font-size:11px;letter-spacing:4px;
-  margin-top:2px;
-}
-.pcard-img{
-  width:100%;height:120px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:54px;
-  position:relative;
-}
-.pcard-img::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.4) 100%);
-}
-.pcard-specs{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  padding:10px 16px;gap:8px;
-}
-.pcard-spec-label{font-size:7px;letter-spacing:2px;text-transform:uppercase;opacity:.5}
-.pcard-spec-val{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;margin-top:2px}
-.pcard-foot{
-  padding:10px 16px;
-  display:flex;justify-content:space-between;align-items:center;
-}
-.pcard-price{
-  font-family:'Cormorant Garamond',serif;
-  font-size:20px;font-weight:700;
-}
-.pcard-stamp{font-size:8px;letter-spacing:2px;opacity:.35}
-
-/* Mukarnas theme */
-.t-mukarnas .pcard-header{background:linear-gradient(135deg,#0f1a0f,#1e3020)}
-.t-mukarnas .pcard-gal{color:rgba(255,255,255,.7)}
-.t-mukarnas .pcard-badge{background:#4CAF50;color:#0a1a0a}
-.t-mukarnas .pcard-title-area{background:#e8e4d8}
-.t-mukarnas .pcard-brand{color:#1a1a1a}
-.t-mukarnas .pcard-model{color:#4CAF50}
-.t-mukarnas .pcard-img{background:linear-gradient(135deg,#c8c4b8,#b8b4a8)}
-.t-mukarnas .pcard-specs{background:#f0ece0;color:#1a1a1a}
-.t-mukarnas .pcard-foot{background:linear-gradient(135deg,#0f1a0f,#1e3020)}
-.t-mukarnas .pcard-price{color:#8BC34A}
-.t-mukarnas .pcard-stamp{color:rgba(255,255,255,.4)}
-
-/* Galaktik theme */
-.t-galaktik .pcard-header{background:linear-gradient(135deg,#03080f,#060d18)}
-.t-galaktik .pcard-gal{color:rgba(255,255,255,.7)}
-.t-galaktik .pcard-badge{background:var(--cyan);color:#030810}
-.t-galaktik .pcard-title-area{background:#0a1520}
-.t-galaktik .pcard-brand{color:white}
-.t-galaktik .pcard-model{color:var(--cyan)}
-.t-galaktik .pcard-img{background:linear-gradient(135deg,#0d1e30,#0a1525)}
-.t-galaktik .pcard-specs{background:#080f1a;color:var(--cyan)}
-.t-galaktik .pcard-spec-label{color:rgba(56,189,248,.4)}
-.t-galaktik .pcard-foot{background:linear-gradient(135deg,#03080f,#060d18)}
-.t-galaktik .pcard-price{color:var(--cyan)}
-.t-galaktik .pcard-stamp{color:rgba(56,189,248,.3)}
-
-/* Korsan theme */
-.t-korsan .pcard-header{background:linear-gradient(135deg,#0d1428,#101c38)}
-.t-korsan .pcard-gal{color:rgba(255,255,255,.7)}
-.t-korsan .pcard-badge{background:var(--gold);color:#060810}
-.t-korsan .pcard-title-area{background:#e0dcc8}
-.t-korsan .pcard-brand{color:#1a1a1a}
-.t-korsan .pcard-model{color:var(--gold)}
-.t-korsan .pcard-img{background:linear-gradient(135deg,#c4c0b0,#b4b0a0)}
-.t-korsan .pcard-specs{background:#eee8d8;color:#1a1a1a}
-.t-korsan .pcard-foot{background:linear-gradient(135deg,#0d1428,#101c38)}
-.t-korsan .pcard-price{color:var(--gold)}
-.t-korsan .pcard-stamp{color:rgba(255,255,255,.3)}
-
-/* floating badge */
-.floating-badge{
-  position:absolute;
-  right:-20px;top:60px;
-  background:rgba(6,8,16,.9);
-  border:1px solid var(--border-hi);
-  border-radius:8px;
-  padding:12px 16px;
-  z-index:10;
-  backdrop-filter:blur(12px);
-  animation:badgeFloat 5s 1s ease-in-out infinite;
-}
-@keyframes badgeFloat{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-8px)}
-}
-.fb-label{font-size:9px;letter-spacing:3px;color:var(--txt-faint);text-transform:uppercase;margin-bottom:4px}
-.fb-val{font-family:'DM Mono',monospace;font-size:22px;color:var(--gold);font-weight:500}
-.fb-sub{font-size:10px;color:var(--txt-faint);margin-top:2px}
-
-/* ═══════════════════════════════════════════
-   MARQUEE
-═══════════════════════════════════════════ */
-.marquee-wrap{
-  position:relative;z-index:2;
-  border-top:1px solid var(--border);
-  border-bottom:1px solid var(--border);
-  padding:14px 0;
-  overflow:hidden;
-  background:rgba(255,255,255,.016);
-}
-.marquee-inner{
-  display:flex;gap:48px;
-  white-space:nowrap;
-  animation:marquee 28s linear infinite;
-  width:max-content;
-}
-@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.marquee-item{
-  display:flex;align-items:center;gap:10px;
-  font-size:12px;letter-spacing:2px;
-  color:var(--txt-faint);text-transform:uppercase;
-  flex-shrink:0;
-}
-.marquee-dot{
-  width:4px;height:4px;border-radius:50%;
-  background:var(--gold);flex-shrink:0;
-}
-
-/* ═══════════════════════════════════════════
-   SECTION BASE
-═══════════════════════════════════════════ */
-.section{
-  position:relative;z-index:2;
-  padding:120px 64px;
-}
-.section-inner{max-width:1280px;margin:0 auto}
-
-.tag{
-  display:inline-flex;align-items:center;gap:8px;
-  font-size:10px;letter-spacing:3px;
-  color:var(--gold);text-transform:uppercase;
-  font-weight:600;margin-bottom:18px;
-}
-.tag::before{content:'';width:24px;height:1px;background:var(--gold)}
-
-.sh{
-  font-family:'Cormorant Garamond',serif;
-  font-size:clamp(38px,4vw,60px);
-  font-weight:700;
-  line-height:1.02;
-  letter-spacing:-1px;
-  margin-bottom:16px;
-}
-.sh em{color:var(--gold);font-style:italic}
-.sh .c{color:var(--cyan)}
-
-.sdesc{
-  font-size:17px;font-weight:300;
-  color:var(--txt-dim);
-  line-height:1.7;
-  max-width:520px;
-  margin-bottom:56px;
-}
-
-/* ═══════════════════════════════════════════
-   FEATURES BENTO
-═══════════════════════════════════════════ */
-.bento{
-  display:grid;
-  grid-template-columns:repeat(12,1fr);
-  grid-template-rows:auto;
-  gap:12px;
-}
-.bento-card{
-  background:var(--bg-card);
-  border:1px solid var(--border);
-  border-radius:var(--r);
-  padding:32px;
-  position:relative;
-  overflow:hidden;
-  transition:border-color .25s,background .25s,transform .25s;
-}
-.bento-card:hover{
-  border-color:var(--border-hi);
-  background:rgba(201,168,76,.04);
-  transform:translateY(-2px);
-}
-.bento-card::before{
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,var(--gold-mid),transparent);
-  opacity:0;transition:opacity .3s;
-}
-.bento-card:hover::before{opacity:1}
-
-/* bento grid positions */
-.bc-1{grid-column:span 5;grid-row:span 1}
-.bc-2{grid-column:span 4;grid-row:span 1}
-.bc-3{grid-column:span 3;grid-row:span 2}
-.bc-4{grid-column:span 3;grid-row:span 1}
-.bc-5{grid-column:span 6;grid-row:span 1}
-
-.bc-icon{font-size:32px;margin-bottom:20px;display:block}
-.bc-title{
-  font-family:'Cormorant Garamond',serif;
-  font-size:22px;font-weight:700;
-  margin-bottom:8px;
-}
-.bc-desc{font-size:14px;color:var(--txt-dim);line-height:1.65}
-.bc-tag{
-  display:inline-flex;margin-top:16px;
-  padding:4px 12px;border-radius:100px;
-  font-size:10px;letter-spacing:1.5px;
-  font-weight:600;
-}
-.bc-tag-gold{background:var(--gold-lo);color:var(--gold);border:1px solid var(--gold-mid)}
-.bc-tag-cyan{background:var(--cyan-lo);color:var(--cyan);border:1px solid rgba(56,189,248,.22)}
-
-/* large accent card */
-.bc-accent{
-  background:linear-gradient(135deg,rgba(201,168,76,.08),rgba(201,168,76,.03));
-  border-color:var(--border-hi);
-}
-.bc-accent-num{
-  font-family:'Cormorant Garamond',serif;
-  font-size:72px;font-weight:700;
-  color:var(--gold);opacity:.25;
-  position:absolute;bottom:20px;right:24px;
-  line-height:1;
-  pointer-events:none;
-}
-
-/* ═══════════════════════════════════════════
-   THEMES SECTION
-═══════════════════════════════════════════ */
-.themes-section{
-  background:rgba(255,255,255,.018);
-  border-top:1px solid var(--border);
-  border-bottom:1px solid var(--border);
-}
-.themes-layout{
-  display:grid;
-  grid-template-columns:380px 1fr;
-  gap:80px;
-  align-items:start;
-}
-.themes-sticky{position:sticky;top:100px}
-
-.theme-scroll-area{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-.theme-tile{
-  border-radius:10px;
-  overflow:hidden;
-  height:200px;
-  position:relative;
-  border:1px solid var(--border);
-  transition:transform .3s,box-shadow .3s;
-  cursor:pointer;
-}
-.theme-tile:hover{
-  transform:translateY(-6px) scale(1.01);
-  box-shadow:0 24px 48px rgba(0,0,0,.5);
-}
-.theme-tile:nth-child(1){height:240px}
-.theme-tile:nth-child(4){height:240px}
-
-.tt-bg{position:absolute;inset:0}
-.tt-content{
-  position:absolute;inset:0;
-  padding:20px;
-  display:flex;flex-direction:column;
-  justify-content:flex-end;
-  background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,.6) 100%);
-}
-.tt-emoji{font-size:24px;margin-bottom:6px}
-.tt-name{
-  font-family:'Cormorant Garamond',serif;
-  font-size:20px;font-weight:700;
-  margin-bottom:3px;
-}
-.tt-sub{font-size:11px;color:rgba(255,255,255,.45);letter-spacing:.5px}
-.tt-new{
-  position:absolute;top:14px;right:14px;
-  padding:3px 9px;border-radius:100px;
-  font-size:9px;font-weight:700;letter-spacing:2px;
-}
-
-/* tile themes */
-.th-muk .tt-bg{background:linear-gradient(160deg,#0f1a0f,#1e3020,#253d25)}
-.th-muk .tt-name{color:#8BC34A}
-.th-muk .tt-new{background:#4CAF50;color:#0a1a0a}
-.th-kor .tt-bg{background:linear-gradient(160deg,#0d1428,#101c38,#152040)}
-.th-kor .tt-name{color:var(--gold)}
-.th-kris .tt-bg{background:linear-gradient(160deg,#0d1a2a,#0f1f30,#102030)}
-.th-kris .tt-name{color:#80DEEA}
-.th-kris .tt-new{background:#00BCD4;color:#0a1a1f}
-.th-izn .tt-bg{background:linear-gradient(160deg,#1a1228,#201535,#180f2a)}
-.th-izn .tt-name{color:#CE93D8}
-.th-izn .tt-new{background:#9C27B0;color:white}
-.th-gal .tt-bg{background:linear-gradient(160deg,#03080f,#050d1a,#060f20)}
-.th-gal .tt-name{color:var(--cyan)}
-.th-hey .tt-bg{background:linear-gradient(160deg,#1a1200,#2a1e00,#201500)}
-.th-hey .tt-name{color:#FFB74D}
-.th-hey .tt-new{background:#FF9800;color:#1a1200}
-
-/* ═══════════════════════════════════════════
-   EXPERTIZ
-═══════════════════════════════════════════ */
-.expertiz-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:60px;
-  align-items:center;
-}
-.expertiz-visual{
-  background:var(--bg-card);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:28px;
-}
-.ev-title{
-  font-size:10px;letter-spacing:3px;
-  color:var(--txt-faint);text-transform:uppercase;
-  margin-bottom:16px;
-}
-.ev-brushes{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
-.ev-brush{
-  padding:5px 12px;border-radius:100px;
-  font-size:10px;font-weight:600;letter-spacing:1px;
-  border:1px solid transparent;
-}
-.eb-orig{background:rgba(158,158,158,.1);color:#bbb;border-color:rgba(158,158,158,.2)}
-.eb-boy{background:rgba(56,189,248,.1);color:var(--cyan);border-color:rgba(56,189,248,.2)}
-.eb-deg{background:rgba(255,152,0,.1);color:#FFB74D;border-color:rgba(255,152,0,.2)}
-.eb-lok{background:rgba(76,175,80,.1);color:#81C784;border-color:rgba(76,175,80,.2)}
-
-.ev-car{
-  width:100%;height:130px;
-  background:rgba(255,255,255,.025);
-  border-radius:6px;border:1px solid var(--border);
-  display:flex;align-items:center;justify-content:center;
-  font-size:60px;margin-bottom:16px;position:relative;
-}
-.ev-car-lbl{
-  position:absolute;bottom:8px;right:10px;
-  font-family:'DM Mono',monospace;
-  font-size:9px;letter-spacing:2px;color:var(--txt-faint);
-}
-.ev-score{display:flex;align-items:center;gap:8px;margin-bottom:20px}
-.ev-score-dot{width:7px;height:7px;border-radius:50%;background:#4CAF50;
-  box-shadow:0 0 8px rgba(76,175,80,.6)}
-.ev-score-txt{font-family:'DM Mono',monospace;font-size:11px;
-  letter-spacing:2px;color:#4CAF50}
-.ev-chips{display:flex;flex-wrap:wrap;gap:6px}
-.ev-chip{
-  padding:4px 10px;border-radius:4px;
-  font-size:11px;color:var(--txt-dim);
-  background:rgba(255,255,255,.04);
-  border:1px solid var(--border);
-}
-
-.expertiz-text{}
-.exp-list{list-style:none;display:flex;flex-direction:column;gap:16px;margin:28px 0}
-.exp-item{display:flex;align-items:flex-start;gap:14px}
-.exp-line{
-  width:1px;height:100%;
-  background:linear-gradient(180deg,var(--gold),transparent);
-  flex-shrink:0;margin-top:4px;
-}
-.exp-dot{
-  width:8px;height:8px;border-radius:50%;
-  background:var(--gold);flex-shrink:0;
-  margin-top:5px;
-  box-shadow:0 0 8px rgba(201,168,76,.5);
-}
-.exp-txt{font-size:15px;color:var(--txt-dim);line-height:1.55}
-
-/* ═══════════════════════════════════════════
-   FORMATS
-═══════════════════════════════════════════ */
-.formats-grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:12px;
-}
-.fmt-card{
-  background:var(--bg-card);
-  border:1px solid var(--border);
-  border-radius:var(--r);
-  padding:28px 24px;
-  position:relative;overflow:hidden;
-  transition:all .25s;
-}
-.fmt-card:hover{transform:translateY(-4px);border-color:var(--border-hi)}
-.fmt-top-line{
-  position:absolute;top:0;left:0;right:0;height:2px;
-}
-.fmt-icon{
-  width:48px;height:48px;border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:22px;margin-bottom:20px;
-  border:1px solid var(--border);
-  background:var(--bg-card);
-}
-.fmt-name{
-  font-family:'Cormorant Garamond',serif;
-  font-size:20px;font-weight:700;margin-bottom:8px;
-}
-.fmt-desc{font-size:13px;color:var(--txt-dim);line-height:1.6;margin-bottom:16px}
-.fmt-chips{display:flex;flex-wrap:wrap;gap:5px}
-.fmt-chip{
-  padding:3px 9px;border-radius:100px;
-  font-size:10px;font-weight:600;letter-spacing:.5px;
-}
-
-.f-blue .fmt-top-line{background:linear-gradient(90deg,transparent,#3F51B5,transparent)}
-.f-blue .fmt-chip{background:rgba(63,81,181,.15);color:#7986CB;border:1px solid rgba(63,81,181,.2)}
-.f-red .fmt-top-line{background:linear-gradient(90deg,transparent,#F44336,transparent)}
-.f-red .fmt-chip{background:rgba(244,67,54,.15);color:#EF9A9A;border:1px solid rgba(244,67,54,.2)}
-.f-grn .fmt-top-line{background:linear-gradient(90deg,transparent,#4CAF50,transparent)}
-.f-grn .fmt-chip{background:rgba(76,175,80,.15);color:#A5D6A7;border:1px solid rgba(76,175,80,.2)}
-.f-org .fmt-top-line{background:linear-gradient(90deg,transparent,#FF9800,transparent)}
-.f-org .fmt-chip{background:rgba(255,152,0,.15);color:#FFCC80;border:1px solid rgba(255,152,0,.2)}
-
-/* ═══════════════════════════════════════════
-   PRICING
-═══════════════════════════════════════════ */
-.pricing-section{
-  background:rgba(255,255,255,.015);
-  border-top:1px solid var(--border);
-}
-.pricing-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:16px;
-  max-width:900px;
-  margin:0 auto;
-}
-.price-card{
-  background:var(--bg-card);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:40px 32px;
-  position:relative;
-  transition:transform .25s;
-}
-.price-card:hover{transform:translateY(-4px)}
-.price-card.featured{
-  border-color:var(--border-hi);
-  background:rgba(201,168,76,.04);
-}
-.price-featured-tag{
-  position:absolute;top:-1px;left:50%;
-  transform:translateX(-50%);
-  background:linear-gradient(135deg,var(--gold),#a8853a);
-  color:#060810;
-  font-size:9px;font-weight:700;letter-spacing:3px;
-  padding:5px 18px;
-  border-radius:0 0 8px 8px;
-}
-.price-tier{
-  font-size:11px;letter-spacing:3px;
-  color:var(--txt-faint);text-transform:uppercase;
-  margin-bottom:20px;
-}
-.price-amount{
-  font-family:'Cormorant Garamond',serif;
-  font-size:52px;font-weight:700;color:var(--txt);
-  line-height:1;margin-bottom:6px;
-}
-.price-amount sup{font-size:22px;color:var(--gold);vertical-align:super}
-.price-period{font-size:12px;color:var(--txt-faint);letter-spacing:1px;margin-bottom:32px}
-.price-feats{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:32px}
-.pf{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(238,240,246,.65)}
-.pf::before{content:'◆';color:var(--gold);font-size:7px;flex-shrink:0}
-.pf.off{color:var(--txt-faint)}
-.pf.off::before{color:var(--txt-faint)}
-
-/* ═══════════════════════════════════════════
-   CTA
-═══════════════════════════════════════════ */
-.cta-section{
-  text-align:center;position:relative;
-  border-top:1px solid var(--border);
-  overflow:hidden;
-}
-.cta-glow{
-  position:absolute;
-  width:600px;height:300px;
-  background:radial-gradient(ellipse,rgba(201,168,76,.07) 0%,transparent 70%);
-  top:50%;left:50%;transform:translate(-50%,-50%);
-  pointer-events:none;
-}
-.cta-section .sh{margin-bottom:12px}
-.cta-section .sdesc{margin:0 auto 40px}
-.cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-
-/* ═══════════════════════════════════════════
-   FOOTER
-═══════════════════════════════════════════ */
-footer{
-  border-top:1px solid var(--border);
-  padding:60px 64px 40px;
-  position:relative;z-index:2;
-  display:grid;
-  grid-template-columns:1.5fr 1fr 1fr 1fr;
-  gap:48px;
-}
-.foot-brand-name{
-  font-family:'Cormorant Garamond',serif;
-  font-size:28px;font-weight:700;margin-bottom:6px;
-}
-.foot-brand-name em{color:var(--gold);font-style:normal}
-.foot-tagline{font-size:12px;color:var(--txt-faint);letter-spacing:1px;margin-bottom:20px}
-.foot-copy{font-size:11px;color:rgba(238,240,246,.15);letter-spacing:.5px}
-.foot-col-h{font-size:10px;letter-spacing:3px;color:var(--gold);
-  text-transform:uppercase;font-weight:600;margin-bottom:16px;opacity:.7}
-.foot-links{list-style:none;display:flex;flex-direction:column;gap:10px}
-.foot-links a{font-size:13px;color:var(--txt-dim);transition:color .2s}
-.foot-links a:hover{color:var(--txt)}
-.foot-bottom{
-  grid-column:1/-1;
-  display:flex;justify-content:space-between;align-items:center;
-  padding-top:28px;border-top:1px solid var(--border);
-  font-size:11px;color:var(--txt-faint);letter-spacing:.5px;
-}
-
-/* ═══════════════════════════════════════════
-   SCROLL REVEAL
-═══════════════════════════════════════════ */
-.sr{opacity:0;transform:translateY(36px);transition:opacity .7s ease,transform .7s ease}
-.sr.in{opacity:1;transform:none}
-.sr-d1{transition-delay:.1s}
-.sr-d2{transition-delay:.2s}
-.sr-d3{transition-delay:.3s}
-
-/* ═══════════════════════════════════════════
-   RESPONSIVE
-═══════════════════════════════════════════ */
-@media(max-width:1024px){
-  nav{padding:0 24px}
-  .nav-links{display:none}
-  .hero{grid-template-columns:1fr;padding:100px 24px 60px}
-  .hero::before{display:none}
-  .hero-left{padding-right:0}
-  .hero-right{display:none}
-  .section{padding:80px 24px}
-  .bento{grid-template-columns:1fr}
-  .bc-1,.bc-2,.bc-3,.bc-4,.bc-5{grid-column:span 1;grid-row:span 1}
-  .themes-layout{grid-template-columns:1fr}
-  .theme-scroll-area{grid-template-columns:1fr}
-  .theme-tile{height:180px!important}
-  .expertiz-grid{grid-template-columns:1fr}
-  .formats-grid{grid-template-columns:1fr 1fr}
-  .pricing-grid{grid-template-columns:1fr;max-width:360px}
-  footer{grid-template-columns:1fr 1fr;padding:40px 24px}
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AlhazenPDF – Profesyonel İlan Görselleri</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    :root {
+      --gold: #D4A843;
+      --gold-light: #F0C96A;
+      --gold-glow: rgba(212,168,67,0.35);
+      --ink: #080810;
+      --ink-2: #0f0f1a;
+      --ink-3: #16162a;
+      --cream: #F2EDE4;
+      --cream-2: #C8C0B0;
+      --accent: #7B5EA7;
+      --accent-2: #C850C0;
+    }
+ 
+    html { scroll-behavior: smooth; }
+ 
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--ink);
+      color: var(--cream);
+      overflow-x: hidden;
+      cursor: none;
+    }
+ 
+    /* CUSTOM CURSOR */
+    .cursor {
+      width: 12px; height: 12px;
+      background: var(--gold);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(212,168,67,0.5);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9998;
+      transition: all 0.12s ease;
+    }
+ 
+    /* MESH BACKGROUND */
+    .mesh-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 10% 20%, rgba(123,94,167,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 90% 80%, rgba(200,80,192,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 50% at 50% 50%, rgba(212,168,67,0.06) 0%, transparent 70%),
+        var(--ink);
+      pointer-events: none;
+    }
+ 
+    /* GRAIN */
+    .grain {
+      position: fixed;
+      inset: -50%;
+      width: 200%; height: 200%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.04;
+      pointer-events: none;
+      z-index: 1;
+      animation: grain 8s steps(10) infinite;
+    }
+    @keyframes grain { 0%,100%{transform:translate(0,0)} 10%{transform:translate(-2%,-3%)} 20%{transform:translate(3%,2%)} 30%{transform:translate(-1%,4%)} 40%{transform:translate(4%,-1%)} 50%{transform:translate(-3%,3%)} 60%{transform:translate(2%,-4%)} 70%{transform:translate(-4%,1%)} 80%{transform:translate(1%,-2%)} 90%{transform:translate(-2%,4%)} }
+ 
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.4rem 3rem;
+      background: rgba(8,8,16,0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(212,168,67,0.12);
+    }
+ 
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.01em;
+    }
+ 
+    .nav-links { display: flex; align-items: center; gap: 2rem; }
+    .nav-links a { color: var(--cream-2); font-size: 0.85rem; text-decoration: none; transition: color 0.2s; font-weight: 400; }
+    .nav-links a:hover { color: var(--gold-light); }
+ 
+    .nav-cta {
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: var(--ink);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.6rem 1.4rem;
+      border-radius: 100px;
+      text-decoration: none;
+      transition: all 0.25s;
+      box-shadow: 0 0 20px var(--gold-glow);
+    }
+    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 0 35px var(--gold-glow); }
+ 
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 5rem;
+      position: relative; z-index: 2;
+    }
+ 
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(212,168,67,0.1);
+      border: 1px solid rgba(212,168,67,0.25);
+      border-radius: 100px;
+      padding: 0.4rem 1rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.1s forwards;
+    }
+    .hero-badge::before { content: '✦'; font-size: 0.6rem; }
+ 
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 9vw, 7rem);
+      font-weight: 900;
+      line-height: 1.0;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.3s forwards;
+    }
+ 
+    .hero-title .line-1 { display: block; color: var(--cream); }
+    .hero-title .line-2 {
+      display: block;
+      background: linear-gradient(135deg, var(--gold-light) 0%, var(--accent-2) 50%, var(--gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% auto;
+      animation: shimmer 4s linear infinite, fadeUp 0.9s 0.3s forwards;
+    }
+    @keyframes shimmer { to { background-position: 200% center; } }
+ 
+    .hero-title .line-3 { display: block; color: var(--cream); font-style: italic; }
+ 
+    .hero-sub {
+      font-size: 1.05rem;
+      font-weight: 300;
+      color: var(--cream-2);
+      max-width: 520px;
+      line-height: 1.75;
+      margin-bottom: 3rem;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.5s forwards;
+    }
+ 
+    .hero-actions {
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+      margin-bottom: 4rem;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.7s forwards;
+    }
+ 
+    .store-btn {
+      display: inline-flex; align-items: center; gap: 0.75rem;
+      padding: 0.9rem 1.8rem;
+      border-radius: 14px;
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: all 0.25s;
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+    }
+ 
+    .store-btn.android {
+      background: linear-gradient(135deg, rgba(1,135,95,0.3), rgba(1,135,95,0.15));
+      border-color: rgba(1,135,95,0.4);
+      color: #4ade9a;
+    }
+    .store-btn.android:hover { background: rgba(1,135,95,0.4); transform: translateY(-3px); box-shadow: 0 12px 30px rgba(1,135,95,0.25); }
+ 
+    .store-btn.ios {
+      background: linear-gradient(135deg, rgba(100,100,255,0.2), rgba(100,100,255,0.1));
+      border-color: rgba(130,130,255,0.35);
+      color: #a5a5ff;
+    }
+    .store-btn.ios:hover { background: rgba(100,100,255,0.3); transform: translateY(-3px); box-shadow: 0 12px 30px rgba(100,100,255,0.2); }
+ 
+    .store-btn svg { width: 22px; height: 22px; flex-shrink: 0; }
+    .store-btn-text { text-align: left; }
+    .store-btn-text small { display: block; font-size: 0.68rem; opacity: 0.7; letter-spacing: 0.05em; text-transform: uppercase; }
+    .store-btn-text span { display: block; font-size: 0.95rem; font-weight: 600; }
+ 
+    /* SCROLL INDICATOR */
+    .scroll-indicator {
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      opacity: 0;
+      animation: fadeUp 1s 1.2s forwards;
+    }
+    .scroll-indicator span { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cream-2); opacity: 0.5; }
+    .scroll-line { width: 1px; height: 50px; background: linear-gradient(to bottom, var(--gold), transparent); animation: scrollPulse 2s ease-in-out infinite; }
+    @keyframes scrollPulse { 0%,100%{opacity:0.3;transform:scaleY(1)} 50%{opacity:1;transform:scaleY(1.1)} }
+ 
+    /* STATS */
+    .stats {
+      position: relative; z-index: 2;
+      display: flex; justify-content: center; gap: 0; flex-wrap: wrap;
+      max-width: 900px; margin: 0 auto;
+      border: 1px solid rgba(212,168,67,0.15);
+      border-radius: 20px;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      background: rgba(15,15,26,0.6);
+    }
+ 
+    .stat {
+      flex: 1; min-width: 160px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      border-right: 1px solid rgba(212,168,67,0.1);
+      transition: background 0.3s;
+    }
+    .stat:last-child { border-right: none; }
+    .stat:hover { background: rgba(212,168,67,0.05); }
+ 
+    .stat-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .stat-label { font-size: 0.8rem; color: var(--cream-2); font-weight: 300; letter-spacing: 0.05em; }
+ 
+    /* SECTIONS */
+    section.pad { padding: 8rem 2rem; position: relative; z-index: 2; }
+ 
+    .tag {
+      display: inline-block;
+      font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 1.2rem;
+      padding: 0.3rem 0.8rem;
+      border: 1px solid rgba(212,168,67,0.25);
+      border-radius: 100px;
+    }
+ 
+    .sec-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.2rem;
+    }
+ 
+    .sec-sub {
+      font-size: 0.98rem; font-weight: 300;
+      color: var(--cream-2); line-height: 1.8;
+      max-width: 500px;
+    }
+ 
+    /* FEATURES */
+    .features-wrap { max-width: 1100px; margin: 0 auto; }
+    .features-header { text-align: center; margin-bottom: 5rem; }
+    .features-header .sec-sub { margin: 0 auto; }
+ 
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5px;
+      background: rgba(212,168,67,0.08);
+      border: 1px solid rgba(212,168,67,0.08);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+ 
+    .feat {
+      background: var(--ink-2);
+      padding: 2.8rem 2.2rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feat::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(212,168,67,0.06) 0%, transparent 60%);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .feat:hover { background: var(--ink-3); }
+    .feat:hover::before { opacity: 1; }
+ 
+    .feat-icon {
+      font-size: 2rem; margin-bottom: 1.4rem;
+      display: inline-block;
+      transition: transform 0.3s;
+    }
+    .feat:hover .feat-icon { transform: scale(1.15) rotate(-5deg); }
+ 
+    .feat h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem; font-weight: 700;
+      color: var(--cream); margin-bottom: 0.6rem;
+    }
+    .feat p { font-size: 0.88rem; color: var(--cream-2); line-height: 1.7; font-weight: 300; }
+ 
+    /* WHO */
+    .who-section { background: var(--ink-2); }
+    .who-wrap { max-width: 900px; margin: 0 auto; text-align: center; }
+    .who-pills { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-top: 3rem; }
+    .who-pill {
+      padding: 0.75rem 1.6rem;
+      border: 1px solid rgba(212,168,67,0.2);
+      border-radius: 100px;
+      font-size: 0.9rem; color: var(--cream-2);
+      transition: all 0.25s; cursor: default;
+    }
+    .who-pill:hover { border-color: var(--gold); color: var(--gold-light); background: rgba(212,168,67,0.07); transform: translateY(-2px); }
+ 
+    /* PRICING */
+    .pricing-wrap { max-width: 800px; margin: 0 auto; }
+    .pricing-header { text-align: center; margin-bottom: 4rem; }
+    .pricing-header .sec-sub { margin: 0 auto; }
+ 
+    .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+ 
+    .price-card {
+      border: 1px solid rgba(212,168,67,0.15);
+      border-radius: 20px;
+      padding: 2.8rem 2.2rem;
+      background: var(--ink-2);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s;
+    }
+    .price-card:hover { transform: translateY(-4px); }
+ 
+    .price-card.featured {
+      border-color: rgba(212,168,67,0.4);
+      background: linear-gradient(145deg, rgba(212,168,67,0.08) 0%, var(--ink-2) 50%);
+    }
+    .price-card.featured::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+ 
+    .price-badge {
+      position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: var(--ink);
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 0.3rem 1.2rem;
+      border-radius: 0 0 12px 12px;
+      white-space: nowrap;
+    }
+ 
+    .plan-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem; font-weight: 700;
+      color: var(--cream); margin-bottom: 0.3rem;
+    }
+    .plan-desc { font-size: 0.82rem; color: var(--cream-2); margin-bottom: 2rem; font-weight: 300; }
+ 
+    .plan-price {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.2rem; font-weight: 700;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.3rem;
+    }
+    .plan-price span { font-size: 1rem; font-family: 'Outfit', sans-serif; color: var(--cream-2); }
+ 
+    .plan-features { list-style: none; margin: 2rem 0; display: flex; flex-direction: column; gap: 0.8rem; }
+    .plan-features li { font-size: 0.87rem; color: var(--cream-2); font-weight: 300; display: flex; align-items: center; gap: 0.7rem; }
+    .plan-features li::before { content: '✦'; color: var(--gold); font-size: 0.55rem; flex-shrink: 0; }
+    .plan-features li.off { color: rgba(200,192,176,0.3); }
+    .plan-features li.off::before { color: rgba(212,168,67,0.2); }
+ 
+    .plan-btn {
+      display: block; text-align: center; padding: 0.9rem;
+      border-radius: 12px; font-size: 0.85rem; font-weight: 600;
+      letter-spacing: 0.04em; text-decoration: none; transition: all 0.25s;
+    }
+    .plan-btn.outline {
+      border: 1px solid rgba(212,168,67,0.3); color: var(--cream-2);
+    }
+    .plan-btn.outline:hover { border-color: var(--gold); color: var(--gold-light); background: rgba(212,168,67,0.07); }
+    .plan-btn.solid {
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: var(--ink); box-shadow: 0 8px 25px var(--gold-glow);
+    }
+    .plan-btn.solid:hover { transform: translateY(-2px); box-shadow: 0 12px 35px var(--gold-glow); }
+    .plan-btn.disabled {
+      background: rgba(212,168,67,0.06);
+      border: 1px solid rgba(212,168,67,0.12);
+      color: rgba(212,168,67,0.3);
+      cursor: not-allowed;
+      font-size: 0.82rem;
+    }
+ 
+    /* CONTACT */
+    .contact-section { background: var(--ink-2); }
+    .contact-inner { max-width: 600px; margin: 0 auto; text-align: center; }
+    .contact-buttons { display: flex; flex-direction: column; align-items: center; gap: 1rem; margin-top: 2.5rem; }
+ 
+    .contact-btn {
+      display: inline-flex; align-items: center; gap: 0.9rem;
+      padding: 1rem 2.5rem;
+      border-radius: 14px;
+      text-decoration: none;
+      font-size: 0.92rem; font-weight: 500;
+      transition: all 0.25s;
+      width: 100%; max-width: 360px;
+      justify-content: center;
+    }
+    .contact-btn svg { width: 22px; height: 22px; flex-shrink: 0; }
+ 
+    .contact-btn.whatsapp { background: rgba(37,211,102,0.15); border: 1px solid rgba(37,211,102,0.3); color: #4ade80; }
+    .contact-btn.whatsapp:hover { background: rgba(37,211,102,0.25); transform: translateY(-2px); box-shadow: 0 10px 30px rgba(37,211,102,0.2); }
+ 
+    .contact-btn.email { background: rgba(212,168,67,0.1); border: 1px solid rgba(212,168,67,0.25); color: var(--gold-light); }
+    .contact-btn.email:hover { background: rgba(212,168,67,0.18); transform: translateY(-2px); }
+ 
+    /* FOOTER */
+    footer {
+      position: relative; z-index: 2;
+      border-top: 1px solid rgba(212,168,67,0.1);
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.6rem;
+    }
+    footer p { font-size: 0.78rem; color: var(--cream-2); opacity: 0.4; font-weight: 300; }
+ 
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+ 
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+ 
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .features-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .stats { flex-direction: column; }
+      .stat { border-right: none; border-bottom: 1px solid rgba(212,168,67,0.1); }
+      .stat:last-child { border-bottom: none; }
+      section.pad { padding: 5rem 1.5rem; }
+    }
+  </style>
 </head>
 <body>
-
-<div id="cur"></div>
-<div id="cur-ring"></div>
-<canvas id="canvas-bg"></canvas>
-
-<!-- ═══════════ NAV ═══════════ -->
+ 
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="mesh-bg"></div>
+<div class="grain"></div>
+ 
+<!-- NAV -->
 <nav>
-  <a href="#" class="nav-logo">
-    <svg viewBox="0 0 30 30" fill="none">
-      <circle cx="15" cy="15" r="13" stroke="#C9A84C" stroke-width="1" opacity=".4"/>
-      <path d="M3 15 Q15 6 27 15 Q15 24 3 15Z" stroke="#C9A84C" stroke-width="1.5" fill="rgba(201,168,76,.07)"/>
-      <circle cx="15" cy="15" r="4" stroke="#C9A84C" stroke-width="1.5" fill="rgba(201,168,76,.15)"/>
-      <circle cx="15" cy="15" r="1.5" fill="#C9A84C"/>
-    </svg>
-    <span class="nav-logo-txt">Alhazen<em>PDF</em></span>
-  </a>
-  <ul class="nav-links">
-    <li><a href="#ozellikler">Özellikler</a></li>
-    <li><a href="#temalar">Temalar</a></li>
-    <li><a href="#formatlar">Formatlar</a></li>
-    <li><a href="#fiyatlar">Fiyatlar</a></li>
-  </ul>
-  <div class="nav-right">
-    <a href="#" class="btn btn-outline">Giriş Yap</a>
-    <a href="#" class="btn btn-gold">✦ Ücretsiz Dene</a>
+  <div class="nav-logo">AlhazenPDF</div>
+  <div class="nav-links">
+    <a href="#ozellikler">Özellikler</a>
+    <a href="#fiyatlar">Fiyatlar</a>
+    <a href="#iletisim">İletişim</a>
   </div>
+  <a href="https://play.google.com/store/apps/details?id=com.alhazenpdf.code" target="_blank" class="nav-cta">Hemen İndir</a>
 </nav>
-
-<!-- ═══════════ HERO ═══════════ -->
+ 
+<!-- HERO -->
 <section class="hero">
-  <div class="hero-left">
-    <div class="hero-tag">
-      <div class="hero-tag-dot"></div>
-      <span class="hero-tag-txt">Türkiye'nin Profesyonel PDF Üreticisi</span>
-    </div>
-    <h1 class="hero-h1">
-      Araç & Emlak<br>
-      <em>İlanlarınız</em>
-      <span class="cyan-line">PDF'e Dönüşsün.</span>
-    </h1>
-    <p class="hero-sub">Galerinizin kimliğini taşıyan, müşterinizi etkileyen profesyonel PDF ve satış kartları — saniyeler içinde, onlarca temadan biriyle.</p>
-    <div class="hero-actions">
-      <a href="https://play.google.com/store/apps/details?id=com.alhazenpdf.code" class="btn btn-gold btn-lg">✦ Uygulamayı İndir</a>
-      <a href="#ozellikler" class="btn btn-outline btn-lg">Keşfet →</a>
-    </div>
-    <div class="hero-metrics">
-      <div class="metric">
-        <div class="metric-val">20<span>+</span></div>
-        <div class="metric-lbl">Premium Tema</div>
+  <div class="hero-badge">Araç & Gayrimenkul için</div>
+  <h1 class="hero-title">
+    <span class="line-1">İlanlarınız</span>
+    <span class="line-2">Artık Farklı</span>
+    <span class="line-3">Görünecek</span>
+  </h1>
+  <p class="hero-sub">Dakikalar içinde profesyonel PDF ve sosyal medya görseli oluşturun. Müşterilerinizi etkileyin, satışlarınızı hızlandırın.</p>
+ 
+  <div class="hero-actions">
+    <a href="https://play.google.com/store/apps/details?id=com.alhazenpdf.code" target="_blank" rel="noopener" class="store-btn android">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.3.17.64.22.98.15l13.5-7.79-2.93-2.93-11.55 10.57zM.5 1.4C.19 1.74 0 2.24 0 2.89v18.22c0 .65.19 1.15.5 1.49l.08.08 10.2-10.2v-.24L.58 1.32.5 1.4zM20.65 10.4l-2.88-1.66-3.23 3.23 3.23 3.23 2.9-1.67c.83-.48.83-1.26-.02-1.73v.6zM4.16.24L17.66 8.03l-2.93 2.93L3.18.39C3.52.23 3.86.28 4.16.24z"/></svg>
+      <div class="store-btn-text">
+        <small>Google Play'de İndir</small>
+        <span>Android</span>
       </div>
-      <div class="metric">
-        <div class="metric-val">4</div>
-        <div class="metric-lbl">Çıktı Formatı</div>
+    </a>
+    <a href="https://apps.apple.com/us/app/alhazenpdf-ara%C3%A7-ve-emlak-pdf/id6771070616" target="_blank" rel="noopener" class="store-btn ios">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      <div class="store-btn-text">
+        <small>App Store'dan İndir</small>
+        <span>iPhone & iPad</span>
       </div>
-      <div class="metric">
-        <div class="metric-val">∞</div>
-        <div class="metric-lbl">PDF Üretimi</div>
-      </div>
-    </div>
+    </a>
   </div>
-
-  <div class="hero-right">
-    <div class="pdf-stack">
-      <!-- Card 3 (back) -->
-      <div class="pdf-card pdf-card-3 t-korsan">
-        <div class="pcard-header">
-          <span class="pcard-gal">AKTÜRK GALERİ</span>
-          <span class="pcard-badge" style="background:#D4AF37;color:#060810;">★ ALHAZENPDF</span>
-        </div>
-        <div class="pcard-title-area">
-          <div class="pcard-brand" style="color:#1a1a1a">OPEL</div>
-          <div class="pcard-model" style="color:#C9A84C">A S T R A</div>
-        </div>
-        <div class="pcard-img" style="background:linear-gradient(135deg,#c4c0b0,#b4b0a0)">🚗</div>
-        <div class="pcard-specs" style="background:#eee8d8;color:#1a1a1a">
-          <div><div class="pcard-spec-label">Motor</div><div class="pcard-spec-val">1.4T</div></div>
-          <div><div class="pcard-spec-label">KM</div><div class="pcard-spec-val">48.200</div></div>
-          <div><div class="pcard-spec-label">Yakıt</div><div class="pcard-spec-val">Benzin</div></div>
-        </div>
-        <div class="pcard-foot">
-          <span class="pcard-price" style="color:#C9A84C">₺1.175.000</span>
-          <span class="pcard-stamp">ALHAZENPDF</span>
-        </div>
-      </div>
-      <!-- Card 2 (mid) -->
-      <div class="pdf-card pdf-card-2 t-galaktik">
-        <div class="pcard-header">
-          <span class="pcard-gal">AKTÜRK GALERİ</span>
-          <span class="pcard-badge">★ ALHAZENPDF</span>
-        </div>
-        <div class="pcard-title-area">
-          <div class="pcard-brand">OPEL</div>
-          <div class="pcard-model">A S T R A</div>
-        </div>
-        <div class="pcard-img">🚗</div>
-        <div class="pcard-specs">
-          <div><div class="pcard-spec-label">Motor</div><div class="pcard-spec-val">1.4T</div></div>
-          <div><div class="pcard-spec-label">KM</div><div class="pcard-spec-val">48.200</div></div>
-          <div><div class="pcard-spec-label">Yakıt</div><div class="pcard-spec-val">Benzin</div></div>
-        </div>
-        <div class="pcard-foot">
-          <span class="pcard-price">₺1.175.000</span>
-          <span class="pcard-stamp">ALHAZENPDF</span>
-        </div>
-      </div>
-      <!-- Card 1 (front) -->
-      <div class="pdf-card pdf-card-1 t-mukarnas">
-        <div class="pcard-header">
-          <span class="pcard-gal">AKTÜRK GALERİ</span>
-          <span class="pcard-badge">★ ALHAZENPDF</span>
-        </div>
-        <div class="pcard-title-area">
-          <div class="pcard-brand">OPEL</div>
-          <div class="pcard-model">A S T R A</div>
-        </div>
-        <div class="pcard-img" style="background:linear-gradient(135deg,#c8c4b8,#b8b4a8)">🚗</div>
-        <div class="pcard-specs">
-          <div><div class="pcard-spec-label">Motor</div><div class="pcard-spec-val">1.4T</div></div>
-          <div><div class="pcard-spec-label">KM</div><div class="pcard-spec-val">48.200</div></div>
-          <div><div class="pcard-spec-label">Yakıt</div><div class="pcard-spec-val">Benzin</div></div>
-        </div>
-        <div class="pcard-foot">
-          <span class="pcard-price">₺1.175.000</span>
-          <span class="pcard-stamp">ALHAZENPDF</span>
-        </div>
-      </div>
-      <!-- Floating badge -->
-      <div class="floating-badge">
-        <div class="fb-label">Aktif Temalar</div>
-        <div class="fb-val">20+</div>
-        <div class="fb-sub">Yeni temalar geliyor ✦</div>
-      </div>
-    </div>
+ 
+  <div class="scroll-indicator">
+    <span>Keşfet</span>
+    <div class="scroll-line"></div>
   </div>
 </section>
-
-<!-- ═══════════ MARQUEE ═══════════ -->
-<div class="marquee-wrap">
-  <div class="marquee-inner">
-    <!-- repeat for seamless loop -->
-    <span class="marquee-item"><span class="marquee-dot"></span>Araç Galerisi PDF</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Emlak İlan Kartı</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Expertizli Satış Kağıdı</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Hasar & Boya Haritası</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>20+ Premium Tema</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>WhatsApp Paylaşımı</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Vitrin Afişi A3</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Story Formatı</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Araç Galerisi PDF</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Emlak İlan Kartı</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Expertizli Satış Kağıdı</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Hasar & Boya Haritası</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>20+ Premium Tema</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>WhatsApp Paylaşımı</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Vitrin Afişi A3</span>
-    <span class="marquee-item"><span class="marquee-dot"></span>Story Formatı</span>
+ 
+<!-- STATS -->
+<div style="position:relative;z-index:2;padding:0 2rem 6rem;">
+  <div class="stats reveal">
+    <div class="stat">
+      <div class="stat-number">2</div>
+      <div class="stat-label">Platform (iOS & Android)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">10+</div>
+      <div class="stat-label">Hazır Tema</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">∞</div>
+      <div class="stat-label">Premium ile Sınırsız</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">₺0</div>
+      <div class="stat-label">Başlangıç Ücreti</div>
+    </div>
   </div>
 </div>
-
-<!-- ═══════════ FEATURES BENTO ═══════════ -->
-<section class="section" id="ozellikler">
-  <div class="section-inner">
-    <div class="tag sr">Temel Özellikler</div>
-    <h2 class="sh sr sr-d1">Tek Uygulamada<br><em>Her Şey</em></h2>
-    <p class="sdesc sr sr-d2">Araç ve emlak profesyonelleri için ihtiyacınız olan tüm belge üretim araçları bir arada.</p>
-    <div class="bento sr sr-d3">
-      <div class="bento-card bc-1 bc-accent">
-        <span class="bc-icon">🚗</span>
-        <div class="bc-title">Araç Galerisi PDF</div>
-        <div class="bc-desc">Marka, model, motor, şanzıman, kilometre ve tüm bilgileri otomatik düzenlenmiş profesyonel PDF'e dönüştürün.</div>
-        <div class="bc-tag bc-tag-gold">A4 · Standart</div>
-        <div class="bc-accent-num">01</div>
+ 
+<!-- FEATURES -->
+<section class="pad" id="ozellikler">
+  <div class="features-wrap">
+    <div class="features-header reveal">
+      <div class="tag">Özellikler</div>
+      <h2 class="sec-title">Her Detay<br><em>Tasarlandı</em></h2>
+      <p class="sec-sub">Galericiler ve emlakçılar için özel olarak geliştirilen araçlar.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feat reveal">
+        <div class="feat-icon">🎨</div>
+        <h3>Hazır Temalar</h3>
+        <p>Koyu Altın, Beyaz Gümüş, Vintage Bej ve daha fazlası. Her marka kimliğine uygun şablonlar.</p>
       </div>
-      <div class="bento-card bc-2">
-        <span class="bc-icon">🔍</span>
-        <div class="bc-title">Expertizli Satış Kağıdı</div>
-        <div class="bc-desc">İnteraktif hasar haritası + donanım listesi. Eksiksiz ekspertiz raporu.</div>
-        <div class="bc-tag bc-tag-cyan">Hasar Haritası</div>
+      <div class="feat reveal">
+        <div class="feat-icon">⚡</div>
+        <h3>Anında Oluşturma</h3>
+        <p>Bilgileri girin, saniyeler içinde PDF indirin. Tasarım bilgisine gerek yok.</p>
       </div>
-      <div class="bento-card bc-3">
-        <span class="bc-icon">🎨</span>
-        <div class="bc-title">20+ Premium Tema</div>
-        <div class="bc-desc">Galaktik, Mukarnas, Korsan, Kristal Zirve, İznik Çini ve daha fazlası. Her tema özgün bir kimlik taşır.</div>
-        <div class="bc-tag bc-tag-gold">Sürekli Güncellenir</div>
+      <div class="feat reveal">
+        <div class="feat-icon">📱</div>
+        <h3>WhatsApp'a Hazır</h3>
+        <p>Oluşturulan görseller doğrudan WhatsApp ve sosyal medya paylaşımı için optimize.</p>
       </div>
-      <div class="bento-card bc-4">
-        <span class="bc-icon">🏠</span>
-        <div class="bc-title">Emlak Formatları</div>
-        <div class="bc-desc">Cam Sticker, İlan Kartı ve Vitrin Afişi. Ofisten panoya her mecra.</div>
-        <div class="bc-tag bc-tag-gold">A3 · A4 · A5</div>
+      <div class="feat reveal">
+        <div class="feat-icon">🏠</div>
+        <h3>Araç & Gayrimenkul</h3>
+        <p>İkinci el araç galerileri ve emlak ofisleri için ayrı optimize edilmiş şablonlar.</p>
       </div>
-      <div class="bento-card bc-5">
-        <span class="bc-icon">📱</span>
-        <div class="bc-title">Sosyal Medya Kartları & Anında Paylaşım</div>
-        <div class="bc-desc">Dikey, kare ve story formatında satış kartları. Instagram, Facebook ve WhatsApp için hazır boyutlarda — tek tuşla paylaş.</div>
-        <div class="bc-tag bc-tag-cyan">1080×1920 · 1:1 · 9:16</div>
+      <div class="feat reveal">
+        <div class="feat-icon">🖨️</div>
+        <h3>Baskıya Hazır PDF</h3>
+        <p>Yüksek çözünürlüklü profesyonel PDF. Hem dijital hem baskı için mükemmel.</p>
+      </div>
+      <div class="feat reveal">
+        <div class="feat-icon">🔒</div>
+        <h3>Marka Koruması</h3>
+        <p>Logo ve iletişim bilgilerinizi ekleyin. İlanlarınız her zaman sizi temsil etsin.</p>
       </div>
     </div>
   </div>
 </section>
-
-<!-- ═══════════ THEMES ═══════════ -->
-<section class="section themes-section" id="temalar">
-  <div class="section-inner">
-    <div class="themes-layout">
-      <div class="themes-sticky">
-        <div class="tag sr">Tema Koleksiyonu</div>
-        <h2 class="sh sr sr-d1">Her İlan<br>Bir <em>Kimlik</em></h2>
-        <p class="sdesc sr sr-d2" style="margin-bottom:32px">Rakiplerinizden farkınızı ortaya koyun. Her tema özgün renk paleti ve tasarım diliyle belgenize karakter katar.</p>
-        <div style="display:flex;flex-direction:column;gap:10px;" class="sr sr-d3">
-          <div style="padding:16px 20px;background:rgba(201,168,76,.06);border:1px solid var(--border-hi);border-radius:8px;">
-            <div style="font-size:10px;letter-spacing:3px;color:var(--gold);margin-bottom:5px;opacity:.7">YENİ TEMALAR</div>
-            <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;">Mukarnas & Aotearoa</div>
-            <div style="font-size:12px;color:var(--txt-faint);margin-top:3px;">Orman yeşili · Altın · Eğreltiotu</div>
-          </div>
-          <div style="padding:16px 20px;background:var(--cyan-lo);border:1px solid rgba(56,189,248,.15);border-radius:8px;">
-            <div style="font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:5px;opacity:.7">YENİ TEMALAR</div>
-            <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;">Kristal Zirve</div>
-            <div style="font-size:12px;color:var(--txt-faint);margin-top:3px;">Kar beyazı · Buzul mavisi</div>
-          </div>
-          <div style="padding:16px 20px;background:rgba(255,152,0,.05);border:1px solid rgba(255,152,0,.15);border-radius:8px;">
-            <div style="font-size:10px;letter-spacing:3px;color:#FF9800;margin-bottom:5px;opacity:.7">YENİ TEMALAR</div>
-            <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;">İbn-ül Heysem</div>
-            <div style="font-size:12px;color:var(--txt-faint);margin-top:3px;">Parşömen · Altın · Işığın bilgesi</div>
-          </div>
-        </div>
-        <a href="#" class="btn btn-gold" style="margin-top:28px;display:inline-flex">Tüm Temaları Gör →</a>
-      </div>
-      <div class="theme-scroll-area sr">
-        <div class="theme-tile th-muk">
-          <div class="tt-bg"></div>
-          <div class="tt-content">
-            <div class="tt-emoji">🌿</div>
-            <div class="tt-name">Mukarnas & Aotearoa</div>
-            <div class="tt-sub">Orman · Altın · Eğreltiotu</div>
-          </div>
-          <div class="tt-new" style="background:#4CAF50;color:#0a1a0a;">YENİ</div>
-        </div>
-        <div class="theme-tile th-kor">
-          <div class="tt-bg"></div>
-          <div class="tt-content">
-            <div class="tt-emoji">⚓</div>
-            <div class="tt-name">Salda Korsan</div>
-            <div class="tt-sub">Deniz mavisi · Korsan altını</div>
-          </div>
-        </div>
-        <div class="theme-tile th-gal">
-          <div class="tt-bg"></div>
-          <div class="tt-content">
-            <div class="tt-emoji">🌌</div>
-            <div class="tt-name">Galaktik</div>
-            <div class="tt-sub">Uzay · Yıldızlar · Cyan</div>
-          </div>
-        </div>
-        <div class="theme-tile th-kris">
-          <div class="tt-bg"></div>
-          <div class="tt-content">
-            <div class="tt-emoji">❄️</div>
-            <div class="tt-name">Kristal Zirve</div>
-            <div class="tt-sub">Kar beyazı · Buzul mavisi</div>
-          </div>
-          <div class="tt-new">YENİ</div>
-        </div>
-        <div class="theme-tile th-izn">
-          <div class="tt-bg"></div>
-          <div class="tt-content">
-            <div class="tt-emoji">🌷</div>
-            <div class="tt-name">İznik Çini</div>
-            <div class="tt-sub">Kobalt · Osmanlı çinisi</div>
-          </div>
-          <div class="tt-new" style="background:#9C27B0;color:white">YENİ</div>
-        </div>
-        <div class="theme-tile th-hey">
-          <div class="tt-bg"></div>
-          <div class="tt-content">
-            <div class="tt-emoji">👁️</div>
-            <div class="tt-name">İbn-ül Heysem</div>
-            <div class="tt-sub">Parşömen · Altın · Işık</div>
-          </div>
-          <div class="tt-new" style="background:#FF9800;color:#1a1200">YENİ</div>
-        </div>
-      </div>
+ 
+<!-- WHO -->
+<section class="pad who-section">
+  <div class="who-wrap reveal">
+    <div class="tag">Kimler Kullanır?</div>
+    <h2 class="sec-title">Sizin İçin<br><em>Tasarlandı</em></h2>
+    <p class="sec-sub" style="margin:0 auto;">Türkiye'deki galericiler ve emlakçılar artık çok daha profesyonel görünüyor.</p>
+    <div class="who-pills">
+      <span class="who-pill">🚗 İkinci El Araç Galerileri</span>
+      <span class="who-pill">🏢 Emlak Ofisleri</span>
+      <span class="who-pill">🏘️ Bireysel Emlakçılar</span>
+      <span class="who-pill">🔑 Müstakil Galeriler</span>
+      <span class="who-pill">📊 Filo Yöneticileri</span>
     </div>
   </div>
 </section>
-
-<!-- ═══════════ EXPERTİZ ═══════════ -->
-<section class="section" id="expertiz">
-  <div class="section-inner">
-    <div class="expertiz-grid">
-      <div class="expertiz-visual sr">
-        <div class="ev-title">Hasar & Boya Haritası</div>
-        <div class="ev-brushes">
-          <div class="ev-brush eb-orig">ORJİNAL</div>
-          <div class="ev-brush eb-boy">BOYALI</div>
-          <div class="ev-brush eb-deg">DEĞİŞEN</div>
-          <div class="ev-brush eb-lok">LOKAL</div>
-        </div>
-        <div class="ev-car">🚗<div class="ev-car-lbl">ÜSTTEN GÖRÜNÜM</div></div>
-        <div class="ev-score">
-          <div class="ev-score-dot"></div>
-          <span class="ev-score-txt">TRAMER KAYDI YOK · SKOR 100</span>
-        </div>
-        <div style="height:1px;background:var(--border);margin:16px 0"></div>
-        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--txt-faint);margin-bottom:10px">⚙ DONANIM LİSTESİ</div>
-        <div class="ev-chips">
-          <div class="ev-chip">LED Far</div><div class="ev-chip">CarPlay</div>
-          <div class="ev-chip">Sunroof</div><div class="ev-chip">Keyless</div>
-          <div class="ev-chip">HUD</div><div class="ev-chip">360° Kamera</div>
-          <div class="ev-chip">Deri Döşeme</div><div class="ev-chip">Navigasyon</div>
-          <div class="ev-chip">Isıtmalı Koltuk</div><div class="ev-chip">Android Auto</div>
-        </div>
-      </div>
-      <div class="expertiz-text sr sr-d2">
-        <div class="tag">Expertiz Modülü</div>
-        <h2 class="sh">Hasar Haritası<br>ile <em>Güven</em> Kazan</h2>
-        <p class="sdesc" style="margin-bottom:0">Araç parçalarını interaktif haritada işaretle, donanım listesini tek dokunuşla ekle, A4 PDF olarak paylaş.</p>
-        <ul class="exp-list">
-          <li class="exp-item"><div class="exp-dot"></div><div class="exp-txt">13 araç parçası — Orijinal, Boyalı, Değişen, Lokal olarak işaretleme</div></li>
-          <li class="exp-item"><div class="exp-dot"></div><div class="exp-txt">21 standart donanım + özel donanım ekleme desteği</div></li>
-          <li class="exp-item"><div class="exp-dot"></div><div class="exp-txt">Tramer skoru otomatik hesaplanır ve PDF'e eklenir</div></li>
-          <li class="exp-item"><div class="exp-dot"></div><div class="exp-txt">Salda Korsan, Mukarnas, Kristal Zirve temalarında görünür</div></li>
+ 
+<!-- PRICING -->
+<section class="pad" id="fiyatlar">
+  <div class="pricing-wrap">
+    <div class="pricing-header reveal">
+      <div class="tag">Fiyatlandırma</div>
+      <h2 class="sec-title">Sade &amp; <em>Şeffaf</em></h2>
+      <p class="sec-sub">Gizli ücret yok. İstediğiniz zaman iptal edin.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card reveal">
+        <div class="plan-name">Ücretsiz</div>
+        <div class="plan-desc">Denemek isteyenler için</div>
+        <div class="plan-price">₺0 <span>/ ay</span></div>
+        <ul class="plan-features">
+          <li>Aylık 5 ilan görseli</li>
+          <li>2 temel tema</li>
+          <li>PDF indirme</li>
+          <li class="off">Filigransız görsel</li>
+          <li class="off">Logo ekleme</li>
+          <li class="off">Öncelikli destek</li>
         </ul>
-        <a href="#" class="btn btn-gold">Expertizi Keşfet →</a>
+        <a href="https://play.google.com/store/apps/details?id=com.alhazenpdf.code" target="_blank" class="plan-btn outline">Ücretsiz Başla →</a>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════ FORMATS ═══════════ -->
-<section class="section" id="formatlar" style="background:rgba(255,255,255,.015);border-top:1px solid var(--border)">
-  <div class="section-inner">
-    <div class="tag sr">Çıktı Formatları</div>
-    <h2 class="sh sr sr-d1">Her Mecra için<br><em>Doğru Format</em></h2>
-    <p class="sdesc sr sr-d2">Müşteri dosyasından vitrin afişine doğru boyut ve formatta üretin.</p>
-    <div class="formats-grid sr sr-d3">
-      <div class="fmt-card f-blue">
-        <div class="fmt-top-line"></div>
-        <div class="fmt-icon">📄</div>
-        <div class="fmt-name">Standart PDF</div>
-        <div class="fmt-desc">Çok sayfalı, tüm detaylar ve fotoğraflar. Müşteri dosyası veya e-posta.</div>
-        <div class="fmt-chips"><span class="fmt-chip">A4</span><span class="fmt-chip">Müşteri Dosyası</span></div>
-      </div>
-      <div class="fmt-card f-red">
-        <div class="fmt-top-line"></div>
-        <div class="fmt-icon">📌</div>
-        <div class="fmt-name">Cam Sticker</div>
-        <div class="fmt-desc">Ofis vitrinine yapıştırma afişi. Müşteri ilgisini anında çekin.</div>
-        <div class="fmt-chips"><span class="fmt-chip">A5 148×210</span><span class="fmt-chip">Vitrin</span></div>
-      </div>
-      <div class="fmt-card f-grn">
-        <div class="fmt-top-line"></div>
-        <div class="fmt-icon">🏠</div>
-        <div class="fmt-name">İlan Kartı</div>
-        <div class="fmt-desc">Tek sayfalık, müşteriye verilecek ilan broşürü.</div>
-        <div class="fmt-chips"><span class="fmt-chip">A4 210×297</span><span class="fmt-chip">Broşür</span></div>
-      </div>
-      <div class="fmt-card f-org">
-        <div class="fmt-top-line"></div>
-        <div class="fmt-icon">🖼️</div>
-        <div class="fmt-name">Vitrin Afişi</div>
-        <div class="fmt-desc">Büyük cam ve ilan panolarına. Sayfa başına 20 fotoğraf.</div>
-        <div class="fmt-chips"><span class="fmt-chip">A3 420×297</span><span class="fmt-chip">max 20 Foto</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════ PRICING ═══════════ -->
-<section class="section pricing-section" id="fiyatlar">
-  <div class="section-inner" style="text-align:center">
-    <div class="tag sr" style="justify-content:center">Fiyatlandırma</div>
-    <h2 class="sh sr sr-d1">Sade & <em>Şeffaf</em></h2>
-    <p class="sdesc sr sr-d2" style="margin:0 auto 56px">İlk ay tamamen ücretsiz. İstediğiniz zaman iptal.</p>
-    <div class="pricing-grid sr sr-d3">
-      <div class="price-card">
-        <div class="price-tier">Ücretsiz</div>
-        <div class="price-amount">0<sup>₺</sup></div>
-        <div class="price-period">Süresiz</div>
-        <ul class="price-feats">
-          <li class="pf">Temel PDF üretimi</li>
-          <li class="pf">3 tema</li>
-          <li class="pf">Standart format</li>
-          <li class="pf off">Tüm temalar</li>
-          <li class="pf off">Expertiz modülü</li>
-          <li class="pf off">Watermark kaldırma</li>
+      <div class="price-card featured reveal">
+        <div class="price-badge">En Popüler</div>
+        <div class="plan-name">Premium</div>
+        <div class="plan-desc">Profesyoneller için</div>
+        <div class="plan-price">₺79 <span>/ ay</span></div>
+        <ul class="plan-features">
+          <li>Sınırsız ilan görseli</li>
+          <li>Tüm premium temalar</li>
+          <li>PDF indirme</li>
+          <li>Filigransız görsel</li>
+          <li>Logo & marka ekleme</li>
+          <li>WhatsApp desteği</li>
         </ul>
-        <a href="#" class="btn btn-outline" style="width:100%;justify-content:center">Başla</a>
-      </div>
-      <div class="price-card featured">
-        <div class="price-featured-tag">ÖNERİLEN</div>
-        <div class="price-tier">Premium</div>
-        <div class="price-amount">79<sup>₺</sup></div>
-        <div class="price-period">/ ay</div>
-        <ul class="price-feats">
-          <li class="pf">Sınırsız PDF üretimi</li>
-          <li class="pf">20+ premium tema</li>
-          <li class="pf">Tüm formatlar</li>
-          <li class="pf">Expertiz modülü</li>
-          <li class="pf">Watermark yok</li>
-          <li class="pf">Öncelikli destek</li>
-        </ul>
-        <a href="#" class="btn btn-gold" style="width:100%;justify-content:center">✦ Premium Başla</a>
-      </div>
-      <div class="price-card">
-        <div class="price-tier">Yıllık</div>
-        <div class="price-amount">59<sup>₺</sup></div>
-        <div class="price-period">/ ay · Yıllık ödeme</div>
-        <ul class="price-feats">
-          <li class="pf">Premium'un tamamı</li>
-          <li class="pf">%25 tasarruf</li>
-          <li class="pf">Yeni temalar erken erişim</li>
-          <li class="pf">Web versiyonu erişimi</li>
-          <li class="pf">Kurumsal fatura</li>
-          <li class="pf">Toplu belge üretimi</li>
-        </ul>
-        <a href="#" class="btn btn-outline" style="width:100%;justify-content:center">Yıllık Seç</a>
+        <div class="plan-btn disabled">Yakında Aktif Olacak</div>
       </div>
     </div>
   </div>
 </section>
-
-<!-- ═══════════ CTA ═══════════ -->
-<section class="section cta-section">
-  <div class="cta-glow"></div>
-  <div class="section-inner">
-    <div class="tag sr" style="justify-content:center">Hemen Başlayın</div>
-    <h2 class="sh sr sr-d1" style="text-align:center">Farkınızı<br><em>Ortaya Koyun.</em></h2>
-    <p class="sdesc sr sr-d2" style="margin:0 auto 40px;text-align:center">İlk ay ücretsiz. Kredi kartı gerekmez.</p>
-    <div class="cta-btns sr sr-d3">
-      <a href="https://play.google.com/store/apps/details?id=com.alhazenpdf.code" class="btn btn-gold btn-lg">✦ Google Play'den İndir</a>
-      <a href="#" class="btn btn-outline btn-lg">Web Versiyonu →</a>
+ 
+<!-- CONTACT -->
+<section class="pad contact-section" id="iletisim">
+  <div class="contact-inner reveal">
+    <div class="tag">İletişim</div>
+    <h2 class="sec-title">Hemen <em>Başlayın</em></h2>
+    <p class="sec-sub" style="margin:0 auto;">Sorularınız için WhatsApp veya e-posta ile ulaşın. Kısa süre içinde dönüş yapıyoruz.</p>
+    <div class="contact-buttons">
+      <a href="https://wa.me/905XXXXXXXXX?text=Merhaba%2C%20AlhazenPDF%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." class="contact-btn whatsapp" target="_blank">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp ile Ulaşın
+      </a>
+      <a href="mailto:AlhazenPdf@gmail.com" class="contact-btn email">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
+        AlhazenPdf@gmail.com
+      </a>
     </div>
   </div>
 </section>
-
-<!-- ═══════════ FOOTER ═══════════ -->
+ 
+<!-- FOOTER -->
 <footer>
-  <div>
-    <div class="foot-brand-name">Alhazen<em>PDF</em></div>
-    <div class="foot-tagline">Profesyonel PDF Üreticisi</div>
-    <div class="foot-copy">© 2025 Alhazen Altekno<br>Eskişehir, Türkiye<br>Tüm hakları saklıdır.</div>
-  </div>
-  <div>
-    <div class="foot-col-h">Ürün</div>
-    <ul class="foot-links">
-      <li><a href="#">Özellikler</a></li>
-      <li><a href="#">Temalar</a></li>
-      <li><a href="#">Formatlar</a></li>
-      <li><a href="#">Fiyatlar</a></li>
-      <li><a href="#">Güncellemeler</a></li>
-    </ul>
-  </div>
-  <div>
-    <div class="foot-col-h">Destek</div>
-    <ul class="foot-links">
-      <li><a href="#">Sık Sorulan Sorular</a></li>
-      <li><a href="#">İletişim</a></li>
-      <li><a href="#">Gizlilik Politikası</a></li>
-      <li><a href="#">Kullanım Şartları</a></li>
-    </ul>
-  </div>
-  <div>
-    <div class="foot-col-h">Takip Et</div>
-    <ul class="foot-links">
-      <li><a href="#">Instagram</a></li>
-      <li><a href="#">Google Play</a></li>
-    </ul>
-  </div>
-  <div class="foot-bottom">
-    <span>AlhazenPDF — Araç & Emlak için Profesyonel PDF Üreticisi</span>
-    <span>ALHAZEN ALTEKNO · ESKİŞEHİR</span>
-  </div>
+  <div class="footer-logo">AlhazenPDF</div>
+  <p>© 2026 Alhazen Altekno · Tüm hakları saklıdır · alhazenpdf.com</p>
 </footer>
-
+ 
 <script>
-// ── CURSOR ──
-const cur = document.getElementById('cur');
-const ring = document.getElementById('cur-ring');
-let mx=0,my=0,rx=0,ry=0;
-document.addEventListener('mousemove',e=>{
-  mx=e.clientX;my=e.clientY;
-  cur.style.left=mx+'px';cur.style.top=my+'px';
-});
-(function animRing(){
-  rx+=(mx-rx)*.1;ry+=(my-ry)*.1;
-  ring.style.left=rx+'px';ring.style.top=ry+'px';
-  requestAnimationFrame(animRing);
-})();
-
-// ── CANVAS STAR FIELD ──
-const canvas=document.getElementById('canvas-bg');
-const ctx=canvas.getContext('2d');
-let W2,H2,stars=[];
-function resize(){
-  W2=canvas.width=window.innerWidth;
-  H2=canvas.height=window.innerHeight;
-}
-function initStars(){
-  stars=[];
-  for(let i=0;i<160;i++){
-    stars.push({
-      x:Math.random()*W2,y:Math.random()*H2,
-      r:Math.random()*1.4+.2,
-      op:Math.random(),spd:Math.random()*.008+.002,
-      dx:(Math.random()-.5)*.08,dy:(Math.random()-.5)*.04,
-    });
-  }
-}
-function drawStars(){
-  ctx.clearRect(0,0,W2,H2);
-  stars.forEach(s=>{
-    s.op+=s.spd;
-    if(s.op>1||s.op<0)s.spd*=-1;
-    s.x+=s.dx;s.y+=s.dy;
-    if(s.x<0)s.x=W2;if(s.x>W2)s.x=0;
-    if(s.y<0)s.y=H2;if(s.y>H2)s.y=0;
-    ctx.beginPath();
-    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-    ctx.fillStyle=`rgba(255,255,255,${s.op*.7})`;
-    ctx.fill();
-  });
-  // Gold nebula wisps
-  const t=Date.now()/6000;
-  const grd=ctx.createRadialGradient(
-    W2*.65+Math.sin(t)*60,H2*.35+Math.cos(t)*.5*40,0,
-    W2*.65,H2*.35,W2*.4
-  );
-  grd.addColorStop(0,'rgba(201,168,76,.05)');
-  grd.addColorStop(1,'transparent');
-  ctx.fillStyle=grd;ctx.fillRect(0,0,W2,H2);
-
-  const grd2=ctx.createRadialGradient(
-    W2*.2+Math.cos(t)*40,H2*.7+Math.sin(t)*30,0,
-    W2*.2,H2*.7,W2*.35
-  );
-  grd2.addColorStop(0,'rgba(56,189,248,.04)');
-  grd2.addColorStop(1,'transparent');
-  ctx.fillStyle=grd2;ctx.fillRect(0,0,W2,H2);
-
-  requestAnimationFrame(drawStars);
-}
-resize();initStars();drawStars();
-window.addEventListener('resize',()=>{resize();initStars()});
-
-// ── SCROLL REVEAL ──
-const revEls=document.querySelectorAll('.sr');
-const obs=new IntersectionObserver(entries=>{
-  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')});
-},{threshold:.1});
-revEls.forEach(e=>obs.observe(e));
-
-// ── NAV SHADOW ON SCROLL ──
-window.addEventListener('scroll',()=>{
-  document.querySelector('nav').style.boxShadow=
-    window.scrollY>20?'0 4px 40px rgba(0,0,0,.5)':'none';
-});
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx - 6 + 'px'; cursor.style.top = my - 6 + 'px'; });
+  function animRing() { rx += (mx - rx) * 0.12; ry += (my - ry) *.12; ring.style.left = rx - 18 + 'px'; ring.style.top = ry - 18 + 'px'; requestAnimationFrame(animRing); }
+  animRing();
+  document.querySelectorAll('a, button').forEach(el => { el.addEventListener('mouseenter', () => { cursor.style.transform = 'scale(2)'; ring.style.transform = 'scale(1.5)'; }); el.addEventListener('mouseleave', () => { cursor.style.transform = 'scale(1)'; ring.style.transform = 'scale(1)'; }); });
+ 
+  // Scroll reveal
+  const obs = new IntersectionObserver(entries => { entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); } }); }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 </script>
 </body>
 </html>
+ 
