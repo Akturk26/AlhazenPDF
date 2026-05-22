@@ -2,103 +2,379 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Servis Geçmişi — AlhazenPDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{
-  --gold:#C9A84C;--gold-lo:rgba(201,168,76,0.12);--gold-mid:rgba(201,168,76,0.28);
-  --bg:#060810;--bg-card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);
-  --border-hi:rgba(201,168,76,0.25);--txt:#EEF0F6;--txt-dim:rgba(238,240,246,0.55);--green:#4CAF50;
+:root {
+  --gold: #C9A84C;
+  --gold-hi: #E4C46A;
+  --gold-lo: rgba(201,168,76,0.10);
+  --gold-border: rgba(201,168,76,0.30);
+  --bg: #080A12;
+  --surface: rgba(255,255,255,0.04);
+  --border: rgba(255,255,255,0.07);
+  --border-hi: rgba(255,255,255,0.12);
+  --txt: #EEF0F6;
+  --txt-dim: rgba(238,240,246,0.50);
+  --txt-mid: rgba(238,240,246,0.75);
+  --green: #4ADE80;
+  --green-bg: rgba(74,222,128,0.10);
+  --green-border: rgba(74,222,128,0.25);
+  --blue: #60A5FA;
+  --radius: 16px;
+  --radius-sm: 10px;
 }
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--txt);font-family:system-ui,sans-serif;min-height:100vh;
-  display:flex;flex-direction:column;align-items:center;padding:0 16px 48px;-webkit-font-smoothing:antialiased;}
-.nav{width:100%;max-width:600px;display:flex;align-items:center;justify-content:space-between;
-  padding:20px 0;margin-bottom:32px;border-bottom:1px solid var(--border);}
-.logo{font-size:20px;font-weight:700}.logo em{color:var(--gold);font-style:normal}
-.card{width:100%;max-width:600px;background:var(--bg-card);border:1px solid var(--border);
-  border-radius:12px;padding:28px;margin-bottom:16px;}
-.card-header{display:flex;justify-content:space-between;align-items:flex-start;
-  margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);}
-.plaka{font-family:monospace;font-size:20px;font-weight:500;letter-spacing:2px;color:var(--gold);
-  background:rgba(255,255,255,.06);border:1px solid var(--border-hi);border-radius:6px;padding:6px 14px;}
-.tarih{font-size:12px;color:var(--txt-dim)}
-.badge-new{display:inline-block;padding:3px 10px;background:rgba(76,175,80,.15);color:var(--green);
-  border:1px solid rgba(76,175,80,.3);border-radius:100px;font-size:10px;font-weight:600;letter-spacing:1px;margin-left:8px;}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
-.info-label{font-size:10px;letter-spacing:2px;color:var(--txt-dim);text-transform:uppercase;margin-bottom:4px}
-.info-val{font-size:15px;font-weight:500}
-.sec-title{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:8px;}
-.text-block{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;
-  padding:14px;font-size:14px;color:var(--txt-dim);line-height:1.6;white-space:pre-wrap;margin-bottom:16px;}
-.km{display:inline-flex;align-items:center;gap:8px;background:var(--gold-lo);border:1px solid var(--gold-mid);
-  border-radius:100px;padding:6px 16px;font-family:monospace;font-size:14px;color:var(--gold);margin-bottom:20px;}
-.footer-row{margin-top:8px;padding-top:16px;border-top:1px solid var(--border);font-size:11px;color:var(--txt-dim);letter-spacing:1px;}
-.empty{width:100%;max-width:600px;text-align:center;padding:80px 24px;}
-.empty-icon{font-size:64px;margin-bottom:20px;display:block}
-.empty-title{font-size:22px;font-weight:600;margin-bottom:8px}
-.empty-desc{font-size:14px;color:var(--txt-dim);line-height:1.6}
-.spinner{width:40px;height:40px;border-radius:50%;border:2px solid var(--border);
-  border-top-color:var(--gold);animation:spin 1s linear infinite;margin:0 auto 20px;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.dl-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;
-  background:linear-gradient(135deg,var(--gold),#a8853a);color:#060810;font-size:12px;font-weight:700;text-decoration:none;}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--txt);
+  font-family: 'Inter', system-ui, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,168,76,0.07) 0%, transparent 60%);
+}
+
+/* NAV */
+.nav {
+  position: sticky; top: 0; z-index: 10;
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  background: rgba(8,10,18,0.88);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+}
+.nav-inner {
+  max-width: 620px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 60px;
+}
+.logo { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+.logo em { color: var(--gold); font-style: normal; }
+.dl-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; border-radius: 100px;
+  background: linear-gradient(135deg, var(--gold), #9A6E28);
+  color: #08090E; font-size: 12px; font-weight: 700;
+  text-decoration: none; white-space: nowrap;
+}
+
+/* WRAP */
+.wrap { max-width: 620px; margin: 0 auto; padding: 28px 20px 80px; }
+
+/* VEHICLE HERO */
+.vehicle-hero {
+  background: linear-gradient(135deg, rgba(201,168,76,0.08) 0%, rgba(255,255,255,0.03) 100%);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius);
+  padding: 28px 24px 22px;
+  margin-bottom: 24px;
+  position: relative; overflow: hidden;
+}
+.vehicle-hero::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.vehicle-hero-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 18px;
+}
+.plaka-wrap { display: flex; flex-direction: column; gap: 6px; }
+.plaka-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--txt-dim); font-weight: 600; }
+.plaka { font-size: 26px; font-weight: 800; letter-spacing: 3px; color: var(--gold-hi); line-height: 1; }
+.record-count-badge { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.count-num { font-size: 28px; font-weight: 800; color: var(--txt); line-height: 1; }
+.count-label { font-size: 9px; letter-spacing: 2px; color: var(--txt-dim); font-weight: 600; text-transform: uppercase; }
+
+.vehicle-info-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.veh-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border-radius: 100px;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border-hi);
+  font-size: 13px; font-weight: 500; color: var(--txt-mid);
+}
+.km-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 14px; border-radius: 100px;
+  background: var(--gold-lo); border: 1px solid var(--gold-border);
+  font-size: 13px; font-weight: 700; color: var(--gold);
+}
+
+/* TIMELINE */
+.timeline-label {
+  font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--txt-dim); font-weight: 700;
+  margin-bottom: 14px; padding-left: 4px;
+}
+.timeline { display: flex; flex-direction: column; }
+.record-card { position: relative; padding-left: 28px; }
+.record-card::before {
+  content: '';
+  position: absolute; left: 7px; top: 20px; bottom: 12px;
+  width: 1px; background: linear-gradient(to bottom, var(--gold-border), transparent);
+}
+.record-card:last-child::before { display: none; }
+.timeline-dot {
+  position: absolute; left: 0; top: 16px;
+  width: 15px; height: 15px; border-radius: 50%;
+  background: rgba(201,168,76,0.15); border: 2px solid rgba(201,168,76,0.35);
+}
+.timeline-dot.first {
+  background: var(--gold); border-color: var(--gold-hi);
+  box-shadow: 0 0 10px rgba(201,168,76,0.4);
+}
+
+.record-inner {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; margin-bottom: 12px;
+}
+.record-inner.first-record {
+  background: linear-gradient(135deg, rgba(201,168,76,0.07) 0%, var(--surface) 100%);
+  border-color: var(--gold-border);
+}
+
+.record-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px;
+}
+.record-date { font-size: 13px; font-weight: 600; color: var(--txt-mid); }
+.badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.badge { padding: 3px 10px; border-radius: 100px; font-size: 10px; font-weight: 700; letter-spacing: 0.8px; }
+.badge-son { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.badge-km { background: var(--gold-lo); color: var(--gold); border: 1px solid var(--gold-border); }
+
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.info-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--txt-dim); font-weight: 700; margin-bottom: 3px; }
+.info-val { font-size: 14px; font-weight: 500; color: var(--txt); }
+
+.sec-block { margin-bottom: 12px; }
+.sec-block:last-child { margin-bottom: 0; }
+.sec-title {
+  font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--gold); font-weight: 700; opacity: 0.85;
+  margin-bottom: 7px; display: flex; align-items: center; gap: 6px;
+}
+.sec-title::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--gold-border), transparent);
+}
+.text-block {
+  background: rgba(255,255,255,0.025); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+  font-size: 13px; color: var(--txt-mid); line-height: 1.65; white-space: pre-wrap;
+}
+.parts-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.part-tag {
+  padding: 4px 10px; border-radius: 6px;
+  background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.18);
+  font-size: 12px; font-weight: 500; color: var(--blue);
+}
+.record-footer {
+  margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);
+  font-size: 10px; letter-spacing: 1.5px; color: var(--txt-dim); font-weight: 600;
+}
+
+/* STATES */
+.state-wrap { text-align: center; padding: 80px 24px; }
+.state-icon { font-size: 56px; display: block; margin-bottom: 20px; }
+.state-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
+.state-desc { font-size: 14px; color: var(--txt-dim); line-height: 1.65; max-width: 320px; margin: 0 auto; }
+.spinner {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 2px solid var(--border); border-top-color: var(--gold);
+  animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* FOOTER */
+.page-footer {
+  margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+}
+.footer-brand { font-size: 13px; font-weight: 700; color: var(--txt-dim); }
+.footer-brand em { color: var(--gold); font-style: normal; }
+.footer-note { font-size: 11px; color: var(--txt-dim); }
+
+@media (max-width: 480px) {
+  .plaka { font-size: 22px; letter-spacing: 2px; }
+  .info-grid { grid-template-columns: 1fr; gap: 8px; }
+  .count-num { font-size: 22px; }
+}
 </style>
 </head>
 <body>
+
 <nav class="nav">
-  <div class="logo">Alhazen<em>PDF</em></div>
-  <a href="https://play.google.com/store/apps/details?id=com.alhazenpdf.code" class="dl-btn">Uygulamayı İndir</a>
+  <div class="nav-inner">
+    <div class="logo">Alhazen<em>PDF</em></div>
+    <a href="https://play.google.com/store/apps/details?id=com.alhazenpdf.code" class="dl-btn">Uygulamayı İndir</a>
+  </div>
 </nav>
-<div id="content" style="width:100%;max-width:600px;text-align:center;padding:80px 24px">
-  <div class="spinner"></div>
-  <p style="color:var(--txt-dim);font-size:14px">Servis kayıtları yükleniyor...</p>
+
+<div class="wrap">
+  <div id="vehicle-hero" style="display:none" class="vehicle-hero">
+    <div class="vehicle-hero-top">
+      <div class="plaka-wrap">
+        <div class="plaka-label">Plaka</div>
+        <div class="plaka" id="h-plaka"></div>
+      </div>
+      <div class="record-count-badge">
+        <div class="count-num" id="h-count"></div>
+        <div class="count-label">Kayıt</div>
+      </div>
+    </div>
+    <div class="vehicle-info-row" id="h-chips"></div>
+  </div>
+
+  <div id="content">
+    <div class="state-wrap">
+      <div class="spinner"></div>
+      <p style="color:var(--txt-dim);font-size:14px">Servis kayıtları yükleniyor…</p>
+    </div>
+  </div>
+
+  <div id="page-footer" style="display:none" class="page-footer">
+    <div class="footer-brand">Alhazen<em>PDF</em> · Teknik Servis</div>
+    <div class="footer-note">alhazenpdf.com</div>
+  </div>
 </div>
+
 <script>
 var SB_URL = 'https://cfebfglgrlbzdmhrwmra.supabase.co';
 var SB_KEY = 'sb_publishable_XyzQZvg5jFBGsSPuj_3U_A_MyGRo2V3';
+
 function getPlaka() {
   var parts = window.location.pathname.split('/');
   var last = parts[parts.length - 1];
-  if (last && last !== 'servis.html' && last !== 'servis' && last !== '') return decodeURIComponent(last).toUpperCase();
+  if (last && last !== 'servis.html' && last !== 'servis' && last !== '')
+    return decodeURIComponent(last).toUpperCase();
   return (new URLSearchParams(window.location.search).get('plaka') || '').toUpperCase();
 }
-function fmt(iso) { return new Date(iso).toLocaleDateString('tr-TR',{day:'2-digit',month:'long',year:'numeric'}); }
-function esc(s) { return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
+
+function fmt(iso) {
+  return new Date(iso).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+
+function esc(s) {
+  return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : '';
+}
+
+function fmtKm(val) {
+  var n = parseInt(val);
+  return isNaN(n) ? String(val) : n.toLocaleString('tr-TR') + ' KM';
+}
+
+function buildChips(k) {
+  var chips = '';
+  var arac = [k.marka, k.model, k.yil].filter(Boolean).join(' ');
+  if (arac) chips += '<div class="veh-chip">&#x1F697; ' + esc(arac) + '</div>';
+  if (k.musteri_adi) chips += '<div class="veh-chip">&#x1F464; ' + esc(k.musteri_adi) + '</div>';
+  if (k.km) chips += '<div class="km-chip">&#x2299; ' + fmtKm(k.km) + '</div>';
+  return chips;
+}
+
+function splitParts(str) {
+  if (!str) return [];
+  return str.split(/[\n,،]+/).map(function(s) { return s.trim(); }).filter(Boolean);
+}
+
+function buildRecord(k, i) {
+  var isFirst = i === 0;
+  var html = '<div class="record-card">';
+  html += '<div class="timeline-dot' + (isFirst ? ' first' : '') + '"></div>';
+  html += '<div class="record-inner' + (isFirst ? ' first-record' : '') + '">';
+
+  html += '<div class="record-head">';
+  html += '<div class="record-date">' + fmt(k.tarih || k.created_at) + '</div>';
+  html += '<div class="badges">';
+  if (i === 0) html += '<span class="badge badge-son">SON BAKIM</span>';
+  if (k.km) html += '<span class="badge badge-km">' + fmtKm(k.km) + '</span>';
+  html += '</div></div>';
+
+  var infoItems = [];
+  if (k.musteri_adi) infoItems.push(['Müşteri', esc(k.musteri_adi)]);
+  var arac = [k.marka, k.model].filter(Boolean).join(' ');
+  if (arac) infoItems.push(['Araç', esc(arac)]);
+  if (k.yil) infoItems.push(['Model Yılı', esc(k.yil)]);
+  if (k.telefon) infoItems.push(['Telefon', esc(k.telefon)]);
+
+  if (infoItems.length) {
+    html += '<div class="info-grid">';
+    infoItems.forEach(function(it) {
+      html += '<div><div class="info-label">' + it[0] + '</div><div class="info-val">' + it[1] + '</div></div>';
+    });
+    html += '</div>';
+  }
+
+  if (k.yapilan_islemler) {
+    html += '<div class="sec-block"><div class="sec-title">Yapılan İşlemler</div>';
+    html += '<div class="text-block">' + esc(k.yapilan_islemler) + '</div></div>';
+  }
+
+  if (k.degistirilen_parcalar) {
+    var parts = splitParts(k.degistirilen_parcalar);
+    html += '<div class="sec-block"><div class="sec-title">Değiştirilen Parçalar</div>';
+    if (parts.length > 1) {
+      html += '<div class="parts-list">';
+      parts.forEach(function(p) { html += '<span class="part-tag">' + esc(p) + '</span>'; });
+      html += '</div>';
+    } else {
+      html += '<div class="text-block">' + esc(k.degistirilen_parcalar) + '</div>';
+    }
+    html += '</div>';
+  }
+
+  if (k.notlar) {
+    html += '<div class="sec-block"><div class="sec-title">Notlar</div>';
+    html += '<div class="text-block">' + esc(k.notlar) + '</div></div>';
+  }
+
+  html += '<div class="record-footer">ALHAZENPDF · TEKNİK SERVİS</div>';
+  html += '</div></div>';
+  return html;
+}
+
 async function load() {
-  var plaka = getPlaka(), el = document.getElementById('content');
+  var plaka = getPlaka();
+  var el = document.getElementById('content');
+
   if (!plaka) {
-    el.innerHTML = '<div class="empty"><span class="empty-icon">🔧</span><div class="empty-title">Plaka bulunamadı</div><div class="empty-desc">Bu QR kod geçersiz görünüyor.</div></div>';
+    el.innerHTML = '<div class="state-wrap"><span class="state-icon">&#x1F527;</span><div class="state-title">Plaka bulunamadı</div><div class="state-desc">Bu QR kod geçersiz görünüyor.</div></div>';
     return;
   }
+
   try {
-    var res = await fetch(SB_URL+'/rest/v1/servis_kayitlari?plaka=eq.'+encodeURIComponent(plaka)+'&order=created_at.desc&limit=10',
-      {headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+    var res = await fetch(
+      SB_URL + '/rest/v1/servis_kayitlari?plaka=eq.' + encodeURIComponent(plaka) + '&order=created_at.desc&limit=20',
+      { headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY } }
+    );
     var data = await res.json();
-    if (!data.length) {
-      el.innerHTML = '<div class="empty"><span class="empty-icon">🔍</span><div class="empty-title">'+plaka+' için kayıt yok</div><div class="empty-desc">Bu araç için henüz servis kaydı oluşturulmamış.</div></div>';
+
+    if (!Array.isArray(data) || !data.length) {
+      el.innerHTML = '<div class="state-wrap"><span class="state-icon">&#x1F50D;</span><div class="state-title">' + esc(plaka) + '</div><div class="state-desc">Bu araç için henüz servis kaydı oluşturulmamış.</div></div>';
       return;
     }
-    var html = '';
-    data.forEach(function(k, i) {
-      html += '<div class="card"><div class="card-header"><div><span class="plaka">'+esc(k.plaka)+'</span>'+(i===0?'<span class="badge-new">SON BAKIM</span>':'')+'</div><div class="tarih">'+fmt(k.tarih)+'</div></div>';
-      if (k.km) html += '<div class="km">'+parseInt(k.km).toLocaleString('tr-TR')+' KM</div>';
-      html += '<div class="info-grid">';
-      if (k.musteri_adi) html += '<div><div class="info-label">Müşteri</div><div class="info-val">'+esc(k.musteri_adi)+'</div></div>';
-      if (k.marka||k.model) html += '<div><div class="info-label">Araç</div><div class="info-val">'+esc([k.marka,k.model].filter(Boolean).join(' '))+'</div></div>';
-      if (k.yil) html += '<div><div class="info-label">Yıl</div><div class="info-val">'+esc(k.yil)+'</div></div>';
-      if (k.telefon) html += '<div><div class="info-label">Telefon</div><div class="info-val">'+esc(k.telefon)+'</div></div>';
-      html += '</div>';
-      if (k.yapilan_islemler) html += '<div class="sec-title">Yapılan İşlemler</div><div class="text-block">'+esc(k.yapilan_islemler)+'</div>';
-      if (k.degistirilen_parcalar) html += '<div class="sec-title">Değiştirilen Parçalar</div><div class="text-block">'+esc(k.degistirilen_parcalar)+'</div>';
-      if (k.notlar) html += '<div class="sec-title">Notlar</div><div class="text-block">'+esc(k.notlar)+'</div>';
-      html += '<div class="footer-row">ALHAZENPDF · TEKNİK SERVİS</div></div>';
-    });
-    el.className = ''; el.innerHTML = html;
+
+    var hero = document.getElementById('vehicle-hero');
+    document.getElementById('h-plaka').textContent = plaka;
+    document.getElementById('h-count').textContent = data.length;
+    document.getElementById('h-chips').innerHTML = buildChips(data[0]);
+    hero.style.display = '';
+
+    var timelineHtml = '<div class="timeline-label">SERVİS GEÇMİŞİ</div><div class="timeline">';
+    data.forEach(function(k, i) { timelineHtml += buildRecord(k, i); });
+    timelineHtml += '</div>';
+    el.innerHTML = timelineHtml;
+
+    document.getElementById('page-footer').style.display = '';
+
   } catch(e) {
-    el.innerHTML = '<div class="empty"><span class="empty-icon">⚠️</span><div class="empty-title">Bağlantı hatası</div><div class="empty-desc">Lütfen internet bağlantınızı kontrol edin.</div></div>';
+    el.innerHTML = '<div class="state-wrap"><span class="state-icon">&#x26A0;&#xFE0F;</span><div class="state-title">Bağlantı hatası</div><div class="state-desc">Lütfen internet bağlantınızı kontrol edin ve sayfayı yenileyin.</div></div>';
   }
 }
+
 load();
 </script>
 </body>
