@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlhazenPDF — Farkını Ortaya Koy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=DM+Sans:ital,wght@0,200;0,300;0,400;0,500;1,300&family=Cormorant+Garamond:ital,wght@1,300;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:16px}
+body{background:#F8F6F0;color:#0D0D0D;font-family:'DM Sans',sans-serif;overflow-x:hidden;cursor:none}
+
+/* CURSOR */
+.cur{position:fixed;width:10px;height:10px;border-radius:50%;background:#0D0D0D;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:exclusion;transition:transform 0.15s,background 0.3s}
+.cur-ring{position:fixed;width:36px;height:36px;border-radius:50%;border:1px solid rgba(13,13,13,0.3);pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all 0.18s ease}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  padding:24px 64px;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:background 0.4s,box-shadow 0.4s;
+}
+nav.scrolled{background:rgba(248,246,240,0.92);backdrop-filter:blur(20px);box-shadow:0 1px 0 rgba(0,0,0,0.06)}
+.nav-logo{font-family:'Cinzel',serif;font-size:15px;font-weight:700;letter-spacing:0.18em;color:#0D0D0D;text-decoration:none}
+.nav-logo em{color:#B8790A;font-style:normal}
+.nav-links{display:flex;gap:44px;list-style:none}
+.nav-links a{font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(13,13,13,0.5);text-decoration:none;transition:color 0.3s;font-weight:400}
+.nav-links a:hover{color:#0D0D0D}
+.nav-cta{
+  padding:11px 32px;
+  background:#0D0D0D;color:#F8F6F0;
+  font-size:11px;letter-spacing:0.15em;text-transform:uppercase;
+  text-decoration:none;font-family:'DM Sans',sans-serif;font-weight:500;
+  transition:all 0.3s;
+}
+.nav-cta:hover{background:#B8790A}
+
+/* ══ HERO ══ */
+.hero{
+  position:relative;height:100vh;overflow:hidden;
+  display:flex;align-items:center;justify-content:flex-start;
+  background:#F0EDE4;
+}
+
+/* Animated SVG mountain landscape */
+.hero-bg{
+  position:absolute;inset:0;width:100%;height:100%;overflow:hidden;
+}
+
+.hero-content{
+  position:relative;z-index:10;
+  padding:0 64px;
+  max-width:800px;
+}
+
+.hero-tag{
+  display:inline-flex;align-items:center;gap:12px;
+  font-size:10px;letter-spacing:0.4em;text-transform:uppercase;
+  color:#B8790A;margin-bottom:32px;
+  opacity:0;animation:up 1s 0.3s forwards;
+}
+.hero-tag::before{content:'';width:30px;height:1px;background:#B8790A}
+
+.hero-h1{
+  font-family:'Cinzel',serif;
+  font-size:clamp(56px,8vw,110px);
+  font-weight:900;line-height:0.88;
+  letter-spacing:-0.02em;
+  margin-bottom:32px;
+  opacity:0;animation:up 1.1s 0.5s forwards;
+}
+.hero-h1 .line1{display:block;color:#0D0D0D}
+.hero-h1 .line2{display:block;color:#B8790A;font-weight:400;font-size:0.55em;letter-spacing:0.15em;margin-top:8px;font-family:'DM Sans',sans-serif;font-style:italic}
+
+.hero-p{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(18px,2vw,24px);
+  font-weight:300;font-style:italic;
+  color:rgba(13,13,13,0.55);
+  line-height:1.6;
+  max-width:480px;
+  margin-bottom:48px;
+  opacity:0;animation:up 1s 0.7s forwards;
+}
+.hero-p strong{color:#0D0D0D;font-weight:400;font-style:normal}
+
+.hero-btns{
+  display:flex;gap:16px;flex-wrap:wrap;
+  opacity:0;animation:up 1s 0.9s forwards;
+}
+.btn-dark{
+  padding:15px 40px;background:#0D0D0D;color:#F8F6F0;
+  font-size:12px;letter-spacing:0.15em;text-transform:uppercase;
+  text-decoration:none;font-weight:500;transition:all 0.3s;
+  position:relative;overflow:hidden;
+}
+.btn-dark::after{content:'';position:absolute;inset:0;background:#B8790A;transform:scaleX(0);transform-origin:left;transition:transform 0.4s cubic-bezier(0.16,1,0.3,1)}
+.btn-dark:hover::after{transform:scaleX(1)}
+.btn-dark span{position:relative;z-index:1}
+.btn-outline{
+  padding:15px 40px;border:1.5px solid rgba(13,13,13,0.2);color:#0D0D0D;
+  font-size:12px;letter-spacing:0.15em;text-transform:uppercase;
+  text-decoration:none;font-weight:400;transition:all 0.3s;
+}
+.btn-outline:hover{border-color:#B8790A;color:#B8790A}
+
+/* Floating numbers */
+.hero-num{
+  position:absolute;right:64px;bottom:60px;
+  display:flex;flex-direction:column;align-items:flex-end;gap:20px;
+  opacity:0;animation:fadeI 1s 1.2s forwards;
+  z-index:10;
+}
+.n-item{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.n-val{font-family:'Cinzel',serif;font-size:32px;font-weight:700;color:#0D0D0D;line-height:1}
+.n-lbl{font-size:10px;letter-spacing:0.2em;color:rgba(13,13,13,0.4);text-transform:uppercase}
+
+/* Scroll arrow */
+.scroll-arrow{
+  position:absolute;bottom:36px;left:64px;z-index:10;
+  display:flex;align-items:center;gap:12px;
+  font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(13,13,13,0.4);
+  opacity:0;animation:fadeI 1s 1.4s forwards;
+}
+.arrow-line{width:48px;height:1px;background:rgba(13,13,13,0.3);position:relative;overflow:hidden}
+.arrow-line::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:#B8790A;animation:sweep 2s ease-in-out infinite}
+
+/* ══ ALPS SECTION ══ */
+.alps{
+  position:relative;overflow:hidden;
+  min-height:100vh;
+  background:linear-gradient(170deg,#E8F4F8 0%,#C8E8F0 40%,#A8D4E0 70%,#88BED0 100%);
+  display:flex;align-items:center;
+}
+.alps-canvas{position:absolute;inset:0;width:100%;height:100%}
+.alps-content{
+  position:relative;z-index:5;
+  padding:120px 64px;
+  max-width:1300px;margin:0 auto;width:100%;
+  display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;
+}
+.nature-label{
+  display:inline-flex;align-items:center;gap:10px;
+  font-size:10px;letter-spacing:0.4em;text-transform:uppercase;
+  margin-bottom:20px;
+}
+.alps .nature-label{color:#1A5A7A}
+.section-big-title{
+  font-family:'Cinzel',serif;
+  font-size:clamp(40px,6vw,80px);
+  font-weight:900;line-height:0.9;
+  letter-spacing:-0.02em;
+  margin-bottom:28px;
+}
+.alps .section-big-title{color:#0A2A3A}
+.section-body{
+  font-size:15px;line-height:1.85;
+  font-weight:300;max-width:400px;
+  margin-bottom:40px;
+}
+.alps .section-body{color:rgba(10,42,58,0.65)}
+.alps .btn-nature{
+  padding:14px 36px;background:#0A3A5A;color:#fff;
+  font-size:11px;letter-spacing:0.2em;text-transform:uppercase;
+  text-decoration:none;font-weight:500;transition:all 0.3s;display:inline-block;
+}
+.alps .btn-nature:hover{background:#1A6A9A}
+
+/* Feature pills */
+.feat-pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:32px}
+.pill{
+  padding:8px 18px;
+  border:1px solid;
+  font-size:11px;letter-spacing:0.1em;
+  font-weight:400;
+}
+.alps .pill{border-color:rgba(10,42,58,0.2);color:rgba(10,42,58,0.7)}
+
+/* Card mockup for alps */
+.alps-card{
+  background:rgba(255,255,255,0.85);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.9);
+  padding:32px;
+  box-shadow:0 40px 80px rgba(0,80,120,0.15),0 0 0 1px rgba(255,255,255,0.5);
+  position:relative;
+}
+.alps-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(to right,#0A3A5A,#1A8ABE,#0A3A5A);
+}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px}
+.card-tag{font-size:9px;letter-spacing:0.3em;color:#1A8ABE;text-transform:uppercase}
+.card-type{font-size:10px;color:rgba(13,13,13,0.3);letter-spacing:0.1em}
+.card-car-name{font-family:'Cinzel',serif;font-size:40px;font-weight:900;color:#0A0A0A;line-height:1;margin-bottom:4px}
+.card-car-model{font-size:12px;letter-spacing:0.2em;color:#1A8ABE}
+.card-img{
+  height:160px;
+  background:linear-gradient(135deg,#E8F4F8,#C0DDE8);
+  margin:20px 0;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.car-silhouette{width:80%;opacity:0.15}
+.card-specs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.cs-label{font-size:8px;letter-spacing:0.2em;color:rgba(13,13,13,0.35);text-transform:uppercase;margin-bottom:3px}
+.cs-val{font-size:12px;font-weight:600;color:#0A0A0A}
+.card-footer{display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid rgba(0,0,0,0.06)}
+.card-price{font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:#B8790A}
+.card-brand{font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.2em;color:rgba(13,13,13,0.3)}
+
+/* ══ OCEAN SECTION ══ */
+.ocean{
+  position:relative;overflow:hidden;
+  min-height:100vh;
+  background:linear-gradient(180deg,#001830 0%,#002848 30%,#003860 60%,#001828 100%);
+  display:flex;align-items:center;
+}
+.ocean-canvas{position:absolute;inset:0;width:100%;height:100%}
+.ocean-content{
+  position:relative;z-index:5;
+  padding:120px 64px;
+  max-width:1300px;margin:0 auto;width:100%;
+  text-align:center;
+}
+.ocean .nature-label{color:#40C8E0;justify-content:center}
+.ocean .section-big-title{color:#fff;margin:0 auto 24px}
+.ocean .section-body{color:rgba(255,255,255,0.5);margin:0 auto 60px;text-align:center}
+
+.ocean-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:2px;background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.08);
+  max-width:900px;margin:0 auto;
+}
+.ocean-card{
+  background:rgba(0,30,60,0.6);
+  backdrop-filter:blur(10px);
+  padding:40px 32px;
+  position:relative;overflow:hidden;
+  transition:background 0.4s;
+  cursor:default;
+}
+.ocean-card:hover{background:rgba(0,50,90,0.8)}
+.ocean-card::before{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(to right,transparent,#40C8E0,transparent);
+  transform:scaleX(0);transform-origin:center;
+  transition:transform 0.5s;
+}
+.ocean-card:hover::before{transform:scaleX(1)}
+.oc-num{font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.3em;color:rgba(64,200,224,0.5);margin-bottom:24px;display:block}
+.oc-icon{font-size:28px;margin-bottom:16px;display:block}
+.oc-name{font-family:'Cinzel',serif;font-size:18px;font-weight:600;color:#fff;margin-bottom:12px}
+.oc-desc{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.35);font-weight:300}
+
+/* ══ AMAZON SECTION ══ */
+.amazon{
+  position:relative;overflow:hidden;
+  min-height:100vh;
+  background:linear-gradient(160deg,#0A1A0A 0%,#0F280A 30%,#142E0A 60%,#081408 100%);
+  display:flex;align-items:center;
+}
+.amazon-canvas{position:absolute;inset:0;width:100%;height:100%}
+.amazon-content{
+  position:relative;z-index:5;
+  padding:120px 64px;
+  max-width:1300px;margin:0 auto;width:100%;
+  display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center;
+}
+.amazon .nature-label{color:#4AE880}
+.amazon .section-big-title{color:#fff}
+.amazon .section-big-title .outline{-webkit-text-stroke:1px rgba(74,232,128,0.4);color:transparent;display:block}
+.amazon .section-body{color:rgba(255,255,255,0.45)}
+
+.qr-showcase{
+  display:flex;flex-direction:column;align-items:center;gap:24px;
+}
+.qr-box{
+  width:220px;height:220px;
+  background:rgba(255,255,255,0.95);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+  box-shadow:0 0 60px rgba(74,232,128,0.2),0 0 120px rgba(74,232,128,0.08);
+}
+.qr-inner{
+  width:180px;height:180px;
+  display:grid;grid-template-columns:repeat(7,1fr);gap:4px;
+}
+.qr-cell{background:#0A0A0A;border-radius:1px}
+.qr-cell.w{background:#fff}
+.qr-label{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(74,232,128,0.7);text-align:center}
+.qr-flow{display:flex;align-items:center;gap:12px;font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:0.1em}
+.qr-arrow{width:20px;height:1px;background:rgba(74,232,128,0.4)}
+.flow-step{
+  padding:8px 16px;
+  border:1px solid rgba(74,232,128,0.2);
+  font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
+  color:rgba(255,255,255,0.6);
+  white-space:nowrap;
+}
+
+/* ══ TOROS SECTION ══ */
+.toros{
+  position:relative;overflow:hidden;
+  min-height:80vh;
+  background:linear-gradient(160deg,#F5EDE0 0%,#EAD8C0 40%,#D4B896 70%,#BFA080 100%);
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;
+}
+.toros-canvas{position:absolute;inset:0;width:100%;height:100%}
+.toros-content{
+  position:relative;z-index:5;
+  padding:120px 64px;
+  max-width:900px;
+}
+.toros .nature-label{color:#8B4A0A;justify-content:center;display:flex}
+.toros .section-big-title{color:#3A1A00;margin:0 auto 28px}
+.toros .section-body{color:rgba(58,26,0,0.55);margin:0 auto 48px;text-align:center}
+
+.pricing-card{
+  background:rgba(255,255,255,0.7);
+  backdrop-filter:blur(30px);
+  border:1px solid rgba(255,255,255,0.9);
+  padding:60px;
+  position:relative;
+  box-shadow:0 40px 100px rgba(90,40,0,0.12);
+}
+.pricing-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(to right,#8B4A0A,#D4862A,#8B4A0A);
+}
+.price-badge{
+  display:inline-block;padding:6px 20px;
+  border:1px solid rgba(139,74,10,0.3);
+  font-size:10px;letter-spacing:0.3em;text-transform:uppercase;
+  color:#8B4A0A;margin-bottom:32px;
+}
+.price-hero{
+  font-family:'Cinzel',serif;
+  font-size:clamp(80px,15vw,160px);
+  font-weight:900;line-height:1;
+  color:#0A0A0A;
+  margin-bottom:8px;
+  letter-spacing:-0.03em;
+}
+.price-hero sup{font-size:0.3em;color:#B8790A;vertical-align:super}
+.price-sub{font-size:14px;color:rgba(13,13,13,0.4);letter-spacing:0.1em;margin-bottom:48px}
+.feat-list{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:12px;text-align:left;margin-bottom:48px;
+}
+.feat-li{
+  display:flex;align-items:center;gap:10px;
+  font-size:13px;color:rgba(13,13,13,0.65);
+}
+.feat-li::before{
+  content:'';width:5px;height:5px;
+  background:#B8790A;flex-shrink:0;
+  transform:rotate(45deg);
+}
+.price-btns{display:flex;gap:12px;justify-content:center}
+
+/* ══ IBN SECTION ══ */
+.ibn{
+  background:#0A0A0A;
+  padding:140px 64px;
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+.ibn::before{
+  content:'ابن الهيثم';
+  position:absolute;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:clamp(80px,15vw,200px);
+  color:rgba(255,255,255,0.02);
+  font-family:serif;
+  pointer-events:none;
+  white-space:nowrap;
+}
+.ibn-eyebrow{font-size:10px;letter-spacing:0.4em;text-transform:uppercase;color:rgba(184,121,10,0.7);margin-bottom:32px}
+.ibn-quote{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(24px,4vw,48px);
+  font-weight:300;font-style:italic;
+  color:rgba(255,255,255,0.85);
+  line-height:1.5;
+  max-width:820px;
+  margin:0 auto 32px;
+}
+.ibn-quote em{color:#D4A030;font-style:normal}
+.ibn-attr{font-size:11px;letter-spacing:0.3em;color:rgba(184,121,10,0.6);text-transform:uppercase;margin-bottom:80px}
+.ibn-desc{
+  font-size:15px;line-height:1.9;
+  color:rgba(255,255,255,0.35);
+  max-width:680px;margin:0 auto;
+  font-weight:300;
+}
+.ibn-desc strong{color:rgba(212,160,48,0.9);font-weight:400}
+
+/* ══ FOOTER ══ */
+footer{
+  background:#F8F6F0;
+  padding:80px 64px 40px;
+  border-top:1px solid rgba(13,13,13,0.08);
+}
+.foot-top{
+  max-width:1300px;margin:0 auto;
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:60px;
+  margin-bottom:60px;
+}
+.foot-logo{font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:#0A0A0A;margin-bottom:12px}
+.foot-logo em{color:#B8790A;font-style:normal}
+.foot-tagline{font-size:13px;color:rgba(13,13,13,0.4);line-height:1.7;max-width:260px}
+.foot-col-h{font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(13,13,13,0.35);margin-bottom:18px}
+.foot-col ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.foot-col a{font-size:13px;color:rgba(13,13,13,0.5);text-decoration:none;transition:color 0.3s}
+.foot-col a:hover{color:#B8790A}
+.foot-bottom{
+  max-width:1300px;margin:0 auto;
+  padding-top:28px;border-top:1px solid rgba(13,13,13,0.06);
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:11px;color:rgba(13,13,13,0.3);
+}
+.foot-bottom a{color:rgba(184,121,10,0.6);text-decoration:none}
+
+/* ANIMATIONS */
+@keyframes up{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeI{from{opacity:0}to{opacity:1}}
+@keyframes sweep{0%{left:-100%}50%,100%{left:100%}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes shimmer{0%,100%{opacity:0.5}50%{opacity:1}}
+
+.reveal{opacity:0;transform:translateY(50px);transition:opacity 1s ease,transform 1s ease}
+.reveal.vis{opacity:1;transform:translateY(0)}
+.reveal-left{opacity:0;transform:translateX(-50px);transition:opacity 1s ease,transform 1s ease}
+.reveal-left.vis{opacity:1;transform:translateX(0)}
+.reveal-right{opacity:0;transform:translateX(50px);transition:opacity 1s ease,transform 1s ease}
+.reveal-right.vis{opacity:1;transform:translateX(0)}
+
+/* RESPONSIVE */
+@media(max-width:960px){
+  nav{padding:20px 24px}
+  .nav-links{display:none}
+  .hero-content{padding:0 24px}
+  .hero-num{right:24px}
+  .alps-content,.amazon-content,.ocean-content,.toros-content,.ibn,.foot-top{padding-left:24px;padding-right:24px}
+  .alps-content,.amazon-content{grid-template-columns:1fr;gap:48px}
+  .ocean-grid{grid-template-columns:1fr}
+  .feat-list{grid-template-columns:1fr}
+  .foot-top{grid-template-columns:1fr;gap:32px}
+  .foot-bottom{flex-direction:column;gap:8px;text-align:center}
+  footer{padding:60px 24px 32px}
+}
+</style>
+</head>
+<body>
+
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">ALHAZEN<em>PDF</em></a>
+  <ul class="nav-links">
+    <li><a href="#alps">Araç PDF</a></li>
+    <li><a href="#ocean">Özellikler</a></li>
+    <li><a href="#amazon">Paylaşım</a></li>
+    <li><a href="#toros">Fiyat</a></li>
+  </ul>
+  <a href="#indir" class="nav-cta">Ücretsiz İndir</a>
+</nav>
+
+<!-- ══ INDIR SECTION ══ -->
+<section id="indir" style="background:#0A0A0A;padding:140px 64px;text-align:center;position:relative;overflow:hidden;">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:Cinzel,serif;font-size:clamp(80px,15vw,220px);font-weight:900;color:rgba(255,255,255,0.02);pointer-events:none;white-space:nowrap;letter-spacing:-0.03em;">İNDİR</div>
+  <div style="position:relative;z-index:2;max-width:700px;margin:0 auto;">
+    <p style="font-size:10px;letter-spacing:0.4em;text-transform:uppercase;color:rgba(184,121,10,0.7);margin-bottom:24px;">Uygulamayı İndir · Ücretsiz</p>
+    <h2 style="font-family:Cinzel,serif;font-size:clamp(36px,6vw,72px);font-weight:900;color:#fff;line-height:0.95;letter-spacing:-0.02em;margin-bottom:20px;">Hemen<br><span style="color:#B8790A;">Başla.</span></h2>
+    <p style="font-size:15px;line-height:1.8;color:rgba(255,255,255,0.35);font-weight:300;margin-bottom:64px;">Tüm özellikler açık. Kayıt gerektirmez.<br>iOS ve Android için tamamen ücretsiz.</p>
+    <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;">
+      <a href="https://apps.apple.com/us/app/alhazenpdf-ara%C3%A7-ve-emlak-pdf/id6771070616" target="_blank" rel="noopener"
+        style="display:flex;align-items:center;gap:16px;padding:20px 40px;background:#fff;color:#000;text-decoration:none;min-width:220px;transition:all 0.3s;"
+        onmouseover="this.style.background='#B8790A';this.style.color='#fff'"
+        onmouseout="this.style.background='#fff';this.style.color='#000'">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.14-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04l-.08.27zM13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        <div style="text-align:left;">
+          <div style="font-size:10px;letter-spacing:0.15em;opacity:0.6;text-transform:uppercase;">App Store'dan İndir</div>
+          <div style="font-size:18px;font-weight:700;font-family:Cinzel,serif;letter-spacing:0.05em;">iOS</div>
+        </div>
+      </a>
+      <a href="https://play.google.com/store/apps/details?id=com.alhazenpdf.code" target="_blank" rel="noopener"
+        style="display:flex;align-items:center;gap:16px;padding:20px 40px;background:transparent;color:#fff;text-decoration:none;border:1.5px solid rgba(184,121,10,0.4);min-width:220px;transition:all 0.3s;"
+        onmouseover="this.style.borderColor='#B8790A';this.style.background='rgba(184,121,10,0.1)'"
+        onmouseout="this.style.borderColor='rgba(184,121,10,0.4)';this.style.background='transparent'">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M3.18 23.76c.3.17.64.19.96.07l13.2-7.37-2.97-2.97-11.19 10.27zM.48 1.16C.18 1.46 0 1.93 0 2.53v18.94c0 .6.18 1.07.48 1.37l.07.07L10.88 12v-.25L.55 1.09l-.07.07zM20.94 10.53l-2.82-1.57-3.14 3.04 3.14 3.05 2.84-1.58c.81-.45.81-1.49-.02-1.94zM3.18.24l13.2 7.37-2.97 2.97L3.18.24z"/></svg>
+        <div style="text-align:left;">
+          <div style="font-size:10px;letter-spacing:0.15em;opacity:0.6;text-transform:uppercase;">Google Play'den İndir</div>
+          <div style="font-size:18px;font-weight:700;font-family:Cinzel,serif;letter-spacing:0.05em;">Android</div>
+        </div>
+      </a>
+    </div>
+    <p style="margin-top:48px;font-size:12px;color:rgba(255,255,255,0.2);letter-spacing:0.1em;">iOS 14+ · Android 6+ · Tamamen Ücretsiz</p>
+  </div>
+</section>
+
+<!-- ══ HERO ══ -->
+<section class="hero" id="home">
+  <div class="hero-bg">
+    <canvas id="heroCanvas" style="width:100%;height:100%"></canvas>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-tag">Araç & Emlak Profesyonelleri İçin</div>
+    <h1 class="hero-h1">
+      <span class="line1">FARKINI<br>ORTAYA<br>KOY</span>
+      <span class="line2">AlhazenPDF ile Profesyonel Belgeler</span>
+    </h1>
+    <p class="hero-p">
+      İbn-ül Heysem'in <strong>ışığı anlamlandırdığı</strong> gibi —<br>
+      belgeleriniz de farkını ortaya koyar.
+    </p>
+    <div class="hero-btns">
+      <a href="#alps" class="btn-dark"><span>Keşfet</span></a>
+      <a href="#indir" class="btn-outline">Ücretsiz İndir</a>
+    </div>
+  </div>
+
+  <div class="hero-num">
+    <div class="n-item"><div class="n-val">50<span style="font-size:0.5em;color:rgba(13,13,13,0.3)">+</span></div><div class="n-lbl">Tema</div></div>
+    <div class="n-item"><div class="n-val">6</div><div class="n-lbl">Modül</div></div>
+    <div class="n-item"><div class="n-val">∞</div><div class="n-lbl">Belge</div></div>
+  </div>
+
+  <div class="scroll-arrow">
+    <div class="arrow-line"></div>
+    <span>Kaydır</span>
+  </div>
+</section>
+
+<!-- ══ ALPS — ARAÇ PDF ══ -->
+<section class="alps" id="alps">
+  <canvas class="alps-canvas" id="alpsCanvas"></canvas>
+  <div class="alps-content">
+    <div class="reveal-left">
+      <div class="nature-label">🏔 Alpler · Araç Satış Kartı</div>
+      <h2 class="section-big-title">Soğuk<br>Berrak<br>Keskin.</h2>
+      <p class="section-body">Alplerin berrak havasındaki netlik gibi — araç satış kartlarınız da kristal netliğinde. Fotoğraf, teknik detaylar, fiyat. Tek dokunuş, profesyonel sonuç.</p>
+      <a href="#" class="btn-nature">Araç Kartı Oluştur</a>
+      <div class="feat-pills">
+        <span class="pill">Story Formatı</span>
+        <span class="pill">Dikey & Kare</span>
+        <span class="pill">50+ Tema</span>
+        <span class="pill">QR Kod</span>
+      </div>
+    </div>
+    <div class="reveal-right">
+      <div class="alps-card" style="animation:float 6s ease-in-out infinite">
+        <div class="card-head">
+          <span class="card-tag">◆ Satılık Araç</span>
+          <span class="card-type">AlhazenPDF</span>
+        </div>
+        <div class="card-car-name">OPEL</div>
+        <div class="card-car-model">ASTRA · 2020</div>
+        <div class="card-img">
+          <svg class="car-silhouette" viewBox="0 0 200 80" fill="none">
+            <path d="M20 55 Q25 40 50 35 Q70 28 90 26 Q110 24 130 26 Q150 28 165 35 Q180 42 182 55 L185 60 L15 60 Z" fill="rgba(26,90,122,0.12)"/>
+            <rect x="15" y="58" width="170" height="8" rx="2" fill="rgba(26,90,122,0.08)"/>
+            <ellipse cx="50" cy="66" rx="12" ry="6" fill="rgba(26,90,122,0.15)"/>
+            <ellipse cx="150" cy="66" rx="12" ry="6" fill="rgba(26,90,122,0.15)"/>
+            <path d="M55 35 Q65 28 95 26 Q120 24 135 26 L130 35 Q115 33 85 33 Z" fill="rgba(26,90,122,0.06)"/>
+          </svg>
+        </div>
+        <div class="card-specs">
+          <div><div class="cs-label">Motor</div><div class="cs-val" style="color:#1A6A9A;font-size:11px">1.4 TURBO</div></div>
+          <div><div class="cs-label">Şanzıman</div><div class="cs-val" style="font-size:11px">OTOMATİK</div></div>
+          <div><div class="cs-label">KM</div><div class="cs-val" style="color:#1A6A9A;font-size:11px">97.750</div></div>
+          <div><div class="cs-label">Renk</div><div class="cs-val" style="font-size:11px">BEYAZ</div></div>
+        </div>
+        <div class="card-footer">
+          <div class="card-price">1.175.000 ₺</div>
+          <div class="card-brand">ALHAZENPDF</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ OCEAN — ÖZELLIKLER ══ -->
+<section class="ocean" id="ocean">
+  <canvas class="ocean-canvas" id="oceanCanvas"></canvas>
+  <div class="ocean-content">
+    <div class="nature-label reveal">🌊 Okyanus · Tüm Özellikler</div>
+    <h2 class="section-big-title reveal">Derinlik<br>Sınırsız.</h2>
+    <p class="section-body reveal">Okyanus gibi — ne kadar keşfedersen o kadar bulursun.</p>
+
+    <div class="ocean-grid reveal">
+      <div class="ocean-card">
+        <span class="oc-num">01</span>
+        <span class="oc-icon">📄</span>
+        <div class="oc-name">Araç Satış Kartı</div>
+        <p class="oc-desc">Story, Dikey, Kare. WhatsApp & Instagram'a tek dokunuşta.</p>
+      </div>
+      <div class="ocean-card">
+        <span class="oc-num">02</span>
+        <span class="oc-icon">🏠</span>
+        <div class="oc-name">Emlak Portföyü</div>
+        <p class="oc-desc">Çoklu ilan, karşılaştırma ve A4 PDF ile müşteri sunumu.</p>
+      </div>
+      <div class="ocean-card">
+        <span class="oc-num">03</span>
+        <span class="oc-icon">📋</span>
+        <div class="oc-name">Expertiz Kağıdı</div>
+        <p class="oc-desc">Hasar haritası, donanım listesi ve tam ekspertiz belgesi.</p>
+      </div>
+      <div class="ocean-card">
+        <span class="oc-num">04</span>
+        <span class="oc-icon">🔧</span>
+        <div class="oc-name">Teknik Servis</div>
+        <p class="oc-desc">Servis kaydı, QR kod ve plakadan araç sorgulama.</p>
+      </div>
+      <div class="ocean-card">
+        <span class="oc-num">05</span>
+        <span class="oc-icon">📊</span>
+        <div class="oc-name">Satış Takip</div>
+        <p class="oc-desc">Stok, alış-satış ve kâr/zarar takibi tek ekranda.</p>
+      </div>
+      <div class="ocean-card">
+        <span class="oc-num">06</span>
+        <span class="oc-icon">🧾</span>
+        <div class="oc-name">Teklif & Fatura</div>
+        <p class="oc-desc">KDV hesaplama, kalem listesi ve imza alanıyla PDF.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ AMAZON — PAYLAŞIM ══ -->
+<section class="amazon" id="amazon">
+  <canvas class="amazon-canvas" id="amazonCanvas"></canvas>
+  <div class="amazon-content">
+    <div class="reveal-left">
+      <div class="nature-label">🌿 Amazon · Link ile Paylaş</div>
+      <h2 class="section-big-title">
+        Paylaş.<br>
+        <span class="outline">Büyü.</span><br>
+        Sat.
+      </h2>
+      <p class="section-body">Amazon yağmur ormanları nasıl her damlayı hayata dönüştürüyorsa — her paylaştığın kart da bir müşteriye ulaşır. WhatsApp Story'nden tıklayan AlhazenPDF.com'da tam ilanı görür.</p>
+      <div class="feat-pills" style="margin-top:0">
+        <span class="pill" style="border-color:rgba(74,232,128,0.25);color:rgba(74,232,128,0.7)">WhatsApp Linki</span>
+        <span class="pill" style="border-color:rgba(74,232,128,0.25);color:rgba(74,232,128,0.7)">Instagram Story</span>
+        <span class="pill" style="border-color:rgba(74,232,128,0.25);color:rgba(74,232,128,0.7)">QR Kod</span>
+        <span class="pill" style="border-color:rgba(74,232,128,0.25);color:rgba(74,232,128,0.7)">İlan Sayfası</span>
+      </div>
+    </div>
+    <div class="reveal-right" style="display:flex;flex-direction:column;align-items:center;gap:32px">
+      <div class="qr-showcase">
+        <div class="qr-box">
+          <!-- QR pattern simulation -->
+          <svg width="180" height="180" viewBox="0 0 180 180">
+            <!-- Position detection patterns -->
+            <rect x="10" y="10" width="50" height="50" fill="none" stroke="#0A0A0A" stroke-width="4"/>
+            <rect x="18" y="18" width="34" height="34" fill="#0A0A0A"/>
+            <rect x="24" y="24" width="22" height="22" fill="#fff"/>
+            <rect x="30" y="30" width="10" height="10" fill="#0A0A0A"/>
+
+            <rect x="120" y="10" width="50" height="50" fill="none" stroke="#0A0A0A" stroke-width="4"/>
+            <rect x="128" y="18" width="34" height="34" fill="#0A0A0A"/>
+            <rect x="134" y="24" width="22" height="22" fill="#fff"/>
+            <rect x="140" y="30" width="10" height="10" fill="#0A0A0A"/>
+
+            <rect x="10" y="120" width="50" height="50" fill="none" stroke="#0A0A0A" stroke-width="4"/>
+            <rect x="18" y="128" width="34" height="34" fill="#0A0A0A"/>
+            <rect x="24" y="134" width="22" height="22" fill="#fff"/>
+            <rect x="30" y="140" width="10" height="10" fill="#0A0A0A"/>
+
+            <!-- Data modules (random pattern) -->
+            <rect x="72" y="10" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="84" y="10" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="96" y="10" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="72" y="20" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="96" y="20" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="84" y="32" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="72" y="44" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="84" y="44" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="96" y="44" width="8" height="8" fill="#0A0A0A"/>
+
+            <rect x="10" y="72" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="22" y="72" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="10" y="84" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="34" y="84" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="46" y="72" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="58" y="72" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="58" y="84" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="46" y="96" width="8" height="8" fill="#0A0A0A"/>
+
+            <rect x="72" y="72" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="84" y="72" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="96" y="72" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="108" y="72" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="72" y="84" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="96" y="84" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="108" y="84" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="84" y="96" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="96" y="96" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="72" y="108" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="108" y="108" width="8" height="8" fill="#0A0A0A"/>
+
+            <rect x="120" y="72" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="132" y="72" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="144" y="84" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="156" y="72" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="120" y="96" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="156" y="96" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="132" y="108" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="144" y="108" width="8" height="8" fill="#0A0A0A"/>
+
+            <rect x="120" y="120" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="144" y="120" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="156" y="120" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="132" y="132" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="120" y="144" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="144" y="144" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="156" y="144" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="120" y="156" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="132" y="156" width="8" height="8" fill="#0A0A0A"/>
+            <rect x="156" y="156" width="8" height="8" fill="#0A0A0A"/>
+
+            <!-- Center logo area -->
+            <rect x="78" y="78" width="24" height="24" fill="#B8790A" rx="2"/>
+            <text x="90" y="94" font-family="serif" font-size="12" fill="white" text-anchor="middle" font-weight="bold">A</text>
+          </svg>
+        </div>
+        <div class="qr-label">alhazenpdf.com/ilan/opel-astra</div>
+        <div class="qr-flow">
+          <span class="flow-step">Kart Oluştur</span>
+          <div class="qr-arrow"></div>
+          <span class="flow-step">Story'de Paylaş</span>
+          <div class="qr-arrow"></div>
+          <span class="flow-step">Müşteri Görür</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TOROS — PRICING ══ -->
+<section class="toros" id="toros">
+  <canvas class="toros-canvas" id="torosCanvas"></canvas>
+  <div class="toros-content">
+    <div class="nature-label reveal">⛰ Toroslar · Fiyatlandırma</div>
+    <h2 class="section-big-title reveal">Sarp ama<br>ulaşılabilir.</h2>
+    <p class="section-body reveal">Toroslar gibi — görünce büyüler, ama çıkışı herkese açık.</p>
+
+    <div class="pricing-card reveal">
+      <span class="price-badge">Lansman Dönemi · Tamamen Ücretsiz</span>
+      <div class="price-hero"><sup>₺</sup>0</div>
+      <p class="price-sub">Tüm özellikler açık · Kayıt gerektirmez</p>
+      <div class="feat-list">
+        <div class="feat-li">Araç Satış Kartı</div>
+        <div class="feat-li">Emlak Portföyü</div>
+        <div class="feat-li">Expertiz Kağıdı</div>
+        <div class="feat-li">Teklif & Fatura</div>
+        <div class="feat-li">Teknik Servis Modülü</div>
+        <div class="feat-li">WhatsApp Paylaşım</div>
+        <div class="feat-li">50+ Premium Tema</div>
+        <div class="feat-li">QR Araç Sorgula</div>
+      </div>
+      <div class="price-btns">
+        <a href="https://apps.apple.com/us/app/alhazenpdf-ara%C3%A7-ve-emlak-pdf/id6771070616" target="_blank" rel="noopener" class="btn-dark"><span>App Store'dan İndir</span></a>
+        <a href="https://play.google.com/store/apps/details?id=com.alhazenpdf.code" target="_blank" rel="noopener" class="btn-outline">Google Play'den İndir</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ IBN AL-HAYTHAM ══ -->
+<section class="ibn">
+  <div class="ibn-eyebrow reveal">İbn-ül Heysem · 965–1040 · Optik Biliminin Kurucusu</div>
+  <blockquote class="ibn-quote reveal">
+    "Hakikati aramak zordur ve<br>
+    ona giden yol çetindir. Ama<br>
+    <em>doğruyu arayanda ışık</em><br>
+    hiçbir zaman sönmez."
+  </blockquote>
+  <p class="ibn-attr reveal">— Kitab el-Menazır · Optik Kitabı</p>
+  <p class="ibn-desc reveal">
+    Hasan İbn Hasan İbn el-Heysem — Batı'da <strong>Alhazen</strong> olarak bilinen bu Arap bilgin,
+    optik biliminin gerçek kurucusudur. Kamera obscura'nın ilk tarifini yazmış,
+    ışığın nasıl çalıştığını bilimsel yöntemle ispat etmiş, modern görüntüleme teknolojisinin
+    tohumlarını 11. yüzyılda atmıştır.
+    AlhazenPDF, onun adını ve mirasını taşıyarak
+    <strong>her belgeyi bir esere dönüştürür.</strong>
+  </p>
+</section>
+
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-top">
+    <div>
+      <div class="foot-logo">ALHAZEN<em>PDF</em></div>
+      <p class="foot-tagline">İbn-ül Heysem'in optik bilimine saygıyla — araç ve emlak profesyonelleri için mobil PDF uygulaması.</p>
+    </div>
+    <div class="foot-col">
+      <div class="foot-col-h">Uygulama</div>
+      <ul>
+        <li><a href="https://apps.apple.com/us/app/alhazenpdf-ara%C3%A7-ve-emlak-pdf/id6771070616" target="_blank" rel="noopener">App Store</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=com.alhazenpdf.code" target="_blank" rel="noopener">Google Play</a></li>
+        <li><a href="#">Özellikler</a></li>
+        <li><a href="#">Temalar</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <div class="foot-col-h">Destek</div>
+      <ul>
+        <li><a href="#">Yardım Merkezi</a></li>
+        <li><a href="#">Bize Ulaşın</a></li>
+        <li><a href="#">Geri Bildirim</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <div class="foot-col-h">Yasal</div>
+      <ul>
+        <li><a href="#">Gizlilik Politikası</a></li>
+        <li><a href="#">Kullanım Koşulları</a></li>
+        <li><a href="#">KVKK</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2024 AlhazenPDF · Aktekno · Eskişehir, Türkiye</span>
+    <span>İbn-ül Heysem'e saygıyla · <a href="#">alhazenpdf.com</a></span>
+  </div>
+</footer>
+
+<script>
+// ── CURSOR ──
+const cur=document.getElementById('cur'),ring=document.getElementById('curRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cur.style.left=mx+'px';cur.style.top=my+'px';
+});
+(function animRing(){rx+=(mx-rx)*0.1;ry+=(my-ry)*0.1;
+  ring.style.left=rx+'px';ring.style.top=ry+'px';
+  requestAnimationFrame(animRing);
+})();
+document.querySelectorAll('a,button').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ring.style.transform='translate(-50%,-50%) scale(2.5)';ring.style.borderColor='rgba(184,121,10,0.6)'});
+  el.addEventListener('mouseleave',()=>{ring.style.transform='translate(-50%,-50%) scale(1)';ring.style.borderColor='rgba(13,13,13,0.3)'});
+});
+
+// ── NAV SCROLL ──
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('scrolled',window.scrollY>60);
+});
+
+// ── HERO CANVAS — Light & Mountain atmosphere ──
+(function(){
+  const c=document.getElementById('heroCanvas');
+  const ctx=c.getContext('2d');
+  let W,H,pts=[],t=0;
+  function resize(){W=c.width=c.offsetWidth;H=c.height=c.offsetHeight;init()}
+  function init(){
+    pts=[];
+    for(let i=0;i<120;i++){
+      pts.push({x:Math.random()*W,y:Math.random()*H,
+        r:Math.random()*60+20,a:Math.random()*0.04+0.01,
+        sx:Math.random()*0.3-0.15,sy:Math.random()*0.2-0.1,
+        gold:Math.random()<0.3});
+    }
+  }
+  function draw(){
+    t++;
+    ctx.clearRect(0,0,W,H);
+    // Warm light bg
+    const bg=ctx.createLinearGradient(0,0,W,H);
+    bg.addColorStop(0,'#EDE8DC');
+    bg.addColorStop(0.5,'#E8E0D0');
+    bg.addColorStop(1,'#DDD5C0');
+    ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+
+    // Light orbs
+    pts.forEach(p=>{
+      p.x+=p.sx;p.y+=p.sy;
+      if(p.x<-100)p.x=W+100;if(p.x>W+100)p.x=-100;
+      if(p.y<-100)p.y=H+100;if(p.y>H+100)p.y=-100;
+      const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
+      if(p.gold){
+        g.addColorStop(0,`rgba(184,121,10,${p.a})`);
+        g.addColorStop(1,'rgba(0,0,0,0)');
+      } else {
+        g.addColorStop(0,`rgba(255,255,255,${p.a*1.5})`);
+        g.addColorStop(1,'rgba(0,0,0,0)');
+      }
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=g;ctx.fill();
+    });
+
+    // Mountain silhouettes
+    ctx.save();
+    ctx.globalAlpha=0.05;
+    // Far mountains
+    ctx.beginPath();
+    ctx.moveTo(W*0.4,H);
+    ctx.lineTo(W*0.5,H*0.3);
+    ctx.lineTo(W*0.6,H*0.5);
+    ctx.lineTo(W*0.65,H*0.35);
+    ctx.lineTo(W*0.75,H*0.55);
+    ctx.lineTo(W*0.85,H*0.25);
+    ctx.lineTo(W,H*0.5);
+    ctx.lineTo(W,H);
+    ctx.fillStyle='#8B6A40';ctx.fill();
+    // Near mountains
+    ctx.beginPath();
+    ctx.moveTo(W*0.5,H);
+    ctx.lineTo(W*0.65,H*0.45);
+    ctx.lineTo(W*0.8,H*0.6);
+    ctx.lineTo(W*0.9,H*0.4);
+    ctx.lineTo(W,H*0.55);
+    ctx.lineTo(W,H);
+    ctx.fillStyle='#5A4020';ctx.fill();
+    ctx.restore();
+
+    requestAnimationFrame(draw);
+  }
+  new ResizeObserver(resize).observe(c.parentElement);
+  resize();draw();
+})();
+
+// ── ALPS CANVAS — Ice & Snow ──
+(function(){
+  const c=document.getElementById('alpsCanvas');
+  const ctx=c.getContext('2d');
+  let W,H,flakes=[],t=0;
+  function resize(){W=c.width=c.offsetWidth;H=c.height=c.offsetHeight;init()}
+  function init(){
+    flakes=[];
+    for(let i=0;i<80;i++){
+      flakes.push({x:Math.random()*W,y:Math.random()*H,
+        r:Math.random()*3+0.5,a:Math.random()*0.4+0.05,
+        speed:Math.random()*0.5+0.1,drift:Math.random()*0.3-0.15});
+    }
+  }
+  function draw(){
+    t++;ctx.clearRect(0,0,W,H);
+    // Ice blue atmosphere
+    const bg=ctx.createLinearGradient(0,0,0,H);
+    bg.addColorStop(0,'rgba(180,220,240,0.3)');
+    bg.addColorStop(1,'rgba(140,190,210,0.15)');
+    ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+
+    // Snow particles
+    flakes.forEach(f=>{
+      f.y+=f.speed;f.x+=f.drift;
+      if(f.y>H){f.y=-10;f.x=Math.random()*W}
+      ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,255,255,${f.a})`;ctx.fill();
+    });
+
+    // Mountain ridgeline
+    ctx.save();ctx.globalAlpha=0.08;
+    ctx.beginPath();
+    ctx.moveTo(0,H);ctx.lineTo(0,H*0.6);
+    ctx.lineTo(W*0.1,H*0.4);ctx.lineTo(W*0.2,H*0.55);
+    ctx.lineTo(W*0.3,H*0.3);ctx.lineTo(W*0.4,H*0.5);
+    ctx.lineTo(W*0.5,H*0.25);ctx.lineTo(W*0.6,H*0.45);
+    ctx.lineTo(W*0.7,H*0.2);ctx.lineTo(W*0.8,H*0.4);
+    ctx.lineTo(W*0.9,H*0.3);ctx.lineTo(W,H*0.45);
+    ctx.lineTo(W,H);ctx.closePath();
+    ctx.fillStyle='#1A5A7A';ctx.fill();
+    // Snow caps
+    ctx.globalAlpha=0.15;
+    ctx.beginPath();
+    ctx.moveTo(W*0.45,H*0.35);ctx.lineTo(W*0.5,H*0.25);ctx.lineTo(W*0.55,H*0.35);
+    ctx.fillStyle='#fff';ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(W*0.65,H*0.3);ctx.lineTo(W*0.7,H*0.2);ctx.lineTo(W*0.75,H*0.3);
+    ctx.fillStyle='#fff';ctx.fill();
+    ctx.restore();
+
+    requestAnimationFrame(draw);
+  }
+  new ResizeObserver(resize).observe(c);resize();draw();
+})();
+
+// ── OCEAN CANVAS — Deep waves ──
+(function(){
+  const c=document.getElementById('oceanCanvas');
+  const ctx=c.getContext('2d');
+  let W,H,t=0;
+  function resize(){W=c.width=c.offsetWidth;H=c.height=c.offsetHeight}
+  function draw(){
+    t+=0.008;ctx.clearRect(0,0,W,H);
+    // Bioluminescent particles
+    for(let i=0;i<3;i++){
+      const x=Math.random()*W,y=Math.random()*H;
+      ctx.beginPath();ctx.arc(x,y,Math.random()*2,0,Math.PI*2);
+      ctx.fillStyle=`rgba(64,200,224,${Math.random()*0.15})`;ctx.fill();
+    }
+    // Wave layers
+    [0.15,0.12,0.09,0.06].forEach((a,i)=>{
+      ctx.beginPath();ctx.moveTo(0,H);
+      for(let x=0;x<=W;x+=8){
+        const y=H*(0.3+i*0.15)+Math.sin(x*0.01+t+i*0.8)*40+Math.sin(x*0.02-t*0.7+i)*20;
+        ctx.lineTo(x,y);
+      }
+      ctx.lineTo(W,H);ctx.closePath();
+      ctx.fillStyle=`rgba(0,80,140,${a})`;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  new ResizeObserver(resize).observe(c);resize();draw();
+})();
+
+// ── AMAZON CANVAS — Fireflies ──
+(function(){
+  const c=document.getElementById('amazonCanvas');
+  const ctx=c.getContext('2d');
+  let W,H,flies=[],t=0;
+  function resize(){W=c.width=c.offsetWidth;H=c.height=c.offsetHeight;init()}
+  function init(){
+    flies=[];
+    for(let i=0;i<60;i++){
+      flies.push({
+        x:Math.random()*W,y:Math.random()*H,
+        vx:Math.random()*0.6-0.3,vy:Math.random()*0.6-0.3,
+        r:Math.random()*2+0.5,
+        phase:Math.random()*Math.PI*2,
+        speed:Math.random()*0.03+0.01
+      });
+    }
+  }
+  function draw(){
+    t++;ctx.clearRect(0,0,W,H);
+    // Leaf canopy shadows
+    ctx.save();ctx.globalAlpha=0.06;
+    for(let i=0;i<12;i++){
+      const lx=(i/12)*W,ly=Math.random()*H*0.3;
+      ctx.beginPath();ctx.ellipse(lx,ly,60,30,Math.random()*0.5,0,Math.PI*2);
+      ctx.fillStyle='#1A4A10';ctx.fill();
+    }
+    ctx.restore();
+    // Fireflies
+    flies.forEach(f=>{
+      f.x+=f.vx;f.y+=f.vy;
+      if(f.x<0)f.x=W;if(f.x>W)f.x=0;
+      if(f.y<0)f.y=H;if(f.y>H)f.y=0;
+      const glow=Math.sin(t*f.speed+f.phase)*0.5+0.5;
+      const g=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,f.r*6);
+      g.addColorStop(0,`rgba(74,232,128,${glow*0.8})`);
+      g.addColorStop(0.3,`rgba(74,232,128,${glow*0.2})`);
+      g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.beginPath();ctx.arc(f.x,f.y,f.r*6,0,Math.PI*2);
+      ctx.fillStyle=g;ctx.fill();
+      ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(180,255,200,${glow})`;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  new ResizeObserver(resize).observe(c);resize();draw();
+})();
+
+// ── TOROS CANVAS — Dust & Earth ──
+(function(){
+  const c=document.getElementById('torosCanvas');
+  const ctx=c.getContext('2d');
+  let W,H,dust=[],t=0;
+  function resize(){W=c.width=c.offsetWidth;H=c.height=c.offsetHeight;init()}
+  function init(){
+    dust=[];
+    for(let i=0;i<50;i++){
+      dust.push({x:Math.random()*W,y:Math.random()*H,
+        r:Math.random()*80+20,a:Math.random()*0.06+0.01,
+        vx:Math.random()*0.4-0.2,vy:Math.random()*0.2-0.1});
+    }
+  }
+  function draw(){
+    t++;ctx.clearRect(0,0,W,H);
+    // Rocky ridge silhouettes
+    ctx.save();ctx.globalAlpha=0.06;
+    ctx.beginPath();
+    ctx.moveTo(0,H);ctx.lineTo(0,H*0.7);
+    ctx.lineTo(W*0.08,H*0.55);ctx.lineTo(W*0.18,H*0.7);
+    ctx.lineTo(W*0.28,H*0.45);ctx.lineTo(W*0.38,H*0.6);
+    ctx.lineTo(W*0.48,H*0.38);ctx.lineTo(W*0.55,H*0.52);
+    ctx.lineTo(W*0.65,H*0.3);ctx.lineTo(W*0.72,H*0.48);
+    ctx.lineTo(W*0.82,H*0.42);ctx.lineTo(W*0.9,H*0.55);
+    ctx.lineTo(W,H*0.4);ctx.lineTo(W,H);
+    ctx.fillStyle='#5A3010';ctx.fill();
+    ctx.restore();
+    // Dust particles
+    dust.forEach(d=>{
+      d.x+=d.vx;d.y+=d.vy;
+      if(d.x<-d.r)d.x=W+d.r;if(d.x>W+d.r)d.x=-d.r;
+      const g=ctx.createRadialGradient(d.x,d.y,0,d.x,d.y,d.r);
+      g.addColorStop(0,`rgba(180,120,40,${d.a})`);
+      g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+      ctx.fillStyle=g;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  new ResizeObserver(resize).observe(c);resize();draw();
+})();
+
+// ── SCROLL REVEAL ──
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach((e,i)=>{
+    if(e.isIntersecting)setTimeout(()=>e.target.classList.add('vis'),i*120);
+  });
+},{threshold:0.08});
+document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(el=>obs.observe(el));
+
+// ── PARALLAX ──
+window.addEventListener('scroll',()=>{
+  const sy=window.scrollY;
+  const hero=document.querySelector('.hero-content');
+  if(hero)hero.style.transform=`translateY(${sy*0.3}px)`;
+});
+</script>
+</body>
+</html>
