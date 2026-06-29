@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yaz Okulu Başvuru Formu — Özel Asay Anaokulu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --mint:#4ECDC4; --mint-lt:#E8FAF9;
+      --lav:#A78BFA;  --lav-lt:#F0EBFF;
+      --peach:#FF8B6A;--peach-lt:#FFF0EB;
+      --sky:#60B4FF;  --sky-lt:#EAF4FF;
+      --sun:#FFD166;  --sun-lt:#FFFBEE;
+      --rose:#FF6B9D; --rose-lt:#FFF0F6;
+      --wa:#25D366;   --wa-dk:#128C7E;
+      --bg:#FAFBFF;   --white:#FFFFFF;
+      --text:#2D3142; --text2:#6B7280;
+      --border:#E8EAF0;
+      --purple:#6654CB;
+    }
+    html { scroll-behavior: smooth; }
+    body { background:var(--bg); color:var(--text); font-family:'Nunito',sans-serif; font-weight:500; min-height:100vh; }
+
+    /* HERO */
+    .hero { background:linear-gradient(160deg,#667EEA 0%,#764BA2 40%,#F093FB 100%); position:relative; overflow:hidden; padding:52px 24px 80px; text-align:center; }
+    .hero-shapes { position:absolute; inset:0; pointer-events:none; }
+    .shape { position:absolute; border-radius:50%; opacity:.18; }
+    .shape-1{width:180px;height:180px;background:#FFD166;top:-40px;left:-30px;}
+    .shape-2{width:120px;height:120px;background:#FF8B6A;top:20px;right:40px;}
+    .shape-3{width:80px;height:80px;background:#4ECDC4;bottom:30px;left:10%;}
+    .shape-4{width:100px;height:100px;background:#fff;bottom:10px;right:15%;}
+    .shape-5{width:50px;height:50px;background:#60B4FF;top:50px;left:40%;}
+    .floaters{position:absolute;inset:0;pointer-events:none;}
+    .floater{position:absolute;animation:float 4s ease-in-out infinite;}
+    .floater:nth-child(1){top:12%;left:5%;animation-delay:0s;font-size:28px;}
+    .floater:nth-child(2){top:20%;right:6%;animation-delay:.8s;font-size:36px;}
+    .floater:nth-child(3){bottom:25%;left:8%;animation-delay:1.4s;font-size:24px;}
+    .floater:nth-child(4){bottom:20%;right:10%;animation-delay:2s;font-size:30px;}
+    .floater:nth-child(5){top:50%;left:2%;animation-delay:.3s;font-size:22px;}
+    .floater:nth-child(6){top:60%;right:3%;animation-delay:1.8s;font-size:26px;}
+    @keyframes float{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-12px) rotate(5deg)}}
+    .stars{position:absolute;inset:0;pointer-events:none;}
+    .star{position:absolute;color:rgba(255,255,255,.6);font-size:18px;animation:twinkle 3s ease-in-out infinite;}
+    @keyframes twinkle{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+    .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.2);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.35);border-radius:100px;padding:6px 18px 6px 10px;margin-bottom:24px;}
+    .hero-badge span{font-size:13px;font-weight:700;color:#fff;letter-spacing:.5px;}
+    .hero h1{font-size:clamp(32px,7vw,54px);font-weight:900;color:#fff;line-height:1.1;margin-bottom:12px;text-shadow:0 2px 20px rgba(0,0,0,.15);}
+    .hero h1 .wave{display:inline-block;animation:wave 2s ease-in-out infinite;}
+    @keyframes wave{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+    .hero p{font-size:16px;color:rgba(255,255,255,.85);font-weight:500;max-width:400px;margin:0 auto;line-height:1.6;}
+    .wave-divider{margin-top:-2px;line-height:0;}
+    .wave-divider svg{display:block;width:100%;}
+
+    /* BODY */
+    .page-body{max-width:620px;margin:0 auto;padding:32px 16px 64px;}
+    .section-card{background:var(--white);border:2px solid var(--border);border-radius:24px;padding:32px 28px;margin-bottom:20px;position:relative;overflow:hidden;transition:border-color .2s;}
+    .section-card:hover{border-color:#C8D0F0;}
+    .section-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;border-radius:24px 24px 0 0;}
+    .card-mint::before{background:linear-gradient(90deg,#4ECDC4,#44B8B0);}
+    .card-lav::before{background:linear-gradient(90deg,#A78BFA,#8B5CF6);}
+    .card-peach::before{background:linear-gradient(90deg,#FF8B6A,#FF6B4A);}
+    .card-sky::before{background:linear-gradient(90deg,#60B4FF,#3D9FFF);}
+    .card-sun::before{background:linear-gradient(90deg,#FFD166,#FFC233);}
+    .card-rose::before{background:linear-gradient(90deg,#FF6B9D,#FF4D8B);}
+    .section-head{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+    .section-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+    .icon-mint{background:var(--mint-lt);}.icon-lav{background:var(--lav-lt);}.icon-peach{background:var(--peach-lt);}.icon-sky{background:var(--sky-lt);}.icon-sun{background:var(--sun-lt);}.icon-rose{background:var(--rose-lt);}
+    .section-title{font-size:18px;font-weight:800;color:var(--text);}
+    .section-sub{font-size:12px;color:var(--text2);font-weight:500;margin-top:1px;}
+    .field{margin-bottom:16px;}.field:last-child{margin-bottom:0;}
+    .field-label{display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:7px;}
+    .field-label .req{color:var(--rose);margin-left:2px;}
+    .field-label .hint{font-size:11px;font-weight:500;color:var(--text2);margin-left:6px;}
+    input[type="text"],input[type="tel"],input[type="date"],textarea{width:100%;background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--text);font-family:'Nunito',sans-serif;font-size:15px;font-weight:600;outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;}
+    input::placeholder,textarea::placeholder{color:#C4C9D8;font-weight:500;}
+    input[type="date"]::-webkit-calendar-picker-indicator{opacity:.5;cursor:pointer;}
+    input:focus,textarea:focus{border-color:var(--lav);box-shadow:0 0 0 4px rgba(167,139,250,.12);background:#fff;}
+    textarea{resize:vertical;min-height:80px;line-height:1.6;}
+    .row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .choice-grid{display:grid;gap:10px;}
+    .choice-grid.col-2{grid-template-columns:1fr 1fr;}
+    .choice-grid.col-3{grid-template-columns:1fr 1fr 1fr;}
+    .choice-grid.col-1{grid-template-columns:1fr;}
+    .choice-item{display:flex;align-items:flex-start;gap:10px;background:var(--bg);border:2px solid var(--border);border-radius:14px;padding:13px 15px;cursor:pointer;transition:all .18s;user-select:none;}
+    .choice-item:hover{border-color:#C8D0F0;background:#fff;}
+    .choice-item input[type="radio"],.choice-item input[type="checkbox"]{width:18px;height:18px;margin-top:1px;accent-color:var(--lav);cursor:pointer;flex-shrink:0;padding:0;border:none;box-shadow:none;background:none;}
+    .choice-item .c-label{font-size:14px;font-weight:700;color:var(--text);line-height:1.3;}
+    .choice-item .c-sub{font-size:11px;font-weight:500;color:var(--text2);margin-top:2px;display:block;}
+    .choice-item:has(input:checked){border-color:var(--lav);background:var(--lav-lt);}
+    .choice-item:has(input:checked) .c-label{color:#6D28D9;}
+    .choice-mint .choice-item:has(input:checked){border-color:var(--mint);background:var(--mint-lt);}
+    .choice-mint .choice-item:has(input:checked) .c-label{color:#0E8F87;}
+    .choice-mint .choice-item input{accent-color:var(--mint);}
+    .choice-sun .choice-item:has(input:checked){border-color:var(--sun);background:var(--sun-lt);}
+    .choice-sun .choice-item:has(input:checked) .c-label{color:#B27800;}
+    .choice-sun .choice-item input{accent-color:#F5A623;}
+    .choice-peach .choice-item:has(input:checked){border-color:var(--peach);background:var(--peach-lt);}
+    .choice-peach .choice-item:has(input:checked) .c-label{color:#B84A2A;}
+    .choice-peach .choice-item input{accent-color:var(--peach);}
+    .sub-choices{display:none;margin-top:8px;padding-left:16px;}
+    .sub-choices.visible{display:block;}
+    .sub-choices .choice-item{padding:10px 14px;border-radius:12px;}
+
+    /* BUTONLAR */
+    .submit-section{margin-top:28px;}
+    .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+    .btn-pdf{display:inline-flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px 20px;background:linear-gradient(135deg,#667EEA,#764BA2);border:none;border-radius:16px;color:#fff;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 6px 20px rgba(102,126,234,.3);}
+    .btn-pdf:hover{transform:translateY(-2px);}
+    .btn-wa{display:inline-flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px 20px;background:linear-gradient(135deg,#25D366,#128C7E);border:none;border-radius:16px;color:#fff;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:transform .15s;box-shadow:0 6px 20px rgba(37,211,102,.3);}
+    .btn-wa:hover{transform:translateY(-2px);}
+    .btn-both{display:inline-flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:18px 24px;background:linear-gradient(135deg,#FF8B6A,#FF6B9D);border:none;border-radius:18px;color:#fff;font-family:'Nunito',sans-serif;font-size:17px;font-weight:900;cursor:pointer;transition:transform .15s;box-shadow:0 8px 28px rgba(255,107,157,.35);}
+    .btn-both:hover{transform:translateY(-2px);}
+    .wa-hint{margin-top:12px;font-size:13px;color:var(--text2);font-weight:600;text-align:center;}
+    .wa-hint span{color:var(--wa-dk);}
+    .toast{display:none;margin-top:16px;padding:16px 20px;border-radius:16px;font-size:15px;font-weight:700;text-align:center;line-height:1.5;}
+    .toast.error{background:#FFF5F5;border:2px solid #FC8181;color:#9B2C2C;}
+    .toast.success{background:#F0FFF4;border:2px solid #68D391;color:#276749;}
+    .wa-icon{width:22px;height:22px;flex-shrink:0;}
+    .school-footer{margin-top:40px;background:var(--white);border:2px solid var(--border);border-radius:24px;padding:28px;text-align:center;}
+    .school-footer h3{font-size:20px;font-weight:900;color:var(--text);}
+    .tagline{font-size:13px;color:var(--text2);margin-bottom:16px;font-style:italic;}
+    .contact-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px;}
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:100px;font-size:13px;font-weight:700;border:2px solid;text-decoration:none;}
+    .chip-mint{background:var(--mint-lt);border-color:var(--mint);color:#0A7A72;}
+    .chip-lav{background:var(--lav-lt);border-color:var(--lav);color:#5B21B6;}
+    .chip-peach{background:var(--peach-lt);border-color:var(--peach);color:#9A2E0F;}
+    .chip-wa{background:#F0FFF4;border-color:var(--wa);color:#166534;}
+    .page-credit{text-align:center;margin-top:20px;font-size:12px;color:#C4C9D8;font-weight:600;}
+    .page-credit a{color:#A78BFA;text-decoration:none;}
+    .fun-divider{text-align:center;margin:4px 0 20px;font-size:20px;letter-spacing:8px;opacity:.5;}
+
+    @media(max-width:520px){
+      .section-card{padding:24px 18px;}
+      .choice-grid.col-3{grid-template-columns:1fr 1fr;}
+      .choice-grid.col-2{grid-template-columns:1fr;}
+      .row-2{grid-template-columns:1fr;}
+      .btn-row{grid-template-columns:1fr;}
+    }
+
+    /* ══ PDF PREVIEW MODAL ══ */
+    .pdf-overlay{
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,0.75); z-index:9999;
+      align-items:center; justify-content:center;
+      padding:16px;
+    }
+    .pdf-overlay.active{ display:flex; }
+    .pdf-modal{
+      background:#fff; border-radius:16px;
+      width:100%; max-width:680px; max-height:90vh;
+      overflow-y:auto; position:relative;
+      box-shadow:0 24px 80px rgba(0,0,0,.5);
+    }
+    .pdf-modal-actions{
+      position:sticky; top:0; z-index:10;
+      background:#fff; border-bottom:2px solid #eee;
+      padding:12px 20px; display:flex; gap:10px; align-items:center;
+    }
+    .pdf-modal-actions .btn-print{
+      flex:1; padding:10px; background:var(--purple);
+      border:none; border-radius:10px; color:#fff;
+      font-family:'Nunito',sans-serif; font-size:14px; font-weight:800;
+      cursor:pointer;
+    }
+    .pdf-modal-actions .btn-close{
+      padding:10px 16px; background:#f3f4f6;
+      border:none; border-radius:10px; color:#666;
+      font-family:'Nunito',sans-serif; font-size:14px; font-weight:700;
+      cursor:pointer;
+    }
+    .pdf-modal-actions .hint-text{
+      font-size:11px; color:#999; font-weight:600; line-height:1.4;
+    }
+
+    /* ══ PDF A4 WRAPPER ══ */
+    #pdf-content {
+      font-family: 'Nunito', Arial, sans-serif;
+      background: #fff;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* A4 sayfa */
+    .pdf-a4 {
+      width: 100%;
+      background: #FEFEFF;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Sol kenar — gökkuşağı şerit (NFS edge-l) */
+    .pdf-edge-l {
+      position: absolute; left:0; top:0; bottom:0; width:7px;
+      background: linear-gradient(180deg,
+        #667EEA 0%, #A78BFA 20%, #4ECDC4 35%,
+        #FFD166 50%, #FF8B6A 65%, #FF6B9D 80%, #667EEA 100%
+      );
+    }
+    /* Üst şerit */
+    .pdf-edge-t {
+      position: absolute; top:0; left:7px; right:0; height:5px;
+      background: linear-gradient(90deg,
+        #667EEA, #A78BFA 20%, #4ECDC4 35%,
+        #FFD166 50%, #FF8B6A 65%, #FF6B9D 85%, #667EEA
+      );
+    }
+    /* Alt şerit */
+    .pdf-edge-b {
+      position: absolute; bottom:0; left:7px; right:0; height:4px;
+      background: linear-gradient(90deg,
+        #667EEA, #A78BFA 25%, #4ECDC4 45%,
+        #FFD166 65%, #FF6B9D 85%, #667EEA
+      );
+    }
+
+    /* İç içerik padding — kompakt */
+    .pdf-inner { padding: 18px 26px 16px 22px; }
+
+    /* ══ HEADER ══ */
+    .pdf-hdr {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #F0EBFF;
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .pdf-hdr::after {
+      content: '';
+      position: absolute; bottom: -2px; left: 0; width: 80px; height: 2px;
+      background: linear-gradient(90deg, #667EEA, #A78BFA);
+    }
+
+    .pdf-school-name {
+      font-size: 18px; font-weight: 900; color: #3730A3;
+      letter-spacing: 0.5px; line-height: 1;
+    }
+    .pdf-school-name span { font-size: 10px; font-weight: 500; color: #9CA3AF; display: block; margin-bottom: 1px; }
+    .pdf-school-tag { font-size: 9px; color: #A78BFA; font-style: italic; margin-top: 2px; }
+
+    .pdf-hdr-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+    .pdf-doc-badge {
+      background: linear-gradient(135deg, #667EEA, #764BA2);
+      color: #fff; padding: 5px 12px; border-radius: 5px;
+      font-size: 9px; font-weight: 800; letter-spacing: 1px;
+      text-transform: uppercase; text-align: center; line-height: 1.5;
+      white-space: nowrap;
+    }
+    .pdf-doc-date { font-size: 8.5px; color: #9CA3AF; font-weight: 600; letter-spacing: 1px; }
+
+    /* ══ TITLE BAND ══ */
+    .pdf-title-band {
+      text-align: center; padding: 5px 0 4px;
+      margin-bottom: 8px; position: relative;
+    }
+    .pdf-title-main {
+      font-size: 11px; font-weight: 900; letter-spacing: 3px;
+      text-transform: uppercase; color: #2D3142;
+    }
+    .pdf-rainbow-line {
+      height: 2px; border-radius: 2px; margin: 5px auto 0;
+      width: 160px;
+      background: linear-gradient(90deg, #667EEA, #A78BFA, #FF8B6A, #FFD166, #4ECDC4, #FF6B9D);
+    }
+
+    /* ══ SECTION ══ */
+    .pdf-sec { margin-bottom: 10px; border-radius: 0 6px 6px 6px; overflow: hidden; border: 1px solid #F0EBFF; }
+
+    .pdf-sec-hdr {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 12px;
+      font-size: 9px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; color: #fff;
+    }
+    .pdf-sec-hdr .sec-ico { font-size: 12px; }
+
+    .hdr-mint  { background: linear-gradient(90deg, #0E8F87, #4ECDC4); }
+    .hdr-lav   { background: linear-gradient(90deg, #5B21B6, #A78BFA); }
+    .hdr-sky   { background: linear-gradient(90deg, #1D72CC, #60B4FF); }
+    .hdr-peach { background: linear-gradient(90deg, #B84A2A, #FF8B6A); }
+    .hdr-sun   { background: linear-gradient(90deg, #92620A, #FFD166); }
+    .hdr-rose  { background: linear-gradient(90deg, #9D174D, #FF6B9D); }
+
+    .pdf-tbl { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+    .pdf-tbl tr:nth-child(even) td { background: #FAFAFF; }
+    .pdf-tbl td { padding: 5px 10px; border-bottom: 1px solid #F0EBFF; vertical-align: middle; }
+    .pdf-tbl td:first-child {
+      color: #6B7280; font-weight: 700; width: 36%;
+      font-size: 9.5px; letter-spacing: 0.3px;
+      border-right: 2px solid #F0EBFF;
+    }
+    .pdf-tbl td:last-child { color: #1F2937; font-weight: 700; }
+
+    /* Chip'ler */
+    .pdf-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+    .pdf-chip {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 2px 9px; border-radius: 20px;
+      font-size: 9px; font-weight: 800; letter-spacing: 0.2px;
+    }
+    .chip-lav   { background: #F0EBFF; border: 1px solid #A78BFA; color: #5B21B6; }
+    .chip-mint  { background: #E8FAF9; border: 1px solid #4ECDC4; color: #0E8F87; }
+    .chip-sun   { background: #FFFBEE; border: 1px solid #FFD166; color: #92620A; }
+    .chip-peach { background: #FFF0EB; border: 1px solid #FF8B6A; color: #B84A2A; }
+
+    /* ══ İMZA ALANI ══ */
+    .pdf-sign-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-top: 8px;
+    }
+    .pdf-sign-box {
+      border: 1.5px dashed #D1D5DB; border-radius: 6px;
+      padding: 6px 12px; text-align: center;
+      background: #FAFAFA;
+    }
+    .pdf-sign-lbl { font-size: 8px; font-weight: 700; color: #9CA3AF; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; }
+    .pdf-sign-line { border-top: 1px solid #E5E7EB; padding-top: 4px; font-size: 8px; color: #D1D5DB; }
+
+    /* ══ FOOTER ══ */
+    .pdf-ftr {
+      margin-top: 10px;
+      border-top: 2px solid #F0EBFF;
+      padding-top: 8px;
+      display: flex; justify-content: space-between; align-items: center;
+      position: relative;
+    }
+    .pdf-ftr::before {
+      content: '';
+      position: absolute; top: -2px; left: 0; width: 60px; height: 2px;
+      background: linear-gradient(90deg, #667EEA, #A78BFA);
+    }
+    .pdf-ftr-info { font-size: 8px; color: #9CA3AF; line-height: 1.8; }
+    .pdf-ftr-info strong { color: #4B5563; display: block; font-size: 9.5px; margin-bottom: 1px; }
+    .pdf-ftr-brand {
+      display: flex; align-items: center; gap: 6px;
+      background: #1a1a2e; border: 1px solid #3a3a5c;
+      border-radius: 20px; padding: 5px 12px;
+      flex-shrink: 0;
+    }
+    .pdf-ftr-brand .b-name { font-size: 10px; font-weight: 900; color: #fff; letter-spacing: 1.5px; }
+    .pdf-ftr-brand .b-name em { color: #c9a84c; font-style: normal; }
+    .pdf-ftr-brand .b-dot { color: #3a3a5c; font-size: 9px; }
+    .pdf-ftr-brand .b-url { font-size: 9px; color: #8888aa; font-weight: 600; }
+
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      body > *{ display:none !important; }
+      #print-root{ display:block !important; }
+      @page{ margin:0; size:210mm 297mm portrait; }
+      #print-root {
+        width: 210mm;
+        height: 297mm;
+        overflow: hidden;
+        position: fixed;
+        top: 0; left: 0;
+      }
+      .pdf-a4 {
+        width: 210mm !important;
+        height: 297mm !important;
+        overflow: hidden !important;
+        transform-origin: top left;
+      }
+      .pdf-doc-badge{ white-space:nowrap !important; }
+    }
+    #print-root{ display:none; }
+  </style>
+</head>
+<body>
+
+<!-- PRINT ROOT — sadece yazdırınca görünür -->
+<div id="print-root"></div>
+
+<!-- PDF MODAL -->
+<div class="pdf-overlay" id="pdf-overlay">
+  <div class="pdf-modal">
+    <div class="pdf-modal-actions">
+      <button class="btn-print" onclick="doPrint()">🖨️ PDF Olarak Kaydet / Yazdır</button>
+      <div>
+        <div class="hint-text">Açılan ekranda<br><b>Hedef → PDF olarak kaydet</b></div>
+      </div>
+      <button class="btn-close" onclick="closePDF()">✕ Kapat</button>
+    </div>
+    <div id="pdf-content"></div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-shapes">
+    <div class="shape shape-1"></div><div class="shape shape-2"></div>
+    <div class="shape shape-3"></div><div class="shape shape-4"></div><div class="shape shape-5"></div>
+  </div>
+  <div class="floaters">
+    <span class="floater">🌸</span><span class="floater">⭐</span>
+    <span class="floater">🦋</span><span class="floater">🌈</span>
+    <span class="floater">🎨</span><span class="floater">🌻</span>
+  </div>
+  <div class="stars">
+    <span class="star" style="top:15%;left:18%;">✦</span>
+    <span class="star" style="top:30%;right:22%;">✧</span>
+    <span class="star" style="top:65%;left:28%;">✦</span>
+    <span class="star" style="top:55%;right:18%;">✧</span>
+    <span class="star" style="top:80%;left:55%;">✦</span>
+  </div>
+  <div style="position:relative;z-index:2;">
+    <div class="hero-badge"><span>🏫</span><span>Özel Asay Anaokulu</span></div>
+    <h1>Yaz Okulu<br><span class="wave">🌟</span> Başvuru Formu</h1>
+    <p>Minik kahramanınız için en güzel yaz macerası burada başlıyor! 🎉</p>
+  </div>
+</div>
+<div class="wave-divider">
+  <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <path d="M0,30 C240,60 480,0 720,30 C960,60 1200,0 1440,30 L1440,60 L0,60 Z" fill="#FAFBFF"/>
+  </svg>
+</div>
+
+<div class="page-body">
+
+  <!-- ÇOCUK -->
+  <div class="section-card card-mint">
+    <div class="section-head">
+      <div class="section-icon icon-mint">👶</div>
+      <div><div class="section-title">Çocuğun Bilgileri</div><div class="section-sub">Minik öğrencimiz hakkında bilgiler</div></div>
+    </div>
+    <div class="field"><label class="field-label">T.C. Kimlik Numarası <span class="req">*</span></label><input type="text" id="tc_kimlik" maxlength="11" placeholder="00000000000"></div>
+    <div class="field"><label class="field-label">Adı ve Soyadı <span class="req">*</span></label><input type="text" id="child_name" placeholder="Adı Soyadı"></div>
+    <div class="row-2">
+      <div class="field"><label class="field-label">Doğum Yeri <span class="req">*</span></label><input type="text" id="birth_place" placeholder="İstanbul"></div>
+      <div class="field"><label class="field-label">Doğum Tarihi <span class="req">*</span></label><input type="date" id="birth_date"></div>
+    </div>
+    <div class="field"><label class="field-label">Yaz Okuluna Başlama Tarihi <span class="req">*</span></label><input type="date" id="start_date"></div>
+    <div class="field"><label class="field-label">İkametgah Adresi <span class="req">*</span></label><textarea id="address" rows="2" placeholder="Mahalle, Cadde, Sokak, No — İlçe / İl"></textarea></div>
+  </div>
+
+  <div class="fun-divider">🌷 🐝 🌷</div>
+
+  <!-- VELİ -->
+  <div class="section-card card-lav">
+    <div class="section-head">
+      <div class="section-icon icon-lav">👨‍👩‍👧</div>
+      <div><div class="section-title">Veli Bilgileri</div><div class="section-sub">İletişim için ebeveyn bilgilerini girin</div></div>
+    </div>
+    <div class="row-2">
+      <div class="field"><label class="field-label">Anne Adı Soyadı <span class="req">*</span></label><input type="text" id="mother_name" placeholder="Anne Adı Soyadı"></div>
+      <div class="field"><label class="field-label">Anne Telefonu <span class="req">*</span></label><input type="tel" id="mother_phone" placeholder="0555 000 00 00"></div>
+    </div>
+    <div class="row-2">
+      <div class="field"><label class="field-label">Baba Adı Soyadı <span class="req">*</span></label><input type="text" id="father_name" placeholder="Baba Adı Soyadı"></div>
+      <div class="field"><label class="field-label">Baba Telefonu <span class="req">*</span></label><input type="tel" id="father_phone" placeholder="0555 000 00 00"></div>
+    </div>
+  </div>
+
+  <div class="fun-divider">🚌 ⭐ 🚌</div>
+
+  <!-- ULAŞIM -->
+  <div class="section-card card-sky">
+    <div class="section-head">
+      <div class="section-icon icon-sky">🚌</div>
+      <div><div class="section-title">Okula Geliş-Gidiş</div><div class="section-sub">Ulaşım şekli</div></div>
+    </div>
+    <div class="field">
+      <label class="field-label">Ulaşım Şekli <span class="req">*</span></label>
+      <div class="choice-grid col-3 choice-mint">
+        <label class="choice-item"><input type="radio" name="transport" value="Aile"><div><span class="c-label">🚗 Aile</span></div></label>
+        <label class="choice-item"><input type="radio" name="transport" value="Servis"><div><span class="c-label">🚌 Servis</span></div></label>
+        <label class="choice-item"><input type="radio" name="transport" value="Aile & Servis"><div><span class="c-label">Her İkisi</span></div></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="fun-divider">📚 ✏️ 📚</div>
+
+  <!-- ÖĞRENİM -->
+  <div class="section-card card-peach">
+    <div class="section-head">
+      <div class="section-icon icon-peach">🕐</div>
+      <div><div class="section-title">Öğrenim Süreci</div><div class="section-sub">Günlük kalış süresi tercihi</div></div>
+    </div>
+    <div class="choice-grid col-1 choice-peach">
+      <label class="choice-item"><input type="radio" name="ogr_sureci" value="Tam Gün"><div><span class="c-label">☀️ Tam Gün</span><span class="c-sub">Sabah–Akşam</span></div></label>
+      <label class="choice-item"><input type="radio" name="ogr_sureci" value="Yarım Gün / Sabah"><div><span class="c-label">🌅 Yarım Gün / Sabah</span></div></label>
+      <label class="choice-item"><input type="radio" name="ogr_sureci" value="Yarım Gün / Öğle"><div><span class="c-label">🌤️ Yarım Gün / Öğle</span></div></label>
+    </div>
+  </div>
+
+  <div class="fun-divider">🎪 🎠 🎪</div>
+
+  <!-- PROGRAM -->
+  <div class="section-card card-sun">
+    <div class="section-head">
+      <div class="section-icon icon-sun">🎉</div>
+      <div><div class="section-title">Yaz Okulu Program Detayları</div><div class="section-sub">Dönem ve faaliyet seçimleri</div></div>
+    </div>
+    <div class="field">
+      <label class="field-label">Hangi Dönem? <span class="req">*</span><span class="hint">Birden fazla seçilebilir</span></label>
+      <div class="choice-grid col-1 choice-sun">
+        <label class="choice-item"><input type="checkbox" name="donem" value="1. Dönem (29 Haziran – 24 Temmuz)"><div><span class="c-label">📅 1. Dönem</span><span class="c-sub">29 Haziran – 24 Temmuz</span></div></label>
+        <label class="choice-item"><input type="checkbox" name="donem" value="2. Dönem (27 Temmuz – 21 Ağustos)"><div><span class="c-label">📅 2. Dönem</span><span class="c-sub">27 Temmuz – 21 Ağustos</span></div></label>
+      </div>
+    </div>
+    <div class="field" style="margin-top:20px;">
+      <label class="field-label">Hangi Programlar? <span class="req">*</span><span class="hint">Birden fazla seçilebilir</span></label>
+      <div class="choice-grid col-2 choice-sun">
+        <label class="choice-item"><input type="checkbox" name="program" value="Okul Programı"><div><span class="c-label">🏫 Okul Programı</span></div></label>
+        <label class="choice-item"><input type="checkbox" name="program" value="Ekstra Faaliyetler"><div><span class="c-label">🎭 Ekstra Faaliyetler</span></div></label>
+      </div>
+    </div>
+    <div class="field" style="margin-top:20px;">
+      <label class="field-label">Ekstra Faaliyetler<span class="hint">Birden fazla seçilebilir</span></label>
+      <div class="choice-grid col-2 choice-sun">
+        <div style="grid-column:1;">
+          <label class="choice-item" style="border-radius:14px 14px 0 0;border-bottom:1px dashed #E8D44D;">
+            <input type="checkbox" name="ekstra" value="Yüzme" id="yuzme-cb">
+            <div><span class="c-label">🏊 Yüzme</span></div>
+          </label>
+          <div class="sub-choices" id="yuzme-sub">
+            <div class="choice-grid col-1 choice-sun">
+              <label class="choice-item" style="border-radius:0;"><input type="radio" name="yuzme_ders" value="Haftada 1 Ders"><span class="c-label">Haftada 1 Ders</span></label>
+              <label class="choice-item" style="border-radius:0 0 14px 14px;"><input type="radio" name="yuzme_ders" value="Haftada 2 Ders"><span class="c-label">Haftada 2 Ders</span></label>
+            </div>
+          </div>
+        </div>
+        <label class="choice-item"><input type="checkbox" name="ekstra" value="Binicilik"><div><span class="c-label">🐴 Binicilik</span></div></label>
+        <label class="choice-item"><input type="checkbox" name="ekstra" value="Cimnastik"><div><span class="c-label">🤸 Cimnastik</span></div></label>
+        <label class="choice-item"><input type="checkbox" name="ekstra" value="Tenis"><div><span class="c-label">🎾 Tenis</span></div></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="fun-divider">💬 🌸 💬</div>
+
+  <!-- NOT -->
+  <div class="section-card card-rose">
+    <div class="section-head">
+      <div class="section-icon icon-rose">💬</div>
+      <div><div class="section-title">Ek Notlar</div><div class="section-sub">Özel istek, sağlık notu veya merak ettikleriniz</div></div>
+    </div>
+    <div class="field"><textarea id="notes" rows="3" placeholder="Varsa özel isteğinizi buraya yazabilirsiniz... 🌟"></textarea></div>
+  </div>
+
+  <!-- BUTONLAR -->
+  <div class="submit-section">
+    <div class="btn-row">
+      <button class="btn-pdf" onclick="handleAction('pdf')">📄 PDF Önizle & İndir</button>
+      <button class="btn-wa" onclick="handleAction('wa')">
+        <svg class="wa-icon" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp
+      </button>
+    </div>
+    <button class="btn-both" onclick="handleAction('both')">📄 PDF + 💬 WhatsApp ile Gönder</button>
+    <p class="wa-hint">PDF önizlenir → kaydedin → WhatsApp'ta <span>📎 ekleyip gönderin</span> ✅</p>
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <div class="school-footer">
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px;">
+      <span style="font-size:32px;">🏫</span>
+      <div><h3>Özel Asay Anaokulu</h3><div class="tagline">geleceğe ilk adım...</div></div>
+    </div>
+    <div class="contact-chips">
+      <a class="chip chip-peach" href="tel:02222370771">📞 0222 237 07 71</a>
+      <a class="chip chip-wa" href="https://wa.me/905325122729" target="_blank">💬 WhatsApp</a>
+      <a class="chip chip-mint" href="mailto:asayanaokulları@gmail.com">✉️ E-posta</a>
+      <a class="chip chip-lav" href="https://asayanaokulları.com" target="_blank">🌐 Web</a>
+    </div>
+    <p style="margin-top:14px;font-size:12px;color:var(--text2);font-weight:600;">📍 71 Evler Mh. Duruhan Sk. No:1 Odunpazarı / Eskişehir</p>
+  </div>
+  <div class="page-credit">
+    <a href="https://alhazenpdf.com" target="_blank" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;background:#1a1a2e;border:1px solid #3a3a5c;border-radius:100px;padding:8px 18px;">
+      <span style="font-size:13px;font-weight:900;color:#fff;letter-spacing:1.5px;">ALHAZEN<span style="color:#c9a84c;">PDF</span></span>
+      <span style="color:#3a3a5c;font-size:12px;">◆</span>
+      <span style="font-size:12px;color:#8888aa;font-weight:600;">alhazenpdf.com</span>
+    </a>
+  </div>
+</div>
+
+<script>
+const WA_NUMBER = "905325122729";
+
+function toggleYuzme(checked){
+  const sub = document.getElementById("yuzme-sub");
+  if(checked){
+    sub.classList.add("visible");
+  } else {
+    sub.classList.remove("visible");
+    document.querySelectorAll('input[name="yuzme_ders"]').forEach(r => r.checked = false);
+  }
+}
+
+// iOS + Android her ikisinde de çalışsın
+document.addEventListener("DOMContentLoaded", function(){
+  const cb = document.getElementById("yuzme-cb");
+  if(cb){
+    cb.addEventListener("change", function(){ toggleYuzme(this.checked); });
+    cb.addEventListener("click",  function(){ setTimeout(()=>{ toggleYuzme(this.checked); }, 30); });
+  }
+});
+function getChecked(n){ return[...document.querySelectorAll(`input[name="${n}"]:checked`)].map(e=>e.value); }
+function getRadio(n){ const e=document.querySelector(`input[name="${n}"]:checked`); return e?e.value:""; }
+function v(id){ return document.getElementById(id).value.trim(); }
+
+function validate(){
+  const ekstra=getChecked("ekstra");
+  if(ekstra.includes("Yüzme")&&!getRadio("yuzme_ders")){ showToast("⚠️ Lütfen yüzme ders sayısını seçin."); return false; }
+  const checks=[
+    [v("tc_kimlik"),"T.C. Kimlik"],[v("child_name"),"Çocuğun Adı"],
+    [v("birth_place"),"Doğum Yeri"],[v("birth_date"),"Doğum Tarihi"],
+    [v("start_date"),"Başlama Tarihi"],[v("address"),"İkametgah"],
+    [v("mother_name"),"Anne Adı"],[v("mother_phone"),"Anne Telefonu"],
+    [v("father_name"),"Baba Adı"],[v("father_phone"),"Baba Telefonu"],
+    [getRadio("transport"),"Ulaşım Şekli"],[getRadio("ogr_sureci"),"Öğrenim Süreci"],
+    [getChecked("donem").length?"ok":"","Dönem seçimi"],
+    [getChecked("program").length?"ok":"","Program seçimi"],
+  ];
+  for(const[val,label]of checks){
+    if(!val){ showToast(`⚠️ "${label}" alanını doldurun.`); return false; }
+  }
+  return true;
+}
+
+function getData(){
+  const ekstra=getChecked("ekstra");
+  const yuzme=getRadio("yuzme_ders");
+  return{
+    tc:v("tc_kimlik"), childName:v("child_name"), birthPlace:v("birth_place"),
+    birthDate:v("birth_date"), startDate:v("start_date"), address:v("address"),
+    motherName:v("mother_name"), motherPhone:v("mother_phone"),
+    fatherName:v("father_name"), fatherPhone:v("father_phone"),
+    transport:getRadio("transport"),
+    ogrSureci:getRadio("ogr_sureci"),
+    donemler:getChecked("donem"),
+    programlar:getChecked("program"),
+    ekstra:ekstra,
+    ekstraStr:ekstra.length?ekstra.map(e=>e==="Yüzme"&&yuzme?`Yüzme (${yuzme})`:e).join(", "):"—",
+    notes:v("notes")||"—",
+    tarih:new Date().toLocaleDateString("tr-TR",{day:"2-digit",month:"2-digit",year:"numeric"}),
+  };
+}
+
+function chip(txt,cls="chip-lav"){ return `<span class="pdf-chip ${cls}">✓ ${txt}</span>`; }
+function row(label,val){ return val&&val!=="—"?`<tr><td>${label}</td><td>${val}</td></tr>`:""; }
+
+function buildPDFContent(d){
+  const yuzme = getRadio("yuzme_ders");
+  const donemChips  = d.donemler.map(t=>chip(t,"chip-sun")).join(" ");
+  const progChips   = d.programlar.map(t=>chip(t,"chip-mint")).join(" ");
+  const ekstraChips = d.ekstra.length
+    ? d.ekstra.map(e=>chip(e==="Yüzme"&&yuzme?`Yüzme (${yuzme})`:e,"chip-peach")).join(" ")
+    : "<span style='color:#ccc;font-size:10px;'>Seçilmedi</span>";
+
+  return `
+  <div class="pdf-a4">
+    <div class="pdf-edge-l"></div>
+    <div class="pdf-edge-t"></div>
+    <div class="pdf-edge-b"></div>
+
+    <div class="pdf-inner">
+
+      <!-- HEADER -->
+      <div class="pdf-hdr">
+        <div>
+          <div class="pdf-school-name"><span>özel</span>ASAY ANAOKULU</div>
+          <div class="pdf-school-tag">geleceğe ilk adım...</div>
+        </div>
+        <div class="pdf-hdr-right">
+          <div class="pdf-doc-badge">YAZ OKULU BAŞVURU FORMU</div>
+          <div class="pdf-doc-date">📅 ${d.tarih}</div>
+        </div>
+      </div>
+
+      <!-- TITLE -->
+      <div class="pdf-title-band">
+        <div class="pdf-title-main">Öğrenci Kayıt Başvuru Belgesi</div>
+        <div class="pdf-rainbow-line"></div>
+      </div>
+
+      <!-- ÜST 2 KOLON: Çocuk | Veli -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+
+        <div class="pdf-sec" style="margin-bottom:0;">
+          <div class="pdf-sec-hdr hdr-mint"><span class="sec-ico">👶</span> ÇOCUĞUN BİLGİLERİ</div>
+          <table class="pdf-tbl">
+            ${row("T.C. Kimlik", d.tc)}
+            ${row("Adı Soyadı", d.childName)}
+            ${row("Doğum Yeri", d.birthPlace)}
+            ${row("Doğum Tarihi", d.birthDate)}
+            ${row("Okul Başlama", d.startDate)}
+            ${row("Adres", d.address)}
+          </table>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="pdf-sec" style="margin-bottom:0;">
+            <div class="pdf-sec-hdr hdr-lav"><span class="sec-ico">👨‍👩‍👧</span> VELİ BİLGİLERİ</div>
+            <table class="pdf-tbl">
+              ${row("Anne", d.motherName)}
+              ${row("Anne Tel", d.motherPhone)}
+              ${row("Baba", d.fatherName)}
+              ${row("Baba Tel", d.fatherPhone)}
+            </table>
+          </div>
+          <div class="pdf-sec" style="margin-bottom:0;">
+            <div class="pdf-sec-hdr hdr-sky"><span class="sec-ico">🚌</span> ULAŞIM & ÖĞRENİM</div>
+            <table class="pdf-tbl">
+              ${row("Ulaşım", d.transport)}
+              ${row("Öğrenim", d.ogrSureci)}
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PROGRAM -->
+      <div class="pdf-sec">
+        <div class="pdf-sec-hdr hdr-sun"><span class="sec-ico">🎉</span> YAZ OKULU PROGRAM DETAYLARI</div>
+        <table class="pdf-tbl">
+          <tr><td style="width:22%;">Dönem</td><td><div class="pdf-chips">${donemChips||"—"}</div></td></tr>
+          <tr><td>Program</td><td><div class="pdf-chips">${progChips||"—"}</div></td></tr>
+          <tr><td>Ekstra</td><td><div class="pdf-chips">${ekstraChips}</div></td></tr>
+        </table>
+      </div>
+
+      ${d.notes!=="—"?`
+      <div class="pdf-sec">
+        <div class="pdf-sec-hdr hdr-rose"><span class="sec-ico">💬</span> EK NOTLAR</div>
+        <table class="pdf-tbl">${row("Not", d.notes)}</table>
+      </div>`:""}
+
+      <!-- İMZA -->
+      <div class="pdf-sign-row">
+        <div class="pdf-sign-box">
+          <div class="pdf-sign-lbl">Veli İmzası</div>
+          <div class="pdf-sign-line">Ad Soyad</div>
+        </div>
+        <div class="pdf-sign-box">
+          <div class="pdf-sign-lbl">Okul Onayı</div>
+          <div class="pdf-sign-line">Tarih / Mühür</div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="pdf-ftr">
+        <div class="pdf-ftr-info">
+          <strong>ÖZEL ASAY ANAOKULU</strong>
+          71 Evler Mh. Duruhan Sk. No:1 Odunpazarı / ESKİŞEHİR<br>
+          0222 237 07 71 · 0532 512 27 29 · asayanaokulları@gmail.com
+        </div>
+        <div class="pdf-ftr-brand">
+          <span class="b-name">ALHAZEN<em>PDF</em></span>
+          <span class="b-dot">◆</span>
+          <span class="b-url">alhazenpdf.com</span>
+        </div>
+      </div>
+
+    </div>
+  </div>`;
+}
+
+function buildWAMsg(d){
+  return `🏫 *ASAY ANAOKULU — YAZ OKULU BAŞVURUSU*
+
+👶 *ÇOCUK*
+• Ad Soyad: ${d.childName}
+• T.C.: ${d.tc}
+• Doğum: ${d.birthPlace} / ${d.birthDate}
+• Başlama: ${d.startDate}
+• Adres: ${d.address}
+
+👨‍👩‍👧 *VELİ*
+• Anne: ${d.motherName} — ${d.motherPhone}
+• Baba: ${d.fatherName} — ${d.fatherPhone}
+
+🚌 *ULAŞIM*
+• ${d.transport}
+
+🕐 *ÖĞRENİM*
+• ${d.ogrSureci}
+
+📅 *YAZ OKULU*
+• Dönem: ${d.donemler.join(" + ")||"—"}
+• Program: ${d.programlar.join(" + ")||"—"}
+• Ekstra: ${d.ekstraStr}
+
+💬 *NOT*
+${d.notes}
+
+📎 _PDF başvuru formu ekte iletilecektir._`;
+}
+
+function openPDF(d){
+  // Veriyi URL'e encode edip asay/pdf.html'e gönder
+  const encoded = encodeURIComponent(JSON.stringify(d));
+  const url = `/asay/pdf.html?d=${encoded}`;
+  window.open(url, "_blank");
+}
+function isIOS(){
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+function doPrint(){
+  if(isIOS()){
+    // iOS Safari window.print() desteklemiyor
+    // Yeni sekmede sadece PDF içeriğini aç, Share → Yazdır yapılabilir
+    const html = document.getElementById("print-root").innerHTML;
+    const fullHTML = `<!DOCTYPE html><html><head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+      <style>
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Nunito',Arial,sans-serif;background:#fff;padding:10px;}
+        -webkit-print-color-adjust:exact;
+        ${extractPDFStyles()}
+      </style>
+    </head><body>${html}</body></html>`;
+    const blob = new Blob([fullHTML], {type:'text/html'});
+    const url  = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  } else {
+    // Android / Desktop
+    const a4 = document.querySelector('#print-root .pdf-a4');
+    if(a4){
+      const A4_H_PX = 1122;
+      const A4_W_PX = 794;
+      a4.style.transform = 'none';
+      a4.style.width = A4_W_PX + 'px';
+      const contentH = a4.scrollHeight;
+      if(contentH > A4_H_PX){
+        const scale = A4_H_PX / contentH;
+        a4.style.transformOrigin = 'top left';
+        a4.style.transform = `scale(${scale})`;
+        a4.style.width = (A4_W_PX / scale) + 'px';
+      }
+    }
+    setTimeout(() => window.print(), 200);
+  }
+}
+
+function extractPDFStyles(){
+  // PDF ile ilgili CSS'i döndür
+  return `
+    .pdf-a4{width:100%;background:#FEFEFF;position:relative;overflow:hidden;}
+    .pdf-edge-l{position:absolute;left:0;top:0;bottom:0;width:7px;background:linear-gradient(180deg,#667EEA 0%,#A78BFA 20%,#4ECDC4 35%,#FFD166 50%,#FF8B6A 65%,#FF6B9D 80%,#667EEA 100%);}
+    .pdf-edge-t{position:absolute;top:0;left:7px;right:0;height:5px;background:linear-gradient(90deg,#667EEA,#A78BFA 20%,#4ECDC4 35%,#FFD166 50%,#FF8B6A 65%,#FF6B9D 85%,#667EEA);}
+    .pdf-edge-b{position:absolute;bottom:0;left:7px;right:0;height:4px;background:linear-gradient(90deg,#667EEA,#A78BFA 25%,#4ECDC4 45%,#FFD166 65%,#FF6B9D 85%,#667EEA);}
+    .pdf-inner{padding:18px 26px 16px 22px;}
+    .pdf-hdr{display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:2px solid #F0EBFF;margin-bottom:8px;position:relative;}
+    .pdf-hdr::after{content:'';position:absolute;bottom:-2px;left:0;width:80px;height:2px;background:linear-gradient(90deg,#667EEA,#A78BFA);}
+    .pdf-school-name{font-size:18px;font-weight:900;color:#3730A3;letter-spacing:.5px;line-height:1;}
+    .pdf-school-name span{font-size:10px;font-weight:500;color:#9CA3AF;display:block;margin-bottom:1px;}
+    .pdf-school-tag{font-size:9px;color:#A78BFA;font-style:italic;margin-top:2px;}
+    .pdf-hdr-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
+    .pdf-doc-badge{background:linear-gradient(135deg,#667EEA,#764BA2);color:#fff;padding:5px 12px;border-radius:5px;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
+    .pdf-doc-date{font-size:8.5px;color:#9CA3AF;font-weight:600;}
+    .pdf-title-band{text-align:center;padding:5px 0 4px;margin-bottom:8px;}
+    .pdf-title-main{font-size:11px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#2D3142;}
+    .pdf-rainbow-line{height:2px;border-radius:2px;margin:5px auto 0;width:160px;background:linear-gradient(90deg,#667EEA,#A78BFA,#FF8B6A,#FFD166,#4ECDC4,#FF6B9D);}
+    .pdf-sec{margin-bottom:10px;border-radius:0 6px 6px 6px;overflow:hidden;border:1px solid #F0EBFF;}
+    .pdf-sec-hdr{display:flex;align-items:center;gap:6px;padding:5px 12px;font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#fff;}
+    .sec-ico{font-size:12px;}
+    .hdr-mint{background:linear-gradient(90deg,#0E8F87,#4ECDC4);}
+    .hdr-lav{background:linear-gradient(90deg,#5B21B6,#A78BFA);}
+    .hdr-sky{background:linear-gradient(90deg,#1D72CC,#60B4FF);}
+    .hdr-sun{background:linear-gradient(90deg,#92620A,#FFD166);}
+    .hdr-rose{background:linear-gradient(90deg,#9D174D,#FF6B9D);}
+    .pdf-tbl{width:100%;border-collapse:collapse;font-size:10.5px;}
+    .pdf-tbl tr:nth-child(even) td{background:#FAFAFF;}
+    .pdf-tbl td{padding:5px 10px;border-bottom:1px solid #F0EBFF;vertical-align:middle;}
+    .pdf-tbl td:first-child{color:#6B7280;font-weight:700;width:36%;font-size:9.5px;border-right:2px solid #F0EBFF;}
+    .pdf-tbl td:last-child{color:#1F2937;font-weight:700;}
+    .pdf-chips{display:flex;flex-wrap:wrap;gap:4px;}
+    .pdf-chip{display:inline-flex;align-items:center;gap:3px;padding:2px 9px;border-radius:20px;font-size:9px;font-weight:800;}
+    .chip-lav{background:#F0EBFF;border:1px solid #A78BFA;color:#5B21B6;}
+    .chip-mint{background:#E8FAF9;border:1px solid #4ECDC4;color:#0E8F87;}
+    .chip-sun{background:#FFFBEE;border:1px solid #FFD166;color:#92620A;}
+    .chip-peach{background:#FFF0EB;border:1px solid #FF8B6A;color:#B84A2A;}
+    .pdf-sign-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;}
+    .pdf-sign-box{border:1.5px dashed #D1D5DB;border-radius:6px;padding:6px 12px;text-align:center;background:#FAFAFA;}
+    .pdf-sign-lbl{font-size:8px;font-weight:700;color:#9CA3AF;letter-spacing:1px;text-transform:uppercase;margin-bottom:24px;}
+    .pdf-sign-line{border-top:1px solid #E5E7EB;padding-top:4px;font-size:8px;color:#D1D5DB;}
+    .pdf-ftr{margin-top:10px;border-top:2px solid #F0EBFF;padding-top:8px;display:flex;justify-content:space-between;align-items:center;position:relative;}
+    .pdf-ftr::before{content:'';position:absolute;top:-2px;left:0;width:60px;height:2px;background:linear-gradient(90deg,#667EEA,#A78BFA);}
+    .pdf-ftr-info{font-size:8px;color:#9CA3AF;line-height:1.8;}
+    .pdf-ftr-info strong{color:#4B5563;display:block;font-size:9.5px;margin-bottom:1px;}
+    .pdf-ftr-brand{display:flex;align-items:center;gap:6px;background:#1a1a2e;border:1px solid #3a3a5c;border-radius:20px;padding:5px 12px;flex-shrink:0;}
+    .b-name{font-size:10px;font-weight:900;color:#fff;letter-spacing:1.5px;}
+    .b-name em{color:#c9a84c;font-style:normal;}
+    .b-dot{color:#3a3a5c;font-size:9px;}
+    .b-url{font-size:9px;color:#8888aa;font-weight:600;}
+  `;
+}
+function closePDF(){
+  document.getElementById("pdf-overlay").classList.remove("active");
+  document.body.style.overflow = "";
+}
+
+function openWA(url){
+  if(isIOS()){
+    window.location.href = url;
+  } else {
+    window.open(url, "_blank");
+  }
+}
+
+function handleAction(type){
+  if(!validate()) return;
+  const d = getData();
+  const waUrl = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(buildWAMsg(d))}`;
+  if(type==="pdf"){
+    openPDF(d);
+  } else if(type==="wa"){
+    openWA(waUrl);
+  } else if(type==="both"){
+    openPDF(d);
+    setTimeout(()=>{
+      openWA(waUrl);
+      showToast("✅ PDF önizleme açıldı + WhatsApp hazır! PDF'i kaydedin, WhatsApp'ta ekleyip gönderin 📎","success");
+    },600);
+  }
+}
+
+function showToast(msg,type="error"){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.className=`toast ${type}`; t.style.display="block";
+  t.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+// ESC ile kapat
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closePDF(); });
+</script>
+</body>
+</html>
