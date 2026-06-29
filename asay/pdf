@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Başvuru Formu PDF — Özel Asay Anaokulu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', Arial, sans-serif;
+      background: #f0f0f0;
+      display: flex; flex-direction: column;
+      align-items: center; min-height: 100vh;
+      padding: 20px 16px 40px;
+    }
+
+    /* Üst aksiyon bar — sadece ekranda görünür */
+    .action-bar {
+      width: 100%; max-width: 720px;
+      background: #1a1a2e; border-radius: 14px;
+      padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 12px;
+    }
+    .action-bar .brand {
+      font-size: 14px; font-weight: 900; color: #fff; letter-spacing: 1.5px;
+      white-space: nowrap;
+    }
+    .action-bar .brand em { color: #c9a84c; font-style: normal; }
+    .action-bar .hint { font-size: 12px; color: #8888aa; font-weight: 600; line-height: 1.4; }
+    .btn-print {
+      background: linear-gradient(135deg, #667EEA, #764BA2);
+      border: none; border-radius: 10px;
+      color: #fff; font-family: 'Nunito', sans-serif;
+      font-size: 14px; font-weight: 800;
+      padding: 10px 20px; cursor: pointer;
+      white-space: nowrap;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .btn-back {
+      background: transparent; border: 1px solid #3a3a5c;
+      border-radius: 10px; color: #8888aa;
+      font-family: 'Nunito', sans-serif; font-size: 13px;
+      font-weight: 700; padding: 10px 16px; cursor: pointer;
+      text-decoration: none; white-space: nowrap;
+    }
+
+    /* A4 kağıt */
+    .a4-paper {
+      width: 100%; max-width: 720px;
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 4px 40px rgba(0,0,0,0.15);
+      position: relative; overflow: hidden;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Kenar şeritler */
+    .edge-l {
+      position: absolute; left: 0; top: 0; bottom: 0; width: 8px;
+      background: linear-gradient(180deg,
+        #667EEA 0%, #A78BFA 20%, #4ECDC4 35%,
+        #FFD166 50%, #FF8B6A 65%, #FF6B9D 80%, #667EEA 100%
+      );
+    }
+    .edge-t {
+      position: absolute; top: 0; left: 8px; right: 0; height: 5px;
+      background: linear-gradient(90deg,
+        #667EEA, #A78BFA 20%, #4ECDC4 35%,
+        #FFD166 50%, #FF8B6A 65%, #FF6B9D 85%, #667EEA
+      );
+    }
+    .edge-b {
+      position: absolute; bottom: 0; left: 8px; right: 0; height: 4px;
+      background: linear-gradient(90deg,
+        #667EEA, #A78BFA 25%, #4ECDC4 45%,
+        #FFD166 65%, #FF6B9D 85%, #667EEA
+      );
+    }
+
+    .paper-inner { padding: 28px 32px 24px 28px; }
+
+    /* Header */
+    .doc-hdr {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding-bottom: 14px; border-bottom: 2px solid #F0EBFF;
+      margin-bottom: 14px; position: relative;
+    }
+    .doc-hdr::after {
+      content: ''; position: absolute; bottom: -2px; left: 0;
+      width: 80px; height: 2px;
+      background: linear-gradient(90deg, #667EEA, #A78BFA);
+    }
+    .school-name {
+      font-size: 22px; font-weight: 900; color: #3730A3; line-height: 1;
+    }
+    .school-name small {
+      font-size: 11px; font-weight: 500; color: #9CA3AF;
+      display: block; margin-bottom: 3px;
+    }
+    .school-tag { font-size: 10px; color: #A78BFA; font-style: italic; margin-top: 3px; }
+    .doc-badge {
+      background: linear-gradient(135deg, #667EEA, #764BA2);
+      color: #fff; padding: 8px 16px; border-radius: 8px;
+      font-size: 10px; font-weight: 800; letter-spacing: 1px;
+      text-align: center; line-height: 1.6; white-space: nowrap;
+    }
+
+    /* Title */
+    .doc-title {
+      text-align: center; margin-bottom: 14px;
+    }
+    .doc-title h2 {
+      font-size: 13px; font-weight: 900; letter-spacing: 3px;
+      text-transform: uppercase; color: #2D3142;
+    }
+    .rainbow-line {
+      height: 3px; border-radius: 2px; width: 180px;
+      margin: 8px auto 0;
+      background: linear-gradient(90deg, #667EEA, #A78BFA, #FF8B6A, #FFD166, #4ECDC4, #FF6B9D);
+    }
+
+    /* 2-kolon grid */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .full-col { margin-bottom: 10px; }
+
+    /* Section */
+    .sec { border-radius: 0 8px 8px 8px; overflow: hidden; border: 1px solid #F0EBFF; }
+    .sec-hdr {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 14px;
+      font-size: 9px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; color: #fff;
+    }
+    .sec-ico { font-size: 13px; }
+    .hdr-mint  { background: linear-gradient(90deg, #0E8F87, #4ECDC4); }
+    .hdr-lav   { background: linear-gradient(90deg, #5B21B6, #A78BFA); }
+    .hdr-sky   { background: linear-gradient(90deg, #1D72CC, #60B4FF); }
+    .hdr-sun   { background: linear-gradient(90deg, #92620A, #FFD166); }
+    .hdr-rose  { background: linear-gradient(90deg, #9D174D, #FF6B9D); }
+
+    table.dt { width: 100%; border-collapse: collapse; font-size: 11px; }
+    table.dt tr:nth-child(even) td { background: #FAFAFF; }
+    table.dt td { padding: 6px 12px; border-bottom: 1px solid #F0EBFF; vertical-align: middle; }
+    table.dt td:first-child {
+      color: #6B7280; font-weight: 700; width: 38%;
+      font-size: 10px; border-right: 2px solid #F0EBFF;
+    }
+    table.dt td:last-child { color: #1F2937; font-weight: 700; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 10px; font-weight: 800;
+    }
+    .chip-lav   { background: #F0EBFF; border: 1px solid #A78BFA; color: #5B21B6; }
+    .chip-mint  { background: #E8FAF9; border: 1px solid #4ECDC4; color: #0E8F87; }
+    .chip-sun   { background: #FFFBEE; border: 1px solid #FFD166; color: #92620A; }
+    .chip-peach { background: #FFF0EB; border: 1px solid #FF8B6A; color: #B84A2A; }
+
+    /* İmza */
+    .sign-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+    .sign-box {
+      border: 1.5px dashed #D1D5DB; border-radius: 8px;
+      padding: 10px 14px; text-align: center; background: #FAFAFA;
+    }
+    .sign-lbl {
+      font-size: 9px; font-weight: 700; color: #9CA3AF;
+      letter-spacing: 1px; text-transform: uppercase; margin-bottom: 32px;
+    }
+    .sign-line {
+      border-top: 1px solid #E5E7EB; padding-top: 6px;
+      font-size: 9px; color: #D1D5DB;
+    }
+
+    /* Footer */
+    .doc-ftr {
+      margin-top: 16px; border-top: 2px solid #F0EBFF; padding-top: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+      position: relative;
+    }
+    .doc-ftr::before {
+      content: ''; position: absolute; top: -2px; left: 0;
+      width: 60px; height: 2px;
+      background: linear-gradient(90deg, #667EEA, #A78BFA);
+    }
+    .ftr-info { font-size: 9px; color: #9CA3AF; line-height: 1.9; }
+    .ftr-info strong { color: #4B5563; font-size: 11px; display: block; margin-bottom: 2px; }
+    .ftr-brand {
+      display: flex; align-items: center; gap: 7px;
+      background: #1a1a2e; border: 1px solid #3a3a5c;
+      border-radius: 20px; padding: 6px 14px; flex-shrink: 0;
+    }
+    .ftr-brand .bn { font-size: 11px; font-weight: 900; color: #fff; letter-spacing: 1.5px; }
+    .ftr-brand .bn em { color: #c9a84c; font-style: normal; }
+    .ftr-brand .bd { color: #3a3a5c; }
+    .ftr-brand .bu { font-size: 10px; color: #8888aa; font-weight: 600; }
+
+    /* PRINT */
+    @media print {
+      body { background: #fff; padding: 0; }
+      .action-bar { display: none !important; }
+      .a4-paper { box-shadow: none; max-width: 100%; border-radius: 0; }
+      @page { margin: 8mm; size: A4 portrait; }
+    }
+
+    /* Yükleniyor ekranı */
+    #loading {
+      position: fixed; inset: 0; background: #fff;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; z-index: 999;
+      gap: 16px;
+    }
+    #loading .spinner {
+      width: 40px; height: 40px;
+      border: 4px solid #F0EBFF;
+      border-top-color: #667EEA;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loading p { font-size: 14px; color: #6B7280; font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<!-- Yükleniyor -->
+<div id="loading">
+  <div class="spinner"></div>
+  <p>Form hazırlanıyor...</p>
+</div>
+
+<!-- Aksiyon bar -->
+<div class="action-bar">
+  <div>
+    <div class="brand">ALHAZEN<em>PDF</em></div>
+    <div class="hint">PDF kaydetmek için 🖨️ butonuna basın</div>
+  </div>
+  <a class="btn-back" href="/asay">← Forma Dön</a>
+  <button class="btn-print" onclick="window.print()">🖨️ PDF Kaydet / Yazdır</button>
+</div>
+
+<!-- A4 Kağıt -->
+<div class="a4-paper" id="paper">
+  <div class="edge-l"></div>
+  <div class="edge-t"></div>
+  <div class="edge-b"></div>
+  <div class="paper-inner" id="paper-inner">
+    <!-- JS ile dolacak -->
+  </div>
+</div>
+
+<script>
+function g(p){ return decodeURIComponent(p.get(d=>d)||""); }
+
+function chip(t,c){ return `<span class="chip ${c}">✓ ${t}</span>`; }
+function row(l,v){ return v&&v!=="—"?`<tr><td>${l}</td><td>${v}</td></tr>`:""; }
+
+function render(d){
+  const donemChips  = (d.donemler||[]).map(t=>chip(t,"chip-sun")).join(" ") || "—";
+  const progChips   = (d.programlar||[]).map(t=>chip(t,"chip-mint")).join(" ") || "—";
+  const ekstraChips = (d.ekstra||[]).length
+    ? d.ekstra.map(e=>chip(e,"chip-peach")).join(" ")
+    : "<span style='color:#ccc;font-size:10px;'>Seçilmedi</span>";
+
+  document.getElementById("paper-inner").innerHTML = `
+    <!-- HEADER -->
+    <div class="doc-hdr">
+      <div>
+        <div class="school-name"><small>özel</small>ASAY ANAOKULU</div>
+        <div class="school-tag">geleceğe ilk adım...</div>
+      </div>
+      <div>
+        <div class="doc-badge">YAZ OKULU<br>BAŞVURU FORMU</div>
+        <div style="font-size:9px;color:#9CA3AF;text-align:right;margin-top:4px;">📅 ${d.tarih}</div>
+      </div>
+    </div>
+
+    <!-- TITLE -->
+    <div class="doc-title">
+      <h2>Öğrenci Kayıt Başvuru Belgesi</h2>
+      <div class="rainbow-line"></div>
+    </div>
+
+    <!-- 2 KOLON: Çocuk | Veli + Ulaşım -->
+    <div class="two-col">
+      <div class="sec">
+        <div class="sec-hdr hdr-mint"><span class="sec-ico">👶</span> ÇOCUĞUN BİLGİLERİ</div>
+        <table class="dt">
+          ${row("T.C. Kimlik", d.tc)}
+          ${row("Adı Soyadı", d.childName)}
+          ${row("Doğum Yeri", d.birthPlace)}
+          ${row("Doğum Tarihi", d.birthDate)}
+          ${row("Okul Başlama", d.startDate)}
+          ${row("Adres", d.address)}
+        </table>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="sec">
+          <div class="sec-hdr hdr-lav"><span class="sec-ico">👨‍👩‍👧</span> VELİ BİLGİLERİ</div>
+          <table class="dt">
+            ${row("Anne", d.motherName)}
+            ${row("Anne Tel", d.motherPhone)}
+            ${row("Baba", d.fatherName)}
+            ${row("Baba Tel", d.fatherPhone)}
+          </table>
+        </div>
+        <div class="sec">
+          <div class="sec-hdr hdr-sky"><span class="sec-ico">🚌</span> ULAŞIM & ÖĞRENİM</div>
+          <table class="dt">
+            ${row("Ulaşım", d.transport)}
+            ${row("Öğrenim", d.ogrSureci)}
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROGRAM -->
+    <div class="full-col">
+      <div class="sec">
+        <div class="sec-hdr hdr-sun"><span class="sec-ico">🎉</span> YAZ OKULU PROGRAM DETAYLARI</div>
+        <table class="dt">
+          <tr><td style="width:22%;">Dönem</td><td><div class="chips">${donemChips}</div></td></tr>
+          <tr><td>Program</td><td><div class="chips">${progChips}</div></td></tr>
+          <tr><td>Ekstra</td><td><div class="chips">${ekstraChips}</div></td></tr>
+        </table>
+      </div>
+    </div>
+
+    ${d.notes&&d.notes!=="—"?`
+    <div class="full-col">
+      <div class="sec">
+        <div class="sec-hdr hdr-rose"><span class="sec-ico">💬</span> EK NOTLAR</div>
+        <table class="dt">${row("Not", d.notes)}</table>
+      </div>
+    </div>`:""}
+
+    <!-- İMZA -->
+    <div class="sign-row">
+      <div class="sign-box">
+        <div class="sign-lbl">Veli İmzası</div>
+        <div class="sign-line">Ad Soyad</div>
+      </div>
+      <div class="sign-box">
+        <div class="sign-lbl">Okul Onayı</div>
+        <div class="sign-line">Tarih / Mühür</div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="doc-ftr">
+      <div class="ftr-info">
+        <strong>ÖZEL ASAY ANAOKULU</strong>
+        71 Evler Mh. Duruhan Sk. No:1 Odunpazarı / ESKİŞEHİR<br>
+        0222 237 07 71 · 0532 512 27 29 · asayanaokulları@gmail.com
+      </div>
+      <a href="https://alhazenpdf.com" target="_blank" class="ftr-brand" style="text-decoration:none;">
+        <span class="bn">ALHAZEN<em>PDF</em></span>
+        <span class="bd">◆</span>
+        <span class="bu">alhazenpdf.com</span>
+      </a>
+    </div>
+  `;
+}
+
+// URL parametrelerini oku
+window.addEventListener("DOMContentLoaded", function(){
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get("d");
+    if(!raw){
+      document.getElementById("paper-inner").innerHTML =
+        "<p style='padding:40px;text-align:center;color:#999;'>Form verisi bulunamadı. <a href='/asay'>← Forma dön</a></p>";
+      document.getElementById("loading").style.display = "none";
+      return;
+    }
+    const d = JSON.parse(decodeURIComponent(raw));
+    render(d);
+    document.getElementById("loading").style.display = "none";
+
+    // Font yüklenince otomatik print
+    setTimeout(() => window.print(), 800);
+  } catch(e) {
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("paper-inner").innerHTML =
+      "<p style='padding:40px;text-align:center;color:#c00;'>Hata oluştu. <a href='/asay'>← Forma dön</a></p>";
+  }
+});
+</script>
+</body>
+</html>
