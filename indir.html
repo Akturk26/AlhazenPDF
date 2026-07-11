@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AlhazenPDF — İndir</title>
+  <meta name="description" content="AlhazenPDF — Araç ve Emlak PDF oluşturma uygulaması. App Store ve Google Play'de ücretsiz." />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0c12;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: linear-gradient(135deg, #13161f, #1a1e2a);
+      border: 1px solid rgba(201,168,76,0.25);
+      border-radius: 24px;
+      padding: 40px 32px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    }
+    .logo {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #C9A84C, #F0D080, #C9A84C);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+    .tagline {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      border-radius: 14px;
+      text-decoration: none;
+      transition: transform 0.15s, opacity 0.15s;
+      margin-bottom: 12px;
+      border: 1px solid transparent;
+    }
+    .btn:active { transform: scale(0.97); opacity: 0.85; }
+    .btn-apple {
+      background: #000;
+      border-color: rgba(255,255,255,0.12);
+    }
+    .btn-google {
+      background: #1a3a1a;
+      border-color: rgba(52,199,89,0.3);
+    }
+    .btn-icon {
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+    .btn-text { text-align: left; }
+    .btn-sub {
+      font-size: 11px;
+      color: #9ca3af;
+      font-weight: 400;
+      display: block;
+    }
+    .btn-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      display: block;
+    }
+    .divider {
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+      margin: 20px 0;
+    }
+    .footer {
+      font-size: 11px;
+      color: #374151;
+      margin-top: 24px;
+    }
+    .redirect-msg {
+      font-size: 13px;
+      color: #C9A84C;
+      margin-bottom: 20px;
+      padding: 10px 16px;
+      background: rgba(201,168,76,0.08);
+      border-radius: 10px;
+      border: 1px solid rgba(201,168,76,0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">📄</div>
+    <h1>AlhazenPDF</h1>
+    <p class="tagline">Araç &amp; Emlak PDF, Teknik Servis,<br>Teklif &amp; Fatura oluşturma uygulaması</p>
+
+    <div id="redirect-msg" class="redirect-msg" style="display:none">
+      Yönlendiriliyor…
+    </div>
+
+    <a href="https://apps.apple.com/us/app/alhazenpdf-ara%C3%A7-ve-emlak-pdf/id6771070616"
+       class="btn btn-apple" id="btn-apple">
+      <span class="btn-icon">🍎</span>
+      <span class="btn-text">
+        <span class="btn-sub">App Store'dan indir</span>
+        <span class="btn-name">iPhone &amp; iPad</span>
+      </span>
+    </a>
+
+    <a href="https://play.google.com/store/apps/details?id=com.alhazenpdf.code"
+       class="btn btn-google" id="btn-google">
+      <span class="btn-icon">▶</span>
+      <span class="btn-text">
+        <span class="btn-sub">Google Play'den indir</span>
+        <span class="btn-name">Android</span>
+      </span>
+    </a>
+
+    <div class="divider"></div>
+    <p class="footer">alhazenpdf.com &nbsp;·&nbsp; Ücretsiz</p>
+  </div>
+
+  <script>
+    (function () {
+      var ua = navigator.userAgent || '';
+      var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+      var isAndroid = /Android/.test(ua);
+
+      if (isIOS) {
+        document.getElementById('redirect-msg').style.display = 'block';
+        setTimeout(function () {
+          window.location.href = 'https://apps.apple.com/us/app/alhazenpdf-ara%C3%A7-ve-emlak-pdf/id6771070616';
+        }, 800);
+      } else if (isAndroid) {
+        document.getElementById('redirect-msg').style.display = 'block';
+        setTimeout(function () {
+          window.location.href = 'https://play.google.com/store/apps/details?id=com.alhazenpdf.code';
+        }, 800);
+      }
+      // Masaüstü: sayfada ikisi de gösterilir, otomatik yönlendirme yok
+    })();
+  </script>
+</body>
+</html>
