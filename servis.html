@@ -2,380 +2,485 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Servis Geçmişi — AlhazenPDF</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Servis Geçmişi · AlhazenPDF</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --gold: #C9A84C;
-  --gold-hi: #E4C46A;
-  --gold-lo: rgba(201,168,76,0.10);
-  --gold-border: rgba(201,168,76,0.30);
-  --bg: #080A12;
-  --surface: rgba(255,255,255,0.04);
-  --border: rgba(255,255,255,0.07);
-  --border-hi: rgba(255,255,255,0.12);
-  --txt: #EEF0F6;
-  --txt-dim: rgba(238,240,246,0.50);
-  --txt-mid: rgba(238,240,246,0.75);
-  --green: #4ADE80;
-  --green-bg: rgba(74,222,128,0.10);
-  --green-border: rgba(74,222,128,0.25);
-  --blue: #60A5FA;
-  --radius: 16px;
-  --radius-sm: 10px;
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-  background: var(--bg);
-  color: var(--txt);
-  font-family: 'Inter', system-ui, sans-serif;
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-  background-image: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,168,76,0.07) 0%, transparent 60%);
-}
+  :root {
+    --gold: #f0a500;
+    --gold-dim: #a06800;
+    --green: #22c55e;
+    --bg: #080a0e;
+    --surface: #0f1219;
+    --border: rgba(240,165,0,0.12);
+    --text: #e8eaf0;
+    --muted: #4a5568;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; top: -200px; left: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(240,165,0,0.06) 0%, transparent 70%); pointer-events: none; z-index: 0; }
+  .container { max-width: 480px; margin: 0 auto; padding: 0 16px 40px; position: relative; z-index: 1; }
 
-/* NAV */
-.nav {
-  position: sticky; top: 0; z-index: 10;
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  background: rgba(8,10,18,0.88);
-  border-bottom: 1px solid var(--border);
-  padding: 0 20px;
-}
-.nav-inner {
-  max-width: 620px; margin: 0 auto;
-  display: flex; align-items: center; justify-content: space-between;
-  height: 60px;
-}
-.logo { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
-.logo em { color: var(--gold); font-style: normal; }
-.dl-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 8px 18px; border-radius: 100px;
-  background: linear-gradient(135deg, var(--gold), #9A6E28);
-  color: #08090E; font-size: 12px; font-weight: 700;
-  text-decoration: none; white-space: nowrap;
-}
+  /* LOADING */
+  .loading-box { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 16px; }
+  .spinner { width: 40px; height: 40px; border: 3px solid rgba(240,165,0,0.2); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 13px; color: var(--muted); }
+  .error-box { text-align: center; padding: 48px 24px; }
+  .error-icon { font-size: 48px; margin-bottom: 16px; }
+  .error-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .error-sub { font-size: 13px; color: var(--muted); }
 
-/* WRAP */
-.wrap { max-width: 620px; margin: 0 auto; padding: 28px 20px 80px; }
+  /* TOPBAR */
+  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 0 16px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .brand { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--gold); }
+  .brand span { color: #fff; }
+  .verified-badge { display: flex; align-items: center; gap: 6px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25); border-radius: 20px; padding: 5px 12px; font-size: 11px; font-weight: 600; color: var(--green); }
+  .dot-green { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); }
 
-/* VEHICLE HERO */
-.vehicle-hero {
-  background: linear-gradient(135deg, rgba(201,168,76,0.08) 0%, rgba(255,255,255,0.03) 100%);
-  border: 1px solid var(--gold-border);
-  border-radius: var(--radius);
-  padding: 28px 24px 22px;
-  margin-bottom: 24px;
-  position: relative; overflow: hidden;
-}
-.vehicle-hero::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-}
-.vehicle-hero-top {
-  display: flex; justify-content: space-between; align-items: flex-start;
-  margin-bottom: 18px;
-}
-.plaka-wrap { display: flex; flex-direction: column; gap: 6px; }
-.plaka-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--txt-dim); font-weight: 600; }
-.plaka { font-size: 26px; font-weight: 800; letter-spacing: 3px; color: var(--gold-hi); line-height: 1; }
-.record-count-badge { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-.count-num { font-size: 28px; font-weight: 800; color: var(--txt); line-height: 1; }
-.count-label { font-size: 9px; letter-spacing: 2px; color: var(--txt-dim); font-weight: 600; text-transform: uppercase; }
+  /* HERO */
+  .hero { margin: 24px 0 20px; background: linear-gradient(135deg, #0f1219 0%, #161b26 100%); border: 1px solid var(--border); border-radius: 20px; padding: 24px 20px 20px; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+  .hero-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; }
+  .plaka { font-family: 'Bebas Neue', sans-serif; font-size: 42px; letter-spacing: 4px; color: var(--gold); line-height: 1; margin-bottom: 14px; }
+  .arac-info { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 5px 12px; font-size: 12px; color: #94a3b8; font-weight: 500; }
 
-.vehicle-info-row { display: flex; gap: 8px; flex-wrap: wrap; }
-.veh-chip {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 5px 12px; border-radius: 100px;
-  background: rgba(255,255,255,0.05); border: 1px solid var(--border-hi);
-  font-size: 13px; font-weight: 500; color: var(--txt-mid);
-}
-.km-chip {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 5px 14px; border-radius: 100px;
-  background: var(--gold-lo); border: 1px solid var(--gold-border);
-  font-size: 13px; font-weight: 700; color: var(--gold);
-}
+  /* STATS */
+  .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+  .stat-card { background: var(--surface); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 14px 12px; text-align: center; }
+  .stat-value { font-size: 18px; font-weight: 800; color: var(--gold); letter-spacing: -0.5px; margin-bottom: 4px; }
+  .stat-label { font-size: 10px; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
 
-/* TIMELINE */
-.timeline-label {
-  font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
-  color: var(--txt-dim); font-weight: 700;
-  margin-bottom: 14px; padding-left: 4px;
-}
-.timeline { display: flex; flex-direction: column; }
-.record-card { position: relative; padding-left: 28px; }
-.record-card::before {
-  content: '';
-  position: absolute; left: 7px; top: 20px; bottom: 12px;
-  width: 1px; background: linear-gradient(to bottom, var(--gold-border), transparent);
-}
-.record-card:last-child::before { display: none; }
-.timeline-dot {
-  position: absolute; left: 0; top: 16px;
-  width: 15px; height: 15px; border-radius: 50%;
-  background: rgba(201,168,76,0.15); border: 2px solid rgba(201,168,76,0.35);
-}
-.timeline-dot.first {
-  background: var(--gold); border-color: var(--gold-hi);
-  box-shadow: 0 0 10px rgba(201,168,76,0.4);
-}
+  /* SECTION TITLE */
+  .section-title { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; margin-bottom: 12px; margin-top: 24px; display: flex; align-items: center; gap: 8px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.05); }
 
-.record-inner {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 20px; margin-bottom: 12px;
-}
-.record-inner.first-record {
-  background: linear-gradient(135deg, rgba(201,168,76,0.07) 0%, var(--surface) 100%);
-  border-color: var(--gold-border);
-}
+  /* KAYIT */
+  .kayit { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 12px; }
+  .kayit-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .kayit-date { font-size: 13px; font-weight: 700; color: var(--text); }
+  .kayit-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .kayit-badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+  .badge-son { background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3); color: var(--green); font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+  .badge-km { background: rgba(240,165,0,0.1); border: 1px solid rgba(240,165,0,0.25); color: var(--gold); font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
 
-.record-head {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 16px;
-}
-.record-date { font-size: 13px; font-weight: 600; color: var(--txt-mid); }
-.badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-.badge { padding: 3px 10px; border-radius: 100px; font-size: 10px; font-weight: 700; letter-spacing: 0.8px; }
-.badge-son { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
-.badge-km { background: var(--gold-lo); color: var(--gold); border: 1px solid var(--gold-border); }
+  /* KM BAR */
+  .km-section { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .km-bar-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .km-val { font-size: 12px; font-weight: 700; color: var(--gold); white-space: nowrap; }
+  .km-bar { flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+  .km-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--gold)); border-radius: 3px; }
+  .km-next { font-size: 10px; color: var(--muted); text-align: right; }
 
-.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-.info-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--txt-dim); font-weight: 700; margin-bottom: 3px; }
-.info-val { font-size: 14px; font-weight: 500; color: var(--txt); }
+  /* İŞLEMLER */
+  .islemler { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .islem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .islem-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #94a3b8; font-weight: 500; }
+  .islem-check { width: 16px; height: 16px; border-radius: 50%; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--green); flex-shrink: 0; }
 
-.sec-block { margin-bottom: 12px; }
-.sec-block:last-child { margin-bottom: 0; }
-.sec-title {
-  font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase;
-  color: var(--gold); font-weight: 700; opacity: 0.85;
-  margin-bottom: 7px; display: flex; align-items: center; gap: 6px;
-}
-.sec-title::after {
-  content: ''; flex: 1; height: 1px;
-  background: linear-gradient(90deg, var(--gold-border), transparent);
-}
-.text-block {
-  background: rgba(255,255,255,0.025); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 12px 14px;
-  font-size: 13px; color: var(--txt-mid); line-height: 1.65; white-space: pre-wrap;
-}
-.parts-list { display: flex; flex-wrap: wrap; gap: 6px; }
-.part-tag {
-  padding: 4px 10px; border-radius: 6px;
-  background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.18);
-  font-size: 12px; font-weight: 500; color: var(--blue);
-}
-.record-footer {
-  margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);
-  font-size: 10px; letter-spacing: 1.5px; color: var(--txt-dim); font-weight: 600;
-}
+  /* PARÇALAR */
+  .parcalar { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .parca-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; }
+  .parca-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .parca-tag { background: rgba(240,165,0,0.08); border: 1px solid rgba(240,165,0,0.2); color: var(--gold); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 8px; }
 
-/* STATES */
-.state-wrap { text-align: center; padding: 80px 24px; }
-.state-icon { font-size: 56px; display: block; margin-bottom: 20px; }
-.state-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
-.state-desc { font-size: 14px; color: var(--txt-dim); line-height: 1.65; max-width: 320px; margin: 0 auto; }
-.spinner {
-  width: 36px; height: 36px; border-radius: 50%;
-  border: 2px solid var(--border); border-top-color: var(--gold);
-  animation: spin 0.8s linear infinite; margin: 0 auto 16px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+  /* ÖNERİLEN */
+  .sonraki { padding: 12px 16px; background: rgba(240,165,0,0.04); border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .sonraki-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--gold-dim); margin-bottom: 8px; text-transform: uppercase; }
+  .oneri-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .oneri-tag { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); color: #fbbf24; font-size: 11px; padding: 4px 10px; border-radius: 8px; font-weight: 500; }
 
-/* FOOTER */
-.page-footer {
-  margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border);
-  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
-}
-.footer-brand { font-size: 13px; font-weight: 700; color: var(--txt-dim); }
-.footer-brand em { color: var(--gold); font-style: normal; }
-.footer-note { font-size: 11px; color: var(--txt-dim); }
+  /* NOT */
+  .not-box { margin: 12px 16px 16px; padding: 10px 14px; background: rgba(255,255,255,0.03); border-left: 3px solid var(--gold-dim); border-radius: 0 8px 8px 0; font-size: 12px; color: var(--muted); font-style: italic; }
 
-@media (max-width: 480px) {
-  .plaka { font-size: 22px; letter-spacing: 2px; }
-  .info-grid { grid-template-columns: 1fr; gap: 8px; }
-  .count-num { font-size: 22px; }
-}
+  /* SERVİS BİLGİ */
+  .servis-card { background: var(--surface); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; overflow: hidden; margin-top: 8px; }
+  .servis-top { padding: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .servis-name { font-size: 15px; font-weight: 700; color: var(--text); }
+  .servis-addr { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .servis-tel { font-size: 13px; font-weight: 700; color: var(--gold); text-align: right; }
+
+  /* YILDIZ RATING — MEVCUT */
+  .servis-rating-row { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .rating-info { display: flex; align-items: center; gap: 8px; }
+  .rating-avg { font-size: 22px; font-weight: 800; color: var(--gold); }
+  .rating-stars-static { display: flex; gap: 2px; }
+  .star-s { font-size: 14px; }
+  .rating-count { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* YILDIZ DEĞERLENDİR */
+  .rate-block { margin-top: 8px; background: linear-gradient(135deg, #0f1219, #161b26); border: 1px solid rgba(240,165,0,0.2); border-radius: 16px; padding: 20px 16px; text-align: center; }
+  .rate-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .rate-sub { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
+  .stars-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 16px; }
+  .star-btn { font-size: 36px; background: none; border: none; cursor: pointer; opacity: 0.3; transition: all 0.15s ease; transform: scale(1); line-height: 1; }
+  .star-btn.active { opacity: 1; transform: scale(1.15); filter: drop-shadow(0 0 8px rgba(240,165,0,0.6)); }
+  .rate-submit { width: 100%; padding: 13px; background: var(--gold); color: #000; font-size: 14px; font-weight: 800; border: none; border-radius: 12px; cursor: pointer; letter-spacing: 0.3px; transition: opacity 0.2s; }
+  .rate-submit:disabled { opacity: 0.35; cursor: not-allowed; }
+  .rate-thanks { display: none; flex-direction: column; align-items: center; gap: 8px; padding: 8px 0; }
+  .rate-thanks-icon { font-size: 40px; }
+  .rate-thanks-text { font-size: 14px; font-weight: 700; color: var(--green); }
+  .rate-thanks-sub { font-size: 12px; color: var(--muted); }
+
+  /* APP BANNER */
+  .app-banner { margin-top: 24px; background: linear-gradient(135deg, #0f1219, #1a1f2e); border: 1px solid rgba(240,165,0,0.15); border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 14px; }
+  .app-icon { width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #1a1200, #2a1e00); border: 1px solid rgba(240,165,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+  .app-text { flex: 1; }
+  .app-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .app-sub { font-size: 11px; color: var(--muted); }
+  .app-btn { background: var(--gold); color: #000; font-size: 12px; font-weight: 800; padding: 8px 14px; border-radius: 10px; text-decoration: none; white-space: nowrap; }
+
+  /* FOOTER */
+  .page-footer { text-align: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.04); }
+  .page-footer-brand { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; color: var(--gold); margin-bottom: 4px; }
+  .page-footer-brand span { color: #fff; }
+  .page-footer-sub { font-size: 11px; color: var(--muted); }
 </style>
 </head>
 <body>
+<div class="container">
 
-<nav class="nav">
-  <div class="nav-inner">
-    <div class="logo">Alhazen<em>PDF</em></div>
-    <a href="https://play.google.com/store/apps/details?id=com.alhazenpdf.code" class="dl-btn">Uygulamayı İndir</a>
+  <!-- LOADING -->
+  <div id="loadingView" class="loading-box">
+    <div class="spinner"></div>
+    <div class="loading-text">Servis geçmişi yükleniyor...</div>
   </div>
-</nav>
 
-<div class="wrap">
-  <div id="vehicle-hero" style="display:none" class="vehicle-hero">
-    <div class="vehicle-hero-top">
-      <div class="plaka-wrap">
-        <div class="plaka-label">Plaka</div>
-        <div class="plaka" id="h-plaka"></div>
-      </div>
-      <div class="record-count-badge">
-        <div class="count-num" id="h-count"></div>
-        <div class="count-label">Kayıt</div>
-      </div>
+  <!-- ERROR -->
+  <div id="errorView" style="display:none">
+    <div class="topbar">
+      <div class="brand">Alhazen<span>PDF</span></div>
     </div>
-    <div class="vehicle-info-row" id="h-chips"></div>
-  </div>
-
-  <div id="content">
-    <div class="state-wrap">
-      <div class="spinner"></div>
-      <p style="color:var(--txt-dim);font-size:14px">Servis kayıtları yükleniyor…</p>
+    <div class="error-box">
+      <div class="error-icon">🔍</div>
+      <div class="error-title">Kayıt Bulunamadı</div>
+      <div class="error-sub" id="errorSub">Bu plakaya ait servis kaydı henüz yok.</div>
     </div>
   </div>
 
-  <div id="page-footer" style="display:none" class="page-footer">
-    <div class="footer-brand">Alhazen<em>PDF</em> · Teknik Servis</div>
-    <div class="footer-note">alhazenpdf.com</div>
-  </div>
+  <!-- CONTENT -->
+  <div id="contentView" style="display:none">
+
+    <div class="topbar">
+      <div class="brand">Alhazen<span>PDF</span></div>
+      <div class="verified-badge"><div class="dot-green"></div>Dijital Doğrulandı</div>
+    </div>
+
+    <div class="hero">
+      <div class="hero-label">ARAÇ PLAKASI</div>
+      <div class="plaka" id="pagePlaka"></div>
+      <div class="arac-info" id="pageAracInfo"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card"><div class="stat-value" id="statKayit">—</div><div class="stat-label">Kayıt</div></div>
+      <div class="stat-card"><div class="stat-value" id="statKm">—</div><div class="stat-label">Son Bakım</div></div>
+      <div class="stat-card"><div class="stat-value" id="statIslem">—</div><div class="stat-label">İşlem</div></div>
+    </div>
+
+    <div class="section-title">Servis Geçmişi</div>
+    <div id="kayitlarList"></div>
+
+    <div class="section-title">Servisi Yapan</div>
+    <div class="servis-card">
+      <div class="servis-top">
+        <div>
+          <div class="servis-name" id="servisName">🔧 —</div>
+          <div class="servis-addr" id="servisAddr"></div>
+        </div>
+        <div class="servis-tel" id="servisTel"></div>
+      </div>
+      <div class="servis-rating-row" id="servisRatingRow" style="display:none">
+        <div class="rating-info">
+          <div class="rating-avg" id="ratingAvg">—</div>
+          <div>
+            <div class="rating-stars-static" id="ratingStars"></div>
+            <div class="rating-count" id="ratingCount"></div>
+          </div>
+        </div>
+        <div style="font-size:11px; color:var(--muted); text-align:right; line-height:1.5;">
+          Bu servisten<br>bakım aldınız
+        </div>
+      </div>
+    </div>
+
+    <!-- DEĞERLENDİR -->
+    <div class="rate-block" id="rateBlock">
+      <div id="rateForm">
+        <div class="rate-title">Bu servisi değerlendirin</div>
+        <div class="rate-sub">Bakım kalitesini 1–5 yıldız ile puanlayın</div>
+        <div class="stars-row">
+          <button class="star-btn" onclick="setRating(1)">⭐</button>
+          <button class="star-btn" onclick="setRating(2)">⭐</button>
+          <button class="star-btn" onclick="setRating(3)">⭐</button>
+          <button class="star-btn" onclick="setRating(4)">⭐</button>
+          <button class="star-btn" onclick="setRating(5)">⭐</button>
+        </div>
+        <button class="rate-submit" id="rateSubmit" disabled onclick="submitRating()">
+          Değerlendirmeyi Gönder
+        </button>
+      </div>
+      <div class="rate-thanks" id="rateThanks">
+        <div class="rate-thanks-icon">🏆</div>
+        <div class="rate-thanks-text">Teşekkürler!</div>
+        <div class="rate-thanks-sub">Değerlendirmeniz kaydedildi.</div>
+      </div>
+    </div>
+
+    <div class="app-banner">
+      <div class="app-icon">🔧</div>
+      <div class="app-text">
+        <div class="app-title">AlhazenPDF ile Servis Tut</div>
+        <div class="app-sub">QR kod, PDF bakım kartı, araç geçmişi</div>
+      </div>
+      <a class="app-btn" href="https://alhazenpdf.com/indir.html" target="_blank">İndir</a>
+    </div>
+
+    <div class="page-footer">
+      <div class="page-footer-brand">Alhazen<span>PDF</span> · Teknik Servis</div>
+      <div class="page-footer-sub">alhazenpdf.com · Dijital Servis Kaydı</div>
+    </div>
+
+  </div><!-- /contentView -->
 </div>
 
 <script>
-var SB_URL = 'https://cfebfglgrlbzdmhrwmra.supabase.co';
-var SB_KEY = 'sb_publishable_XyzQZvg5jFBGsSPuj_3U_A_MyGRo2V3';
+const SUPABASE_URL = 'https://cfebfglgrlbzdmhrwmra.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_XyzQZvg5jFBGsSPuj_3U_A_MyGRo2V3';
 
-function getPlaka() {
-  var parts = window.location.pathname.split('/');
-  var last = parts[parts.length - 1];
-  if (last && last !== 'servis.html' && last !== 'servis' && last !== '')
-    return decodeURIComponent(last).toUpperCase();
-  return (new URLSearchParams(window.location.search).get('plaka') || '').toUpperCase();
+function getPlakFromUrl() {
+  const path = window.location.pathname;
+  const parts = path.split('/').filter(Boolean);
+  const idx = parts.indexOf('servis');
+  if (idx >= 0 && parts[idx + 1]) return decodeURIComponent(parts[idx + 1]).toUpperCase().trim();
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('plaka')) return decodeURIComponent(params.get('plaka')).toUpperCase().trim();
+  const last = parts[parts.length - 1];
+  return (last && last !== 'servis.html' && last !== 'servis') ? decodeURIComponent(last).toUpperCase().trim() : null;
 }
 
-function fmt(iso) {
-  return new Date(iso).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' });
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const months = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-function esc(s) {
-  return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : '';
+function fmtKm(km) {
+  if (!km) return '';
+  const n = parseInt(String(km).replace(/\D/g,''));
+  return isNaN(n) ? '' : n.toLocaleString('tr-TR') + ' KM';
 }
 
-function fmtKm(val) {
-  var n = parseInt(val);
-  return isNaN(n) ? String(val) : n.toLocaleString('tr-TR') + ' KM';
+function kmDiff(a, b) {
+  const n1 = parseInt(String(a || '').replace(/\D/g, ''));
+  const n2 = parseInt(String(b || '').replace(/\D/g, ''));
+  if (isNaN(n1) || isNaN(n2) || n2 <= n1) return null;
+  return (n2 - n1).toLocaleString('tr-TR');
 }
 
-function buildChips(k) {
-  var chips = '';
-  var arac = [k.marka, k.model, k.yil].filter(Boolean).join(' ');
-  if (arac) chips += '<div class="veh-chip">&#x1F697; ' + esc(arac) + '</div>';
-  if (k.musteri_adi) chips += '<div class="veh-chip">&#x1F464; ' + esc(k.musteri_adi) + '</div>';
-  if (k.km) chips += '<div class="km-chip">&#x2299; ' + fmtKm(k.km) + '</div>';
-  return chips;
-}
-
-function splitParts(str) {
+function parseList(str) {
   if (!str) return [];
-  return str.split(/[\n,،]+/).map(function(s) { return s.trim(); }).filter(Boolean);
+  return str.split(/[,\n]/).map(s => s.trim()).filter(Boolean);
 }
 
-function buildRecord(k, i) {
-  var isFirst = i === 0;
-  var html = '<div class="record-card">';
-  html += '<div class="timeline-dot' + (isFirst ? ' first' : '') + '"></div>';
-  html += '<div class="record-inner' + (isFirst ? ' first-record' : '') + '">';
+function starsHtml(avg) {
+  let h = '';
+  for (let i = 1; i <= 5; i++) {
+    h += `<span class="star-s" style="opacity:${i <= Math.round(avg) ? 1 : 0.25}">⭐</span>`;
+  }
+  return h;
+}
 
-  html += '<div class="record-head">';
-  html += '<div class="record-date">' + fmt(k.tarih || k.created_at) + '</div>';
-  html += '<div class="badges">';
-  if (i === 0) html += '<span class="badge badge-son">SON BAKIM</span>';
-  if (k.km) html += '<span class="badge badge-km">' + fmtKm(k.km) + '</span>';
-  html += '</div></div>';
+function renderKayit(k, isFirst) {
+  const islemler   = parseList(k.yapilan_islemler);
+  const parcalar   = parseList(k.degistirilen_parcalar);
+  const onerilenler = parseList(k.onerilenler);
 
-  var infoItems = [];
-  if (k.musteri_adi) infoItems.push(['Müşteri', esc(k.musteri_adi)]);
-  var arac = [k.marka, k.model].filter(Boolean).join(' ');
-  if (arac) infoItems.push(['Araç', esc(arac)]);
-  if (k.yil) infoItems.push(['Model Yılı', esc(k.yil)]);
-  if (k.telefon) infoItems.push(['Telefon', esc(k.telefon)]);
+  let kmBar = '';
+  if (k.km && k.km_sonraki) {
+    const diff = kmDiff(k.km, k.km_sonraki);
+    const n1 = parseInt(String(k.km).replace(/\D/g,''));
+    const n2 = parseInt(String(k.km_sonraki).replace(/\D/g,''));
+    const fillPct = (!isNaN(n1) && !isNaN(n2) && n2 > 0)
+      ? Math.min(95, Math.round(n1 / n2 * 100))
+      : 50;
+    kmBar = `
+    <div class="km-section">
+      <div class="km-bar-wrapper">
+        <div class="km-val">${fmtKm(k.km)}</div>
+        <div class="km-bar"><div class="km-fill" style="width:${fillPct}%"></div></div>
+        <div class="km-val">${fmtKm(k.km_sonraki)}</div>
+      </div>
+      <div class="km-next">⚡ Sonraki bakım: ${diff ? '+' + diff + ' km' : fmtKm(k.km_sonraki)}</div>
+    </div>`;
+  }
 
-  if (infoItems.length) {
-    html += '<div class="info-grid">';
-    infoItems.forEach(function(it) {
-      html += '<div><div class="info-label">' + it[0] + '</div><div class="info-val">' + it[1] + '</div></div>';
+  const islemlerHtml = islemler.length ? `
+    <div class="islemler">
+      <div class="parca-label">Yapılan İşlemler</div>
+      <div class="islem-grid">
+        ${islemler.map(i => `<div class="islem-item"><div class="islem-check">✓</div>${i}</div>`).join('')}
+      </div>
+    </div>` : '';
+
+  const parcalarHtml = parcalar.length ? `
+    <div class="parcalar">
+      <div class="parca-label">Değiştirilen Parçalar</div>
+      <div class="parca-tags">
+        ${parcalar.map(p => `<div class="parca-tag">🔩 ${p}</div>`).join('')}
+      </div>
+    </div>` : '';
+
+  const onerilenlerHtml = onerilenler.length ? `
+    <div class="sonraki">
+      <div class="sonraki-label">⚠️ Sonraki Bakımda Önerilen</div>
+      <div class="oneri-tags">
+        ${onerilenler.map(o => `<div class="oneri-tag">⚠️ ${o}</div>`).join('')}
+      </div>
+    </div>` : '';
+
+  const notHtml = k.notlar ? `<div class="not-box">💬 ${k.notlar}</div>` : '';
+
+  return `
+    <div class="kayit">
+      <div class="kayit-header">
+        <div>
+          <div class="kayit-date">${formatDate(k.tarih)}</div>
+          <div class="kayit-sub">🔧 ${k.garaj_adi || 'Servis'}${k.garaj_adres ? ' · ' + k.garaj_adres : ''}</div>
+        </div>
+        <div class="kayit-badges">
+          ${isFirst ? '<div class="badge-son">SON BAKIM</div>' : ''}
+          ${k.km ? `<div class="badge-km">${fmtKm(k.km)}</div>` : ''}
+        </div>
+      </div>
+      ${kmBar}${islemlerHtml}${parcalarHtml}${onerilenlerHtml}${notHtml}
+    </div>`;
+}
+
+// Rating
+let currentRating = 0;
+let currentGaraj = '';
+let currentPlaka = '';
+
+function setRating(val) {
+  currentRating = val;
+  document.querySelectorAll('.star-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i < val);
+  });
+  document.getElementById('rateSubmit').disabled = false;
+}
+
+async function submitRating() {
+  if (!currentRating) return;
+  document.getElementById('rateSubmit').disabled = true;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/garaj_degerlendirme`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({ garaj_adi: currentGaraj, plaka: currentPlaka, puan: currentRating }),
     });
-    html += '</div>';
-  }
-
-  if (k.yapilan_islemler) {
-    html += '<div class="sec-block"><div class="sec-title">Yapılan İşlemler</div>';
-    html += '<div class="text-block">' + esc(k.yapilan_islemler) + '</div></div>';
-  }
-
-  if (k.degistirilen_parcalar) {
-    var parts = splitParts(k.degistirilen_parcalar);
-    html += '<div class="sec-block"><div class="sec-title">Değiştirilen Parçalar</div>';
-    if (parts.length > 1) {
-      html += '<div class="parts-list">';
-      parts.forEach(function(p) { html += '<span class="part-tag">' + esc(p) + '</span>'; });
-      html += '</div>';
-    } else {
-      html += '<div class="text-block">' + esc(k.degistirilen_parcalar) + '</div>';
-    }
-    html += '</div>';
-  }
-
-  if (k.notlar) {
-    html += '<div class="sec-block"><div class="sec-title">Notlar</div>';
-    html += '<div class="text-block">' + esc(k.notlar) + '</div></div>';
-  }
-
-  html += '<div class="record-footer">ALHAZENPDF · TEKNİK SERVİS</div>';
-  html += '</div></div>';
-  return html;
+  } catch {}
+  localStorage.setItem('rated_' + currentPlaka, '1');
+  document.getElementById('rateForm').style.display = 'none';
+  document.getElementById('rateThanks').style.display = 'flex';
+  loadGarajRating(currentGaraj);
 }
 
-async function load() {
-  var plaka = getPlaka();
-  var el = document.getElementById('content');
+async function loadGarajRating(garajAdi) {
+  if (!garajAdi) return;
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/garaj_degerlendirme?garaj_adi=eq.${encodeURIComponent(garajAdi)}&select=puan`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+    );
+    if (!res.ok) return;
+    const rows = await res.json();
+    if (!Array.isArray(rows) || !rows.length) return;
+    const avg = rows.reduce((s, r) => s + (r.puan || 0), 0) / rows.length;
+    document.getElementById('ratingAvg').textContent = avg.toFixed(1);
+    document.getElementById('ratingStars').innerHTML = starsHtml(avg);
+    document.getElementById('ratingCount').textContent = rows.length + ' değerlendirme';
+    document.getElementById('servisRatingRow').style.display = 'flex';
+  } catch {}
+}
 
+async function init() {
+  const plaka = getPlakFromUrl();
   if (!plaka) {
-    el.innerHTML = '<div class="state-wrap"><span class="state-icon">&#x1F527;</span><div class="state-title">Plaka bulunamadı</div><div class="state-desc">Bu QR kod geçersiz görünüyor.</div></div>';
+    document.getElementById('loadingView').style.display = 'none';
+    document.getElementById('errorView').style.display = 'block';
+    document.getElementById('errorSub').textContent = 'Geçerli bir plaka bulunamadı.';
     return;
   }
 
-  try {
-    var res = await fetch(
-      SB_URL + '/rest/v1/servis_kayitlari?plaka=eq.' + encodeURIComponent(plaka) + '&order=created_at.desc&limit=20',
-      { headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY } }
-    );
-    var data = await res.json();
+  currentPlaka = plaka;
 
-    if (!Array.isArray(data) || !data.length) {
-      el.innerHTML = '<div class="state-wrap"><span class="state-icon">&#x1F50D;</span><div class="state-title">' + esc(plaka) + '</div><div class="state-desc">Bu araç için henüz servis kaydı oluşturulmamış.</div></div>';
+  try {
+    const url = `${SUPABASE_URL}/rest/v1/servis_kayitlari?plaka=ilike.${encodeURIComponent(plaka)}&order=tarih.desc`;
+    const res = await fetch(url, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    if (!res.ok) throw new Error('Sunucu hatası: ' + res.status);
+    const kayitlar = await res.json();
+
+    if (!Array.isArray(kayitlar) || !kayitlar.length) {
+      document.getElementById('loadingView').style.display = 'none';
+      document.getElementById('errorView').style.display = 'block';
       return;
     }
 
-    var hero = document.getElementById('vehicle-hero');
-    document.getElementById('h-plaka').textContent = plaka;
-    document.getElementById('h-count').textContent = data.length;
-    document.getElementById('h-chips').innerHTML = buildChips(data[0]);
-    hero.style.display = '';
+    const ilk = kayitlar[0];
+    const totalIslem = kayitlar.reduce((s, k) => s + parseList(k.yapilan_islemler).length, 0);
 
-    var timelineHtml = '<div class="timeline-label">SERVİS GEÇMİŞİ</div><div class="timeline">';
-    data.forEach(function(k, i) { timelineHtml += buildRecord(k, i); });
-    timelineHtml += '</div>';
-    el.innerHTML = timelineHtml;
+    document.title = `Servis Geçmişi · ${plaka}`;
+    document.getElementById('pagePlaka').textContent = plaka;
 
-    document.getElementById('page-footer').style.display = '';
+    let pills = '';
+    if (ilk.marka) pills += `<div class="pill">🚗 ${ilk.marka}${ilk.model ? ' ' + ilk.model : ''}</div>`;
+    if (ilk.yil)   pills += `<div class="pill">📅 ${ilk.yil}</div>`;
+    if (ilk.yakit) pills += `<div class="pill">⛽ ${ilk.yakit}</div>`;
+    if (ilk.renk)  pills += `<div class="pill">🎨 ${ilk.renk}</div>`;
+    document.getElementById('pageAracInfo').innerHTML = pills;
 
-  } catch(e) {
-    el.innerHTML = '<div class="state-wrap"><span class="state-icon">&#x26A0;&#xFE0F;</span><div class="state-title">Bağlantı hatası</div><div class="state-desc">Lütfen internet bağlantınızı kontrol edin ve sayfayı yenileyin.</div></div>';
+    document.getElementById('statKayit').textContent = kayitlar.length;
+    document.getElementById('statKm').textContent = ilk.km
+      ? (parseInt(String(ilk.km).replace(/\D/g,'')) / 1000).toFixed(0) + 'K'
+      : '—';
+    document.getElementById('statIslem').textContent = totalIslem || '—';
+
+    document.getElementById('kayitlarList').innerHTML = kayitlar.map((k, i) => renderKayit(k, i === 0)).join('');
+
+    const garaj = ilk.garaj_adi || '';
+    currentGaraj = garaj;
+    document.getElementById('servisName').textContent = '🔧 ' + (garaj || 'Bilinmiyor');
+    if (ilk.garaj_adres) document.getElementById('servisAddr').textContent = ilk.garaj_adres;
+    if (ilk.telefon) document.getElementById('servisTel').textContent = ilk.telefon;
+
+    if (localStorage.getItem('rated_' + plaka)) {
+      document.getElementById('rateForm').style.display = 'none';
+      document.getElementById('rateThanks').style.display = 'flex';
+    }
+    if (garaj) loadGarajRating(garaj);
+
+    document.getElementById('loadingView').style.display = 'none';
+    document.getElementById('contentView').style.display = 'block';
+
+  } catch (e) {
+    document.getElementById('loadingView').innerHTML =
+      `<div class="error-box"><div class="error-icon">⚠️</div><div class="error-title">Yükleme Hatası</div><div class="error-sub">${e.message}</div></div>`;
   }
 }
 
-load();
+init();
 </script>
 </body>
 </html>
