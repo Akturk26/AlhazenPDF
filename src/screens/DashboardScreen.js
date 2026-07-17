@@ -2,16 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { LineChart, BarChart } from 'react-native-chart-kit';
-import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Icon from '../components/Icon';
 import { useTheme } from '../context/ThemeContext';
 import { getTheme } from '../themes/colors';
 import { getStatistics, getMonthlyChartData } from '../utils/analytics';
+
+const GOLD = '#C9A84C';
 
 const screenWidth = Dimensions.get('window').width;
 
 export default function DashboardScreen({ navigation }) {
   const { isDark } = useTheme();
   const theme = getTheme(isDark);
+  const insets = useSafeAreaInsets();
   const [stats, setStats] = useState(null);
   const [chartData, setChartData] = useState({ labels: [], data: [] });
   const [error, setError] = useState(null);
@@ -51,11 +55,16 @@ export default function DashboardScreen({ navigation }) {
   }
 
   const categoryIcons = {
-    auto: '🚗',
-    emlak: '🏢',
-    office: '💼',
-    personal: '👤',
-    other: '📁',
+    auto: 'car-outline',
+    emlak: 'home-city-outline',
+    office: 'briefcase-outline',
+    personal: 'account-outline',
+    other: 'file-document-outline',
+  };
+
+  const categoryColors = {
+    auto: '#E05555', emlak: '#3DBA7C', office: '#3B82F6',
+    personal: '#9B6EF7', other: '#E0904A',
   };
 
   const categoryNames = {
@@ -67,11 +76,11 @@ export default function DashboardScreen({ navigation }) {
   };
 
   const themeIcons = {
-    modern: '🎨',
-    darkGold: '💎',
-    vintage: '📜',
-    white: '📄',
-    green: '🌿',
+    modern: 'palette-outline',
+    darkGold: 'star-circle-outline',
+    vintage: 'book-open-page-variant-outline',
+    white: 'file-document-outline',
+    green: 'leaf',
   };
 
   const themeNames = {
@@ -90,12 +99,12 @@ export default function DashboardScreen({ navigation }) {
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={theme.bg} />
 
       {/* Header */}
-      <View style={styles.navBar}>
+      <View style={[styles.navBar, { paddingTop: insets.top + 16 }]}>
         <TouchableOpacity 
           onPress={() => navigation.goBack()}
           style={[styles.navBack, { backgroundColor: theme.surface2, borderColor: theme.border }]}
         >
-          <Text style={[styles.navBackText, { color: theme.text }]}>←</Text>
+          <Icon name="arrow-left" size={18} color={theme.text} />
         </TouchableOpacity>
         <Text style={[styles.navTitle, { color: theme.text }]}>İstatistikler</Text>
       </View>
@@ -108,7 +117,7 @@ export default function DashboardScreen({ navigation }) {
           end={{ x: 1, y: 1 }}
           style={[styles.heroCard, { borderBottomColor: theme.border }]}
         >
-          <View style={[styles.heroGlow, { backgroundColor: isDark ? 'rgba(79,110,247,0.08)' : 'rgba(79,70,229,0.05)' }]} />
+          <View style={[styles.heroGlow, { backgroundColor: isDark ? 'rgba(201,168,76,0.06)' : 'rgba(201,168,76,0.04)' }]} />
           <Text style={[styles.heroLabel, { color: theme.textSecondary }]}>Toplam PDF</Text>
           <Text style={[styles.heroNumber, { color: theme.text }]}>{stats.totalPDFs}</Text>
           <Text style={[styles.heroSub, { color: theme.textSecondary }]}>Oluşturuldu 🎉</Text>
@@ -165,20 +174,23 @@ export default function DashboardScreen({ navigation }) {
 
           {/* Category Usage */}
           <View style={[styles.statsCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            <Text style={[styles.statsTitle, { color: theme.text }]}>📁 Kategori Kullanımı</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+              <Icon name="folder-outline" size={16} color={GOLD} />
+              <Text style={[styles.statsTitle, { color: theme.text, marginBottom: 0 }]}>Kategori Kullanımı</Text>
+            </View>
             <View style={styles.statsList}>
               {Object.entries(stats.categoryUsage).map(([key, value]) => (
                 <View key={key} style={[styles.statsItem, { borderBottomColor: theme.border }]}>
                   <View style={styles.statsItemLeft}>
-                    <Text style={styles.statsItemIcon}>{categoryIcons[key]}</Text>
+                    <Icon name={categoryIcons[key] || 'file-document-outline'} size={18} color={categoryColors[key] || GOLD} />
                     <Text style={[styles.statsItemLabel, { color: theme.text }]}>{categoryNames[key]}</Text>
                   </View>
                   <View style={styles.statsItemRight}>
-                    <Text style={[styles.statsItemValue, { color: theme.blue }]}>{value}</Text>
+                    <Text style={[styles.statsItemValue, { color: GOLD }]}>{value}</Text>
                     <View style={[styles.statsBar, { backgroundColor: theme.surfaceDim }]}>
                       <View 
                         style={[styles.statsBarFill, { 
-                          backgroundColor: theme.blue,
+                          backgroundColor: GOLD,
                           width: `${stats.totalPDFs > 0 ? (value / stats.totalPDFs) * 100 : 0}%`
                         }]} 
                       />
@@ -191,12 +203,15 @@ export default function DashboardScreen({ navigation }) {
 
           {/* Theme Usage */}
           <View style={[styles.statsCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            <Text style={[styles.statsTitle, { color: theme.text }]}>🎨 Tema Kullanımı</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+              <Icon name="palette-outline" size={16} color={GOLD} />
+              <Text style={[styles.statsTitle, { color: theme.text, marginBottom: 0 }]}>Tema Kullanımı</Text>
+            </View>
             <View style={styles.statsList}>
               {Object.entries(stats.themeUsage).map(([key, value]) => (
                 <View key={key} style={[styles.statsItem, { borderBottomColor: theme.border }]}>
                   <View style={styles.statsItemLeft}>
-                    <Text style={styles.statsItemIcon}>{themeIcons[key]}</Text>
+                    <Icon name={themeIcons[key] || 'palette-outline'} size={18} color={GOLD} />
                     <Text style={[styles.statsItemLabel, { color: theme.text }]}>{themeNames[key]}</Text>
                   </View>
                   <View style={styles.statsItemRight}>
@@ -231,7 +246,7 @@ export default function DashboardScreen({ navigation }) {
                       </View>
                       <View style={styles.recentRight}>
                         <Text style={[styles.recentTheme, { color: theme.textSecondary }]}>{pdf.theme}</Text>
-                        <Text style={[styles.recentPhotos, { color: theme.blue }]}>{pdf.photoCount} foto</Text>
+                        <Text style={[styles.recentPhotos, { color: GOLD }]}>{pdf.photoCount} foto</Text>
                       </View>
                     </View>
                   );

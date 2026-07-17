@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kurumsal Plan Başvurusu — AlhazenPDF</title>
+<meta name="description" content="AlhazenPDF kurumsal plan başvurusu. Galerici, teknik servis ve emlak ofisleri için takım planları." />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --gold:#C9A84C;
+  --gold-dim:rgba(201,168,76,0.12);
+  --gold-border:rgba(201,168,76,0.28);
+  --navy:#0F172A;
+  --navy2:#1A2744;
+  --bg:#FAF7F2;
+  --surface:#FFFFFF;
+  --text:#0F172A;
+  --text2:#4B5563;
+  --border:#E5E7EB;
+  --input-bg:#F9FAFB;
+  --c-galeri:#E05555;
+  --c-servis:#3B82F6;
+  --c-emlak:#3DBA7C;
+  --radius:14px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#0d0f14;
+    --surface:#141922;
+    --text:#F0F2F8;
+    --text2:#9CA3AF;
+    --border:rgba(255,255,255,0.08);
+    --input-bg:#1e2330;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#FAF7F2;--surface:#FFFFFF;--text:#0F172A;--text2:#4B5563;
+  --border:#E5E7EB;--input-bg:#F9FAFB;
+}
+:root[data-theme="dark"]{
+  --bg:#0d0f14;--surface:#141922;--text:#F0F2F8;--text2:#9CA3AF;
+  --border:rgba(255,255,255,0.08);--input-bg:#1e2330;
+}
+
+body{
+  font-family:-apple-system,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;line-height:1.6;
+}
+
+/* ── HEADER ── */
+.site-header{
+  background:var(--navy);
+  padding:0 24px;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.logo{
+  display:flex;align-items:center;gap:10px;text-decoration:none;
+}
+.logo-icon{
+  width:32px;height:32px;border-radius:8px;
+  background:var(--gold);
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;font-weight:900;color:var(--navy);
+  font-family:Georgia,serif;
+}
+.logo-name{
+  font-size:17px;font-weight:700;color:#fff;letter-spacing:-0.3px;
+}
+.logo-name span{color:var(--gold);}
+.header-link{
+  font-size:13px;color:rgba(255,255,255,0.65);text-decoration:none;
+  padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);
+  transition:border-color .2s,color .2s;
+}
+.header-link:hover{color:#fff;border-color:rgba(255,255,255,0.35);}
+
+/* ── HERO ── */
+.hero{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);
+  padding:56px 24px 48px;text-align:center;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-80px;right:-60px;
+  width:320px;height:320px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,168,76,0.1) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--gold);background:rgba(201,168,76,0.12);
+  border:1px solid rgba(201,168,76,0.25);
+  padding:5px 14px;border-radius:20px;margin-bottom:20px;
+}
+.hero h1{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(28px,5vw,44px);font-weight:700;
+  color:#fff;line-height:1.15;text-wrap:balance;
+  margin-bottom:14px;letter-spacing:-0.5px;
+}
+.hero h1 em{color:var(--gold);font-style:normal;}
+.hero p{
+  font-size:16px;color:rgba(255,255,255,0.65);
+  max-width:480px;margin:0 auto;line-height:1.65;
+}
+
+/* ── MAIN ── */
+.main{
+  max-width:860px;margin:0 auto;
+  padding:48px 20px 80px;
+}
+
+/* ── STEP LABEL ── */
+.step-label{
+  font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--text2);margin-bottom:16px;
+  display:flex;align-items:center;gap:8px;
+}
+.step-num{
+  width:22px;height:22px;border-radius:50%;
+  background:var(--gold);color:var(--navy);
+  font-size:11px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* ── CATEGORY CARDS ── */
+.cat-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;margin-bottom:36px;
+}
+@media(max-width:600px){.cat-grid{grid-template-columns:1fr;}}
+
+.cat-card{
+  border:2px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px 16px;cursor:pointer;
+  background:var(--surface);
+  transition:border-color .18s,box-shadow .18s,transform .18s;
+  position:relative;overflow:hidden;
+}
+.cat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--cat-color,var(--gold));
+  opacity:0;transition:opacity .18s;
+}
+.cat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08);}
+.cat-card.selected{border-color:var(--cat-color,var(--gold));box-shadow:0 0 0 3px rgba(201,168,76,0.12);}
+.cat-card.selected::before{opacity:1;}
+
+.cat-icon{
+  width:40px;height:40px;border-radius:10px;
+  background:color-mix(in srgb,var(--cat-color,var(--gold)) 12%,transparent);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:12px;font-size:20px;
+}
+.cat-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.cat-sub{font-size:12px;color:var(--text2);}
+.cat-check{
+  position:absolute;top:14px;right:14px;
+  width:20px;height:20px;border-radius:50%;
+  border:2px solid var(--border);
+  background:var(--surface);
+  transition:all .18s;
+}
+.cat-card.selected .cat-check{
+  background:var(--cat-color,var(--gold));
+  border-color:var(--cat-color,var(--gold));
+}
+.cat-card.selected .cat-check::after{
+  content:'✓';display:block;text-align:center;
+  font-size:11px;line-height:16px;color:#fff;font-weight:800;
+}
+
+/* ── PLAN TOGGLE ── */
+.plan-toggle{
+  display:flex;gap:10px;margin-bottom:36px;flex-wrap:wrap;
+}
+.plan-opt{
+  flex:1;min-width:160px;
+  border:2px solid var(--border);border-radius:var(--radius);
+  padding:16px 18px;cursor:pointer;background:var(--surface);
+  transition:border-color .18s,box-shadow .18s;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.plan-opt.selected{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px var(--gold-dim);
+}
+.plan-opt-left{}
+.plan-opt-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.plan-opt-desc{font-size:12px;color:var(--text2);}
+.plan-opt-price{
+  font-size:16px;font-weight:800;color:var(--gold);
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.plan-radio{
+  width:18px;height:18px;border-radius:50%;
+  border:2px solid var(--border);background:var(--surface);
+  position:relative;flex-shrink:0;margin-right:12px;
+  transition:all .18s;
+}
+.plan-opt.selected .plan-radio{
+  border-color:var(--gold);background:var(--gold);
+}
+.plan-opt.selected .plan-radio::after{
+  content:'';position:absolute;
+  width:6px;height:6px;border-radius:50%;
+  background:#fff;top:50%;left:50%;transform:translate(-50%,-50%);
+}
+.plan-opt-inner{display:flex;align-items:center;}
+
+/* ── FORM ── */
+.form-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:28px 24px;
+  margin-bottom:24px;
+}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:540px){.form-row{grid-template-columns:1fr;}}
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.form-group:last-child{margin-bottom:0;}
+.form-label{font-size:12px;font-weight:600;color:var(--text2);letter-spacing:0.3px;text-transform:uppercase;}
+.form-input{
+  background:var(--input-bg);border:1.5px solid var(--border);
+  border-radius:10px;padding:11px 14px;
+  font-size:14px;color:var(--text);
+  font-family:inherit;outline:none;
+  transition:border-color .18s;
+}
+.form-input:focus{border-color:var(--gold);background:var(--surface);}
+.form-input::placeholder{color:var(--text2);opacity:0.6;}
+select.form-input{cursor:pointer;}
+textarea.form-input{resize:vertical;min-height:80px;line-height:1.5;}
+
+/* ── SUBMIT ── */
+.submit-btn{
+  width:100%;padding:16px;border-radius:var(--radius);
+  background:var(--gold);border:none;
+  font-size:16px;font-weight:700;color:var(--navy);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:opacity .18s,transform .15s;
+  font-family:inherit;
+}
+.submit-btn:hover{opacity:0.9;transform:translateY(-1px);}
+.submit-btn:active{transform:translateY(0);}
+
+.wa-icon{font-size:20px;}
+
+/* ── INFO BOX ── */
+.info-row{
+  display:flex;align-items:flex-start;gap:10px;
+  font-size:13px;color:var(--text2);
+  background:var(--gold-dim);border:1px solid var(--gold-border);
+  border-radius:10px;padding:12px 14px;margin-top:12px;
+}
+.info-row svg{flex-shrink:0;margin-top:1px;}
+
+/* ── DIVIDER ── */
+.divider{
+  border:none;border-top:1px solid var(--border);margin:32px 0;
+}
+
+/* ── FOOTER ── */
+.site-footer{
+  background:var(--navy);padding:24px;text-align:center;
+  font-size:12px;color:rgba(255,255,255,0.4);
+}
+.site-footer a{color:var(--gold);text-decoration:none;}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--navy);color:#fff;
+  padding:12px 20px;border-radius:12px;
+  font-size:14px;font-weight:600;
+  border:1px solid var(--gold-border);
+  transition:transform .3s;z-index:999;pointer-events:none;
+}
+.toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="https://alhazenpdf.com" class="logo">
+    <div class="logo-icon">A</div>
+    <span class="logo-name">Alhazen<span>PDF</span></span>
+  </a>
+  <a href="https://alhazenpdf.com" class="header-link">Ana Sayfa</a>
+</header>
+
+<section class="hero">
+  <div class="hero-eyebrow">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+      <path d="M6 1L7.5 4.5H11L8 6.5L9 10L6 8L3 10L4 6.5L1 4.5H4.5L6 1Z" fill="currentColor"/>
+    </svg>
+    Kurumsal Planlar
+  </div>
+  <h1>İşiniz için <em>doğru planı</em> seçin</h1>
+  <p>Galeri, teknik servis veya emlak ofisi — ihtiyacınıza göre tek kullanıcı veya takım planıyla başlayın.</p>
+</section>
+
+<main class="main">
+
+  <!-- STEP 1: Kategori -->
+  <div class="step-label">
+    <span class="step-num">1</span>
+    İş kolunuzu seçin
+  </div>
+
+  <div class="cat-grid" id="catGrid">
+    <div class="cat-card selected" data-cat="galeri" style="--cat-color:#E05555" onclick="selectCat(this)">
+      <div class="cat-check"></div>
+      <div class="cat-icon">🚗</div>
+      <div class="cat-name">Araç Galerisi</div>
+      <div class="cat-sub">Araç stok · PDF · Satış takip</div>
+    </div>
+    <div class="cat-card" data-cat="servis" style="--cat-color:#3B82F6" onclick="selectCat(this)">
+      <div class="cat-check"></div>
+      <div class="cat-icon">🔧</div>
+      <div class="cat-name">Teknik Servis</div>
+      <div class="cat-sub">Servis kaydı · Teklif/Fatura · QR</div>
+    </div>
+    <div class="cat-card" data-cat="emlak" style="--cat-color:#3DBA7C" onclick="selectCat(this)">
+      <div class="cat-check"></div>
+      <div class="cat-icon">🏠</div>
+      <div class="cat-name">Emlak Ofisi</div>
+      <div class="cat-sub">Portföy · Sosyal medya kartları</div>
+    </div>
+  </div>
+
+  <!-- STEP 2: Plan -->
+  <div class="step-label">
+    <span class="step-num">2</span>
+    Plan seçin
+  </div>
+
+  <div class="plan-toggle" id="planToggle">
+    <div class="plan-opt selected" data-plan="solo" onclick="selectPlan(this)">
+      <div class="plan-opt-inner">
+        <div class="plan-radio"></div>
+        <div class="plan-opt-left">
+          <div class="plan-opt-name">Solo</div>
+          <div class="plan-opt-desc">1 kullanıcı · Tüm özellikler</div>
+        </div>
+      </div>
+      <div class="plan-opt-price" id="soloPrice">₺300/ay</div>
+    </div>
+    <div class="plan-opt" data-plan="takim" onclick="selectPlan(this)">
+      <div class="plan-opt-inner">
+        <div class="plan-radio"></div>
+        <div class="plan-opt-left">
+          <div class="plan-opt-name" id="takimName">Takım</div>
+          <div class="plan-opt-desc" id="takimDesc">1 patron + 3 yetkili · Bulut</div>
+        </div>
+      </div>
+      <div class="plan-opt-price" id="takimPrice">₺500/ay</div>
+    </div>
+  </div>
+
+  <!-- STEP 3: Form -->
+  <div class="step-label">
+    <span class="step-num">3</span>
+    İletişim bilgileriniz
+  </div>
+
+  <div class="form-card">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="ad">Ad Soyad *</label>
+        <input class="form-input" type="text" id="ad" placeholder="Ahmet Yılmaz" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="firma">Firma / Galeri Adı *</label>
+        <input class="form-input" type="text" id="firma" placeholder="Yılmaz Otomotiv" required />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="tel">Telefon *</label>
+        <input class="form-input" type="tel" id="tel" placeholder="05XX XXX XX XX" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="sehir">Şehir</label>
+        <input class="form-input" type="text" id="sehir" placeholder="İstanbul" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="not">Not (isteğe bağlı)</label>
+      <textarea class="form-input" id="not" placeholder="Sormak istediğiniz bir şey varsa yazabilirsiniz…"></textarea>
+    </div>
+  </div>
+
+  <button class="submit-btn" onclick="handleSubmit()">
+    <span class="wa-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+    </span>
+    WhatsApp ile Başvur
+  </button>
+
+  <div class="info-row">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+    </svg>
+    Başvurunuz alındıktan sonra ekibimiz 1 iş günü içinde sizinle iletişime geçer. İlk 30 gün ücretsiz deneme seçeneği sunulmaktadır.
+  </div>
+
+  <hr class="divider" />
+
+  <div style="text-align:center;">
+    <p style="font-size:13px;color:var(--text2);margin-bottom:8px;">Bireysel kullanım için uygulamamızı indirin</p>
+    <a href="https://alhazenpdf.com/indir" style="color:var(--gold);font-size:14px;font-weight:600;text-decoration:none;">
+      App Store & Google Play →
+    </a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  © 2025 AlhazenPDF · <a href="/gizlilik">Gizlilik Politikası</a> · <a href="/hesap-sil">Hesap Sil</a>
+</footer>
+
+<div class="toast" id="toast">Lütfen zorunlu alanları doldurun</div>
+
+<script>
+const PLANS = {
+  galeri: {
+    solo:  { name:'Galeri Solo',  price:'₺300/ay', takimName:'Galeri Takım', takimPrice:'₺500/ay', takimDesc:'1 patron + 3 yetkili · Bulut' },
+    servis:{ name:'Servis Solo',  price:'₺200/ay', takimName:'Servis Takım', takimPrice:'₺350/ay', takimDesc:'1 patron + 2 yetkili · Bulut' },
+    emlak: { name:'Emlak Solo',   price:'₺300/ay', takimName:'Emlak Ofis',   takimPrice:'₺500/ay', takimDesc:'1 patron + 3 danışman · Bulut' },
+  }
+};
+
+const PRICES = {
+  galeri: { solo:'₺300/ay', takim:'₺500/ay', takimName:'Galeri Takım', takimDesc:'1 patron + 3 yetkili · Bulut' },
+  servis: { solo:'₺200/ay', takim:'₺350/ay', takimName:'Servis Takım', takimDesc:'1 patron + 2 yetkili · Bulut' },
+  emlak:  { solo:'₺300/ay', takim:'₺500/ay', takimName:'Emlak Ofis',   takimDesc:'1 patron + 3 danışman · Bulut' },
+};
+
+const CAT_NAMES = { galeri:'Araç Galerisi', servis:'Teknik Servis', emlak:'Emlak Ofisi' };
+
+let selectedCat = 'galeri';
+let selectedPlan = 'solo';
+
+function selectCat(el) {
+  document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedCat = el.dataset.cat;
+  updatePrices();
+}
+
+function selectPlan(el) {
+  document.querySelectorAll('.plan-opt').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedPlan = el.dataset.plan;
+}
+
+function updatePrices() {
+  const p = PRICES[selectedCat];
+  document.getElementById('soloPrice').textContent  = p.solo;
+  document.getElementById('takimPrice').textContent = p.takim;
+  document.getElementById('takimName').textContent  = p.takimName;
+  document.getElementById('takimDesc').textContent  = p.takimDesc;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function handleSubmit() {
+  const ad    = document.getElementById('ad').value.trim();
+  const firma = document.getElementById('firma').value.trim();
+  const tel   = document.getElementById('tel').value.trim();
+  const sehir = document.getElementById('sehir').value.trim();
+  const not   = document.getElementById('not').value.trim();
+
+  if (!ad || !firma || !tel) {
+    showToast('Lütfen Ad Soyad, Firma ve Telefon alanlarını doldurun');
+    return;
+  }
+
+  const p = PRICES[selectedCat];
+  const planLabel = selectedPlan === 'solo'
+    ? `Solo (${p.solo})`
+    : `${p.takimName} (${p.takim})`;
+
+  const msg = [
+    `Merhaba, AlhazenPDF *${CAT_NAMES[selectedCat]} — ${planLabel}* planı hakkında bilgi almak istiyorum.`,
+    ``,
+    `*Ad Soyad:* ${ad}`,
+    `*Firma:* ${firma}`,
+    `*Telefon:* ${tel}`,
+    sehir ? `*Şehir:* ${sehir}` : '',
+    not   ? `*Not:* ${not}` : '',
+  ].filter(Boolean).join('\n');
+
+  const url = 'https://wa.me/905533069006?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+}
+</script>
+</body>
+</html>

@@ -3,12 +3,15 @@ import {
   View, Text, StyleSheet, TouchableOpacity,
   StatusBar, Alert, ActivityIndicator, Dimensions, Modal,
 } from 'react-native';
+import Icon from '../components/Icon';
 import { WebView } from 'react-native-webview';
 import ViewShot from 'react-native-view-shot';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import { shareToWhatsApp } from '../utils/whatsappShare';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system/legacy';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { getTheme } from '../themes/colors';
 import {
@@ -36,6 +39,7 @@ export default function ExpertizliPreviewScreen({ route, navigation }) {
   const { formData = {}, companyName = '', donanim = [], tramer = true, ekspertizData = {}, photos = [], templateKey = 'salda-korsan' } = route.params || {};
   const { isDark } = useTheme();
   const theme = getTheme(isDark);
+  const insets = useSafeAreaInsets();
 
   const [previewHtml, setPreviewHtml] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -182,9 +186,9 @@ export default function ExpertizliPreviewScreen({ route, navigation }) {
       <StatusBar barStyle="light-content" backgroundColor="#050D10" />
 
       {/* Nav */}
-      <View style={styles.nav}>
+      <View style={[styles.nav, { paddingTop: insets.top + 14 }]}>
         <TouchableOpacity style={[styles.navBtn, { backgroundColor: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.12)' }]} onPress={() => navigation.goBack()}>
-          <Text style={styles.navBtnTxt}>←</Text>
+          <Icon name="arrow-left" size={20} color="#fff" />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={styles.navTitle}>Önizleme</Text>
@@ -195,7 +199,7 @@ export default function ExpertizliPreviewScreen({ route, navigation }) {
           onPress={() => handleShare()}
           disabled={isGenerating}
         >
-          <Text style={[styles.navBtnTxt, { color: '#C4A020' }]}>↑</Text>
+          <Icon name="share-variant" size={20} color="#C4A020" />
         </TouchableOpacity>
       </View>
 
@@ -225,7 +229,7 @@ export default function ExpertizliPreviewScreen({ route, navigation }) {
           onPress={buildPreview}
           disabled={isLoading}
         >
-          <Text style={[styles.previewBtnTxt, { color: '#C4A020' }]}>↻ Yenile</Text>
+          <Icon name="refresh" size={18} color="#C4A020" />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -237,7 +241,7 @@ export default function ExpertizliPreviewScreen({ route, navigation }) {
           {isGenerating ? (
             <ActivityIndicator color="#0E1E2A" size="small" />
           ) : (
-            <Text style={styles.generateBtnTxt}>📄 PDF Oluştur</Text>
+            <Text style={styles.generateBtnTxt}>PDF Oluştur</Text>
           )}
         </TouchableOpacity>
 
@@ -246,7 +250,15 @@ export default function ExpertizliPreviewScreen({ route, navigation }) {
             style={[styles.shareBtn, { borderColor: 'rgba(196,160,32,0.4)' }]}
             onPress={() => handleShare()}
           >
-            <Text style={[styles.previewBtnTxt, { color: '#C4A020' }]}>↑ Paylaş</Text>
+            <Icon name="share-variant" size={18} color="#C4A020" />
+          </TouchableOpacity>
+        )}
+        {pdfUri && (
+          <TouchableOpacity
+            style={styles.whatsappBtn}
+            onPress={() => shareToWhatsApp(pdfUri)}
+          >
+            <Icon name="whatsapp" size={18} color="#25D366" />
           </TouchableOpacity>
         )}
         <TouchableOpacity
@@ -255,7 +267,7 @@ export default function ExpertizliPreviewScreen({ route, navigation }) {
           disabled={isGenerating}
           activeOpacity={0.85}
         >
-          <Text style={styles.imageBtnTxt}>🖼️</Text>
+          <Icon name="image-outline" size={18} color="#C4A020" />
         </TouchableOpacity>
       </View>
 
@@ -332,6 +344,11 @@ const styles = StyleSheet.create({
     paddingVertical: 14, alignItems: 'center', justifyContent: 'center',
   },
   imageBtnTxt: { fontSize: 20 },
+  whatsappBtn: {
+    width: 48, borderRadius: 12, backgroundColor: '#25D366',
+    paddingVertical: 14, alignItems: 'center', justifyContent: 'center',
+  },
+  whatsappBtnTxt: { fontSize: 11, fontWeight: '800', color: '#fff', letterSpacing: 0.5 },
   captureModal: {
     position: 'absolute', top: -2000, left: 0,
     width: 595, height: 842,

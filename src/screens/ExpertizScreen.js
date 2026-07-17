@@ -3,8 +3,12 @@ import { View, StyleSheet, ActivityIndicator, TouchableOpacity, Text, StatusBar 
 import { WebView } from 'react-native-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { HASAR_HARITASI_HTML } from '../pdf/hasarHaritasiHTML';
+import Icon from '../components/Icon';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { getTheme } from '../themes/colors';
+
+const GOLD = '#C9A84C';
 
 const STORAGE_KEY = (id) => `form_draft_${id}`;
 
@@ -14,6 +18,7 @@ export default function ExpertizScreen({ route, navigation }) {
   const [webViewReady, setWebViewReady] = useState(false);
   const { isDark } = useTheme();
   const theme = getTheme(isDark);
+  const insets = useSafeAreaInsets();
 
   // WebView yüklendikten sonra mevcut ekspertiz verisini enjekte et
   useEffect(() => {
@@ -43,12 +48,12 @@ export default function ExpertizScreen({ route, navigation }) {
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={theme.bg} />
 
       {/* Üst bar */}
-      <View style={[styles.nav, { borderBottomColor: theme.border, backgroundColor: theme.bg }]}>
+      <View style={[styles.nav, { borderBottomColor: theme.border, backgroundColor: theme.bg, paddingTop: insets.top + 12 }]}>
         <TouchableOpacity
           style={[styles.backBtn, { backgroundColor: theme.surface2, borderColor: theme.border }]}
           onPress={() => navigation.goBack()}
         >
-          <Text style={[styles.backText, { color: theme.text }]}>←</Text>
+          <Icon name="arrow-left" size={18} color={theme.text} />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={[styles.navTitle, { color: theme.text }]}>Hasar & Boya Haritası</Text>
@@ -69,7 +74,7 @@ export default function ExpertizScreen({ route, navigation }) {
         startInLoadingState
         renderLoading={() => (
           <View style={[styles.loading, { backgroundColor: theme.bg }]}>
-            <ActivityIndicator color={theme.blue} size="large" />
+            <ActivityIndicator color={GOLD} size="large" />
           </View>
         )}
       />

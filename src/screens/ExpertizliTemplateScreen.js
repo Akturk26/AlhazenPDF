@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import Icon from '../components/Icon';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { getTheme } from '../themes/colors';
 
@@ -63,6 +65,7 @@ const TEMPLATES = [
 export default function ExpertizliTemplateScreen({ route, navigation }) {
   const { isDark } = useTheme();
   const theme = getTheme(isDark);
+  const insets = useSafeAreaInsets();
   const params = route.params || {};
 
   const handleSelect = (tpl) => {
@@ -74,9 +77,9 @@ export default function ExpertizliTemplateScreen({ route, navigation }) {
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
       {/* Nav */}
-      <View style={[styles.nav, { borderBottomColor: theme.border, backgroundColor: isDark ? '#0d0f14' : '#fff' }]}>
+      <View style={[styles.nav, { borderBottomColor: theme.border, backgroundColor: isDark ? '#0d0f14' : '#fff', paddingTop: insets.top + 14 }]}>
         <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.surface2, borderColor: theme.border }]} onPress={() => navigation.goBack()}>
-          <Text style={[styles.backTxt, { color: theme.text }]}>←</Text>
+          <Icon name="arrow-left" size={18} color={theme.text} />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={[styles.navTitle, { color: theme.text }]}>Şablon Seçin</Text>

@@ -5,8 +5,12 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from '../components/Icon';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { getTheme } from '../themes/colors';
+
+const GOLD = '#C9A84C';
 
 const DRAFT_KEY = 'form_draft_expertizli';
 
@@ -28,6 +32,7 @@ const EMPTY_FORM = {
 export default function ExpertizliFormScreen({ route, navigation }) {
   const { isDark } = useTheme();
   const theme = getTheme(isDark);
+  const insets = useSafeAreaInsets();
 
   const [companyName, setCompanyName] = useState('');
   const [formData, setFormData] = useState(EMPTY_FORM);
@@ -168,9 +173,9 @@ export default function ExpertizliFormScreen({ route, navigation }) {
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={s.backgroundColor} />
 
       {/* Nav */}
-      <View style={[styles.nav, { borderBottomColor: theme.border, backgroundColor: isDark ? '#0d0f14' : '#fff' }]}>
+      <View style={[styles.nav, { borderBottomColor: theme.border, backgroundColor: isDark ? '#0d0f14' : '#fff', paddingTop: insets.top + 14 }]}>
         <TouchableOpacity style={[styles.backBtn, { backgroundColor: theme.surface2, borderColor: theme.border }]} onPress={() => navigation.goBack()}>
-          <Text style={[styles.backTxt, { color: theme.text }]}>←</Text>
+          <Icon name="arrow-left" size={18} color={theme.text} />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={[styles.navTitle, { color: theme.text }]}>Expertizli Satış Kağıdı</Text>
@@ -178,7 +183,7 @@ export default function ExpertizliFormScreen({ route, navigation }) {
         </View>
         {hasDraft && (
           <TouchableOpacity style={[styles.clearBtn, { backgroundColor: theme.surface2, borderColor: theme.border }]} onPress={clearDraft}>
-            <Text style={styles.clearBtnTxt}>🗑</Text>
+            <Icon name="delete-outline" size={18} color={theme.textSecondary} />
           </TouchableOpacity>
         )}
       </View>
@@ -186,24 +191,26 @@ export default function ExpertizliFormScreen({ route, navigation }) {
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
 
         {/* ── GALERİ ── */}
-        <SectionHeader title="Galeri Bilgileri" icon="🏢" isDark={isDark} theme={theme} />
+        <SectionHeader title="Galeri Bilgileri" iconName="domain" theme={theme} />
         <View style={[styles.card, { backgroundColor: isDark ? '#161a23' : '#fff', borderColor: theme.border }]}>
           <FieldRow label="Galeri Adı" value={companyName} onChangeText={setCompanyName} placeholder="Aktürk Premium Motors" theme={theme} isDark={isDark} />
           <FieldRow label="Telefon" value={formData['Telefon']} onChangeText={v => setField('Telefon', v)} placeholder="0542 000 00 00" keyboardType="phone-pad" theme={theme} isDark={isDark} last />
         </View>
 
         {/* ── FOTOĞRAF ── */}
-        <SectionHeader title="Araç Fotoğrafı" icon="📷" isDark={isDark} theme={theme} />
-        <View style={[styles.card, { backgroundColor: isDark ? '#161a23' : '#fff', borderColor: photoUri ? theme.blue : theme.border }]}>
+        <SectionHeader title="Araç Fotoğrafı" iconName="camera-outline" theme={theme} />
+        <View style={[styles.card, { backgroundColor: isDark ? '#161a23' : '#fff', borderColor: photoUri ? GOLD : theme.border }]}>
           {photoUri ? (
             <View>
               <Image source={{ uri: photoUri }} style={styles.photoPreview} resizeMode="cover" />
               <View style={styles.photoActions}>
                 <TouchableOpacity style={[styles.photoActionBtn, { borderColor: theme.border }]} onPress={() => pickPhoto(true)} activeOpacity={0.8}>
-                  <Text style={[styles.photoActionTxt, { color: theme.text }]}>📷 Kamera</Text>
+                  <Icon name="camera-outline" size={14} color={theme.text} />
+                  <Text style={[styles.photoActionTxt, { color: theme.text }]}>Kamera</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.photoActionBtn, { borderColor: theme.border }]} onPress={() => pickPhoto(false)} activeOpacity={0.8}>
-                  <Text style={[styles.photoActionTxt, { color: theme.text }]}>🖼️ Değiştir</Text>
+                  <Icon name="image-multiple-outline" size={14} color={theme.text} />
+                  <Text style={[styles.photoActionTxt, { color: theme.text }]}>Değiştir</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.photoActionBtn, { borderColor: theme.border }]} onPress={() => setPhotoUri(null)} activeOpacity={0.8}>
                   <Text style={[styles.photoActionTxt, { color: '#e05555' }]}>✕ Kaldır</Text>
@@ -213,11 +220,11 @@ export default function ExpertizliFormScreen({ route, navigation }) {
           ) : (
             <View style={styles.photoPickRow}>
               <TouchableOpacity style={[styles.photoPickBtn, { backgroundColor: isDark ? '#1e2330' : '#F3F4F6', borderColor: theme.border }]} onPress={() => pickPhoto(true)} activeOpacity={0.8}>
-                <Text style={styles.photoPickIcon}>📷</Text>
+                <Icon name="camera-outline" size={20} color={theme.textSecondary} />
                 <Text style={[styles.photoPickLabel, { color: theme.text }]}>Kamera</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.photoPickBtn, styles.photoPickBtnPrimary, { backgroundColor: theme.blue }]} onPress={() => pickPhoto(false)} activeOpacity={0.8}>
-                <Text style={styles.photoPickIcon}>🖼️</Text>
+              <TouchableOpacity style={[styles.photoPickBtn, styles.photoPickBtnPrimary, { backgroundColor: GOLD }]} onPress={() => pickPhoto(false)} activeOpacity={0.8}>
+                <Icon name="image-multiple-outline" size={20} color="#fff" />
                 <Text style={[styles.photoPickLabel, { color: '#fff' }]}>Galeriden Seç</Text>
               </TouchableOpacity>
             </View>
@@ -225,7 +232,7 @@ export default function ExpertizliFormScreen({ route, navigation }) {
         </View>
 
         {/* ── ARAÇ BİLGİLERİ ── */}
-        <SectionHeader title="Araç Bilgileri" icon="🚗" isDark={isDark} theme={theme} />
+        <SectionHeader title="Araç Bilgileri" iconName="car-outline" theme={theme} />
         <View style={[styles.card, { backgroundColor: isDark ? '#161a23' : '#fff', borderColor: theme.border }]}>
           <FieldRow2 label1="Marka" val1={formData['Marka']} set1={v => setField('Marka', v)} ph1="OPEL"
                      label2="Model" val2={formData['Model']} set2={v => setField('Model', v)} ph2="Astra" theme={theme} isDark={isDark} />
@@ -238,7 +245,7 @@ export default function ExpertizliFormScreen({ route, navigation }) {
         </View>
 
         {/* ── EK BİLGİLER ── */}
-        <SectionHeader title="Ek Bilgiler" icon="📋" isDark={isDark} theme={theme} />
+        <SectionHeader title="Ek Bilgiler" iconName="clipboard-text-outline" theme={theme} />
         <View style={[styles.card, { backgroundColor: isDark ? '#161a23' : '#fff', borderColor: theme.border }]}>
           <FieldRow2 label1="Kasa Tipi" val1={formData['Kasa Tipi']} set1={v => setField('Kasa Tipi', v)} ph1="Sedan · 5 Kapı"
                      label2="Muayene" val2={formData['Muayene']} set2={v => setField('Muayene', v)} ph2="04.2026" theme={theme} isDark={isDark} />
@@ -248,11 +255,14 @@ export default function ExpertizliFormScreen({ route, navigation }) {
         </View>
 
         {/* ── TRAMER ── */}
-        <SectionHeader title="Tramer Durumu" icon="🔎" isDark={isDark} theme={theme} />
+        <SectionHeader title="Tramer Durumu" iconName="shield-check-outline" theme={theme} />
         <View style={[styles.card, { backgroundColor: isDark ? '#161a23' : '#fff', borderColor: theme.border }]}>
           <View style={styles.tramerRow}>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.tramerLabel, { color: theme.text }]}>{tramer ? '✅ Tramer Kaydı Yok' : '⚠️ Tramer Kaydı Var'}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Icon name={tramer ? 'check-circle-outline' : 'alert-circle-outline'} size={16} color={tramer ? '#16A34A' : '#DC2626'} />
+                <Text style={[styles.tramerLabel, { color: theme.text }]}>{tramer ? 'Tramer Kaydı Yok' : 'Tramer Kaydı Var'}</Text>
+              </View>
               <Text style={[styles.tramerSub, { color: theme.textSecondary }]}>{tramer ? 'Araç temiz sicilli' : 'Hasar kaydı mevcut'}</Text>
             </View>
             <Switch
@@ -265,24 +275,24 @@ export default function ExpertizliFormScreen({ route, navigation }) {
         </View>
 
         {/* ── HASAR & BOYA ── */}
-        <SectionHeader title="Hasar & Boya Haritası" icon="🔍" isDark={isDark} theme={theme} />
+        <SectionHeader title="Hasar & Boya Haritası" iconName="car-search-outline" theme={theme} />
         <TouchableOpacity
-          style={[styles.expertizBtn, { backgroundColor: isDark ? '#161a23' : '#fff', borderColor: markedCount > 0 ? theme.blue : theme.border }]}
+          style={[styles.expertizBtn, { backgroundColor: isDark ? '#161a23' : '#fff', borderColor: markedCount > 0 ? GOLD : theme.border }]}
           onPress={goEkspertiz}
           activeOpacity={0.8}
         >
-          <Text style={styles.expertizIcon}>🗺️</Text>
+          <Icon name="map-marker-path" size={26} color={markedCount > 0 ? GOLD : theme.textSecondary} />
           <View style={{ flex: 1 }}>
             <Text style={[styles.expertizTitle, { color: theme.text }]}>Hasar Haritasını Aç</Text>
             <Text style={[styles.expertizSub, { color: theme.textSecondary }]}>
               {markedCount > 0 ? `${markedCount} parça işaretlendi` : 'Araç parçalarını interaktif olarak işaretle'}
             </Text>
           </View>
-          <Text style={[styles.expertizArrow, { color: theme.textSecondary }]}>›</Text>
+          <Icon name="chevron-right" size={20} color={theme.textSecondary} />
         </TouchableOpacity>
 
         {/* ── DONANIM ── */}
-        <SectionHeader title="Donanım Listesi" icon="⚙️" isDark={isDark} theme={theme} />
+        <SectionHeader title="Donanım Listesi" iconName="cog-outline" theme={theme} />
         <View style={[styles.card, { backgroundColor: isDark ? '#161a23' : '#fff', borderColor: theme.border }]}>
           <View style={styles.donanimGrid}>
             {PRESET_DONANIM.map(item => {
@@ -291,8 +301,8 @@ export default function ExpertizliFormScreen({ route, navigation }) {
                 <TouchableOpacity
                   key={item}
                   style={[styles.donChip, {
-                    backgroundColor: selected ? theme.blue : (isDark ? '#1e2330' : '#F3F4F6'),
-                    borderColor: selected ? theme.blue : theme.border,
+                    backgroundColor: selected ? GOLD : (isDark ? '#1e2330' : '#F3F4F6'),
+                    borderColor: selected ? GOLD : theme.border,
                   }]}
                   onPress={() => toggleDonanim(item)}
                   activeOpacity={0.7}
@@ -307,7 +317,7 @@ export default function ExpertizliFormScreen({ route, navigation }) {
               {donanim.filter(d => !PRESET_DONANIM.includes(d)).map(item => (
                 <TouchableOpacity
                   key={item}
-                  style={[styles.donChip, { backgroundColor: theme.blue, borderColor: theme.blue }]}
+                  style={[styles.donChip, { backgroundColor: GOLD, borderColor: GOLD }]}
                   onPress={() => toggleDonanim(item)}
                 >
                   <Text style={[styles.donChipTxt, { color: '#fff' }]}>{item} ✕</Text>
@@ -326,7 +336,7 @@ export default function ExpertizliFormScreen({ route, navigation }) {
               returnKeyType="done"
             />
             <TouchableOpacity
-              style={[styles.addBtn, { backgroundColor: theme.blue }]}
+              style={[styles.addBtn, { backgroundColor: GOLD }]}
               onPress={addCustomDonanim}
             >
               <Text style={styles.addBtnTxt}>Ekle</Text>
@@ -335,7 +345,7 @@ export default function ExpertizliFormScreen({ route, navigation }) {
         </View>
 
         {/* ── DEVAM ── */}
-        <TouchableOpacity style={[styles.devamBtn, { backgroundColor: theme.blue }]} onPress={handleDevam} activeOpacity={0.85}>
+        <TouchableOpacity style={[styles.devamBtn, { backgroundColor: GOLD }]} onPress={handleDevam} activeOpacity={0.85}>
           <Text style={styles.devamTxt}>Şablon Seç →</Text>
         </TouchableOpacity>
 
@@ -345,10 +355,10 @@ export default function ExpertizliFormScreen({ route, navigation }) {
   );
 }
 
-function SectionHeader({ title, icon, theme }) {
+function SectionHeader({ title, iconName, theme }) {
   return (
     <View style={styles.sectionHeader}>
-      <Text style={styles.sectionIcon}>{icon}</Text>
+      <Icon name={iconName} size={14} color={GOLD} />
       <Text style={[styles.sectionTitle, { color: '#6b7280' }]}>{title}</Text>
     </View>
   );
@@ -410,7 +420,7 @@ const styles = StyleSheet.create({
 
   photoPreview: { width: '100%', height: 200, borderRadius: 12, marginBottom: 0 },
   photoActions: { flexDirection: 'row', gap: 8, padding: 10 },
-  photoActionBtn: { flex: 1, borderWidth: 1, borderRadius: 8, paddingVertical: 8, alignItems: 'center' },
+  photoActionBtn: { flex: 1, borderWidth: 1, borderRadius: 8, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 },
   photoActionTxt: { fontSize: 12, fontWeight: '600' },
   photoPickRow: { flexDirection: 'row', gap: 10, padding: 12 },
   photoPickBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14, borderRadius: 10, borderWidth: 1 },

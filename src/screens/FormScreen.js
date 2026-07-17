@@ -2,15 +2,70 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, TextInput, TouchableOpacity,
   ScrollView, KeyboardAvoidingView, Platform, Image, Alert, StatusBar,
-  Modal, PanResponder, Dimensions,
+  Modal, PanResponder, Dimensions, FlatList,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
 import { getTheme } from '../themes/colors';
 import { loadCompanyProfile, saveCompanyProfile } from '../utils/companyProfile';
+import { getAraclar } from '../utils/araclarimStorage';
+import Icon from '../components/Icon';
+
+const GOLD = '#C9A84C';
+
+// ─── Araç marka/model listesi ────────────────────────────────────────────────
+const MARKA_MODELLER = {
+  'Alfa Romeo':     ['147','156','159','166','Brera','Giulia','Giulietta','GTV','MiTo','Spider','Stelvio','Tonale'],
+  'Audi':           ['A1','A3','A4','A5','A6','A7','A8','Q2','Q3','Q5','Q7','Q8','TT','RS3','RS4','RS6','e-tron','Q4 e-tron'],
+  'BMW':            ['1 Serisi','2 Serisi','3 Serisi','4 Serisi','5 Serisi','6 Serisi','7 Serisi','8 Serisi','X1','X2','X3','X4','X5','X6','X7','M2','M3','M4','M5','iX','i4','i5'],
+  'BYD':            ['Atto 3','Dolphin','Han','Sea','Seal','Song Plus','Tang'],
+  'Chery':          ['Arrizo 5','Arrizo 6','Tiggo 4','Tiggo 7','Tiggo 8'],
+  'Chevrolet':      ['Aveo','Captiva','Cruze','Epica','Lacetti','Malibu','Niva','Orlando','Spark','Tahoe','Trax'],
+  'Chrysler':       ['300C','Grand Voyager','PT Cruiser','Sebring','Voyager'],
+  'Citroen':        ['Berlingo','C1','C2','C3','C3 Aircross','C4','C4 Cactus','C5','C5 Aircross','C6','DS3','DS4','DS5','Jumpy','Spacetourer','Xsara Picasso'],
+  'Dacia':          ['Duster','Jogger','Logan','Logan MCV','Lodgy','Sandero','Sandero Stepway','Spring'],
+  'Dodge':          ['Caliber','Challenger','Charger','Durango','Journey','Nitro','Ram 1500'],
+  'Fiat':           ['500','500L','500X','Bravo','Brava','Doblo','Egea','Fiorino','Linea','Marea','Panda','Punto','Stilo','Tempra','Tipo','Uno'],
+  'Ford':           ['B-Max','C-Max','Connect','Courier','EcoSport','Edge','Escape','Fiesta','Focus','Fusion','Galaxy','Kuga','Maverick','Mondeo','Mustang','Puma','Ranger','S-Max','Transit','Tourneo'],
+  'GAC':            ['Empow','GS3','GS4','GS5','GS8'],
+  'Haval':          ['Dargo','H6','H9','Jolion'],
+  'Honda':          ['Accord','Civic','CR-V','CR-Z','FR-V','HR-V','Jazz','Legend','Logo','Odyssey','Pilot'],
+  'Hyundai':        ['Accent','Azera','Bayon','Elantra','Getz','i10','i20','i30','i40','i45','Ioniq','Ioniq 5','Ioniq 6','Kona','Matrix','Santa Fe','Sonata','Terracan','Trajet','Tucson','Veloster'],
+  'Isuzu':          ['D-Max','Trooper'],
+  'Jaguar':         ['E-Pace','F-Pace','F-Type','I-Pace','S-Type','X-Type','XE','XF','XJ'],
+  'Jeep':           ['Avenger','Cherokee','Commander','Compass','Grand Cherokee','Liberty','Patriot','Renegade','Wrangler'],
+  'Kia':            ['Carens','Ceed','Cerato','EV6','Magentis','Niro','Optima','Picanto','Pro Ceed','Rio','Sorento','Soul','Sportage','Stinger','Stonic','Xceed'],
+  'Land Rover':     ['Defender','Discovery','Discovery Sport','Evoque','Freelander','Range Rover','Range Rover Sport','Velar'],
+  'Lexus':          ['CT 200h','ES','GS','IS','LS','LX','NX','RX','UX'],
+  'Maserati':       ['Ghibli','GranTurismo','Grecale','Levante','Quattroporte'],
+  'Mazda':          ['CX-3','CX-5','CX-60','MX-5','Mazda2','Mazda3','Mazda6','MPV','Premacy','RX-8'],
+  'Mercedes-Benz':  ['A Sınıfı','B Sınıfı','C Sınıfı','E Sınıfı','G Sınıfı','S Sınıfı','CLA','CLK','CLS','GLA','GLB','GLC','GLE','GLS','Sprinter','V Sınıfı','Vito','EQA','EQB','EQC','EQE','EQS'],
+  'MG':             ['3','4','5','6','HS','Marvel R','ZS','ZS EV'],
+  'Mini':           ['Cabrio','Clubman','Cooper','Countryman','Paceman'],
+  'Mitsubishi':     ['ASX','Colt','Eclipse Cross','Galant','L200','Lancer','Outlander','Pajero','Space Star'],
+  'Nissan':         ['Almera','Juke','Leaf','Micra','Note','Pathfinder','Primera','Qashqai','Skyline','Terrano','X-Trail'],
+  'Opel':           ['Adam','Agila','Antara','Astra','Calibra','Combo','Corsa','Crossland','Frontera','Grandland','Insignia','Kadett','Manta','Meriva','Mokka','Movano','Omega','Signum','Vectra','Vivaro','Zafira','Zafira Life'],
+  'Peugeot':        ['1007','106','107','108','206','207','208','301','306','307','308','406','407','408','508','605','607','2008','3008','4007','5008','Bipper','Partner','Rifter','Traveller'],
+  'Pontiac':        ['Aztek','Bonneville','Firebird','G6','Grand Am','Grand Prix','GTO','Montana','Solstice','Sunfire','Trans Am','Vibe'],
+  'Porsche':        ['718','911','918','Cayenne','Cayman','Macan','Panamera','Taycan'],
+  'Renault':        ['Captur','Clio','Espace','Fluence','Kadjar','Kangoo','Laguna','Latitude','Megane','Modus','Rapid','Safrane','Scenic','Symbol','Talisman','Traffic','Twingo','Zoe'],
+  'Saab':           ['9-3','9-5','9-7X'],
+  'Seat':           ['Arona','Ateca','Cordoba','Ibiza','Leon','Tarraco','Toledo'],
+  'Skoda':          ['Enyaq','Fabia','Kamiq','Karoq','Kodiaq','Octavia','Rapid','Roomster','Superb','Yeti'],
+  'Subaru':         ['Forester','Impreza','Legacy','Levorg','Outback','WRX','XV'],
+  'Suzuki':         ['Alto','Baleno','Celerio','Grand Vitara','Ignis','Jimny','Kizashi','Liana','S-Cross','SX4','Swift','Vitara'],
+  'Tata':           ['Indica','Indigo','Safari','Sumo','Venture'],
+  'Tesla':          ['Model 3','Model S','Model X','Model Y','Cybertruck'],
+  'TOGG':           ['T10X','T10F'],
+  'Toyota':         ['Auris','Avensis','Aygo','C-HR','Camry','Celica','Corolla','GR Yaris','Hilux','Land Cruiser','Prius','Proace','RAV4','Rush','Supra','Verso','Yaris','bZ4X'],
+  'Volkswagen':     ['Amarok','Arteon','Bora','Caddy','Crafter','Golf','ID.3','ID.4','Jetta','Passat','Phaeton','Polo','Sharan','T-Cross','T-Roc','Tiguan','Touareg','Touran','Transporter'],
+  'Volvo':          ['C30','C40','C70','EX30','S40','S60','S80','S90','V40','V50','V60','V70','V90','XC40','XC60','XC70','XC90'],
+};
+const MARKALAR = Object.keys(MARKA_MODELLER).sort();
 
 // ─── Seçmeli alanlar ────────────────────────────────────────────────────────
 const SELECT_OPTIONS = {
@@ -24,8 +79,9 @@ const SELECT_OPTIONS = {
 };
 
 const HYBRID_SELECT_OPTIONS = {
-  'Oda Sayısı':   ['1+0', '2+0', '1+1', '2+1', '3+1', '4+1', '4+2'],
-  'Banyo Sayısı': ['1', '2', '3', '3+'],
+  'Oda Sayısı':      ['1+0', '2+0', '1+1', '2+1', '3+1', '4+1', '4+2'],
+  'Banyo Sayısı':    ['1', '2', '3', '3+'],
+  'Eğitim Seviyesi': ['İlköğretim', 'Lise', 'Ön Lisans', 'Lisans', 'Yüksek Lisans', 'Doktora'],
 };
 
 const NUMBER_FIELDS = ['KM', 'Fiyat', 'Hasar Kayıt', 'M² (Net)', 'M² (Brüt)', 'Bina Yaşı', 'Kat', 'Yıl'];
@@ -33,21 +89,21 @@ const NUMBER_FIELDS = ['KM', 'Fiyat', 'Hasar Kayıt', 'M² (Net)', 'M² (Brüt)'
 // ─── Accordion section config ────────────────────────────────────────────────
 const FORM_SECTIONS = {
   'real-estate': [
-    { id: 'temel',   title: 'Temel Bilgiler',   icon: '🏠', fields: ['İlan Türü', 'Emlak Türü', 'Oda Sayısı', 'M² (Net)', 'M² (Brüt)', 'Bina Yaşı', 'Kat'] },
-    { id: 'ozellik', title: 'Özellikler',        icon: '✨', fields: ['Isıtma', 'Banyo Sayısı', 'Balkon', 'Site İçi'] },
-    { id: 'fiyat',   title: 'Fiyat & İletişim', icon: '💰', fields: ['Fiyat', 'Adres', 'Telefon'] },
+    { id: 'temel',   title: 'Temel Bilgiler',   iconName: 'home-outline',        fields: ['İlan Türü', 'Emlak Türü', 'Oda Sayısı', 'M² (Net)', 'M² (Brüt)', 'Bina Yaşı', 'Kat'] },
+    { id: 'ozellik', title: 'Özellikler',        iconName: 'star-circle-outline', fields: ['Isıtma', 'Banyo Sayısı', 'Balkon', 'Site İçi'] },
+    { id: 'fiyat',   title: 'Fiyat & İletişim', iconName: 'currency-usd',        fields: ['Fiyat', 'Adres', 'Telefon'] },
   ],
   'auto': [
-    { id: 'arac',   title: 'Araç Bilgileri',     icon: '🚗', fields: ['Marka', 'Model', 'Yıl', 'Renk'] },
-    { id: 'teknik', title: 'Teknik Özellikler',  icon: '⚙️', fields: ['Motor', 'Şanzıman', 'Yakıt', 'KM'] },
-    { id: 'satis',  title: 'Satış Bilgileri',    icon: '💰', fields: ['Hasar Kayıt', 'Fiyat', 'Telefon', 'Açıklama'] },
+    { id: 'arac',   title: 'Araç Bilgileri',     iconName: 'car-outline',      fields: ['Marka', 'Model', 'Yıl', 'Renk'] },
+    { id: 'teknik', title: 'Teknik Özellikler',  iconName: 'cog-outline',      fields: ['Motor', 'Şanzıman', 'Yakıt', 'KM'] },
+    { id: 'satis',  title: 'Satış Bilgileri',    iconName: 'tag-text-outline', fields: ['Hasar Kayıt', 'Fiyat', 'Telefon', 'Açıklama'] },
   ],
   'personal': [
-    { id: 'kisisel',   title: 'Kişisel Bilgiler', icon: '👤', fields: ['Ad Soyad', 'Meslek', 'Doğum Tarihi', 'Telefon', 'Email', 'Adres', 'LinkedIn'] },
-    { id: 'hakkimda',  title: 'Hakkımda',          icon: '📝', fields: ['Açıklama'] },
-    { id: 'is',        title: 'İş Geçmişi',        icon: '💼', fields: ['İş Geçmişi'] },
-    { id: 'beceriler', title: 'Beceriler & Diller', icon: '⭐', fields: ['Beceriler', 'Yabancı Diller'] },
-    { id: 'tema',      title: 'CV Tasarımı',        icon: '🎨', fields: ['CV Teması'] },
+    { id: 'kisisel',   title: 'Kişisel Bilgiler', iconName: 'account-outline',   fields: ['Ad Soyad', 'Meslek', 'Doğum Tarihi', 'Telefon', 'Email', 'Adres', 'LinkedIn', 'Eğitim Seviyesi'] },
+    { id: 'hakkimda',  title: 'Hakkımda',          iconName: 'text-box-outline',  fields: ['Açıklama'] },
+    { id: 'is',        title: 'İş Geçmişi',        iconName: 'briefcase-outline', fields: ['İş Geçmişi'] },
+    { id: 'beceriler', title: 'Beceriler & Diller', iconName: 'star-outline',      fields: ['Beceriler', 'Yabancı Diller'] },
+    { id: 'tema',      title: 'CV Tasarımı',        iconName: 'palette-outline',   fields: ['CV Teması'] },
   ],
 };
 
@@ -103,19 +159,19 @@ function SortablePhotoItem({ item, index, total, dragFromIndex, dragToIndex, onD
       style={[
         { width: ITEM_SIZE, height: ITEM_SIZE, borderRadius: 12, overflow: 'hidden', position: 'relative' },
         isDragging && { opacity: 0.45, transform: [{ scale: 1.05 }] },
-        isTarget && { borderWidth: 3, borderColor: '#4F6EF7', borderRadius: 12 },
+        isTarget && { borderWidth: 3, borderColor: GOLD, borderRadius: 12 },
       ]}
       {...panResponder.panHandlers}
     >
       <Image source={{ uri: item.uri }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
-      <View style={{ position: 'absolute', bottom: 6, left: 6, width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.blue }}>
+      <View style={{ position: 'absolute', bottom: 6, left: 6, width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: GOLD }}>
         <Text style={{ fontSize: 10, fontWeight: '700', color: '#fff' }}>{index + 1}</Text>
       </View>
       <View style={{ position: 'absolute', bottom: 6, right: 6, width: 28, height: 28, borderRadius: 8, borderWidth: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.surface2, borderColor: theme.border }}>
         <Text style={{ fontSize: 13, fontWeight: 'bold', letterSpacing: -2, color: theme.textSecondary }}>⋮⋮</Text>
       </View>
       <TouchableOpacity
-        style={{ position: 'absolute', top: 6, right: 30, width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', zIndex: 3, backgroundColor: theme.blue, borderWidth: 2, borderColor: '#fff' }}
+        style={{ position: 'absolute', top: 6, right: 30, width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', zIndex: 3, backgroundColor: GOLD, borderWidth: 2, borderColor: '#fff' }}
         onPress={() => onEdit(item)}
         activeOpacity={0.8}
       >
@@ -129,7 +185,7 @@ function SortablePhotoItem({ item, index, total, dragFromIndex, dragToIndex, onD
         <Text style={{ fontSize: 12, color: '#fff', fontWeight: '700' }}>✕</Text>
       </TouchableOpacity>
       {isDragging && (
-        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(79,110,247,0.25)', borderWidth: 2, borderColor: '#4F6EF7', borderRadius: 12 }} pointerEvents="none" />
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(201,168,76,0.25)', borderWidth: 2, borderColor: GOLD, borderRadius: 12 }} pointerEvents="none" />
       )}
     </View>
   );
@@ -255,7 +311,7 @@ function PhotoPositioner({ image, onPositionChange }) {
 }
 
 // ─── ChipRow ─────────────────────────────────────────────────────────────────
-function ChipRow({ options, value, onSelect, allowCustom, customValue, onCustomChange, customPlaceholder, theme }) {
+function ChipRow({ options, value, onSelect, allowCustom, customValue, onCustomChange, theme }) {
   return (
     <>
       <ScrollView
@@ -268,7 +324,7 @@ function ChipRow({ options, value, onSelect, allowCustom, customValue, onCustomC
           return (
             <TouchableOpacity
               key={opt}
-              style={[styles.chip, { backgroundColor: sel ? theme.blue : theme.surface2, borderColor: sel ? theme.blue : theme.border }]}
+              style={[styles.chip, { backgroundColor: sel ? GOLD : theme.surface2, borderColor: sel ? GOLD : theme.border }]}
               onPress={() => onSelect(opt)}
               activeOpacity={0.7}
             >
@@ -279,7 +335,7 @@ function ChipRow({ options, value, onSelect, allowCustom, customValue, onCustomC
       </ScrollView>
       {allowCustom && (
         <TextInput
-          style={[styles.input, styles.hybridInput, { backgroundColor: theme.surface2, borderColor: customValue ? theme.blue : theme.border, color: theme.text }]}
+          style={[styles.input, styles.hybridInput, { backgroundColor: theme.surface2, borderColor: customValue ? GOLD : theme.border, color: theme.text }]}
           placeholder="Farklı bir değer girin..."
           placeholderTextColor={theme.textSecondary}
           value={customValue}
@@ -291,7 +347,7 @@ function ChipRow({ options, value, onSelect, allowCustom, customValue, onCustomC
 }
 
 export default function FormScreen({ route, navigation }) {
-  const { category, images: initialImages = [], format } = route.params;
+  const { category, images: initialImages = [], format, mode } = route.params;
   const isPersonal = category.id === 'personal';
   const maxPhotos = isPersonal ? 1 : (format?.maxPhotos || 25);
 
@@ -306,7 +362,35 @@ export default function FormScreen({ route, navigation }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const { isDark } = useTheme();
   const theme = getTheme(isDark);
+  const insets = useSafeAreaInsets();
   const saveTimerRef = useRef(null);
+
+  const [picker, setPicker] = useState({ visible: false, key: '', title: '', items: [], search: '' });
+
+  // Araçlarım listesi (sadece auto kategorisi)
+  const [araçlarimList, setAraçlarimList] = useState([]);
+  const [selectedAracId, setSelectedAracId] = useState(null);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (category.id === 'auto') {
+        getAraclar().then(list => setAraçlarimList(list || []));
+      }
+    }, [category.id])
+  );
+
+  const handleSelectArac = (arac) => {
+    setSelectedAracId(arac.id);
+    setFormData(prev => ({
+      ...prev,
+      'Marka': arac.marka || '',
+      'Model': arac.model || '',
+      'Yıl': arac.yil || '',
+      'Renk': arac.renk || '',
+      'Yakıt': arac.yakit || '',
+    }));
+    setOpenSections(prev => ({ ...prev, arac: true }));
+  };
 
   // Dinamik alan giriş state'leri
   const [langInput, setLangInput] = useState({ dil: '', seviye: '' });
@@ -416,7 +500,7 @@ export default function FormScreen({ route, navigation }) {
   const handleRotateImage = async (degrees) => {
     if (!selectedImage) return;
     try {
-      const result = await ImageManipulator.manipulateAsync(selectedImage.uri, [{ rotate: degrees }], { compress: 0.95, format: ImageManipulator.SaveFormat.JPEG });
+      const result = await ImageManipulator.manipulate(selectedImage.uri).rotate(degrees).saveAsync({ compress: 0.95, format: ImageManipulator.SaveFormat.JPEG });
       const dims = await new Promise((resolve) => {
         Image.getSize(result.uri, (w, h) => resolve({ width: w, height: h, isPortrait: h > w }), () => {
           const swap = degrees === 90 || degrees === 270;
@@ -452,7 +536,7 @@ export default function FormScreen({ route, navigation }) {
         if (ch > height) { ch = height; cw = height * ratio; }
         cropData = { originX: (width - cw) / 2, originY: (height - ch) / 2, width: cw, height: ch };
       } else { return; }
-      const result = await ImageManipulator.manipulateAsync(selectedImage.uri, [{ crop: cropData }], { compress: 0.95, format: ImageManipulator.SaveFormat.JPEG });
+      const result = await ImageManipulator.manipulate(selectedImage.uri).crop(cropData).saveAsync({ compress: 0.95, format: ImageManipulator.SaveFormat.JPEG });
       const dims = await new Promise((resolve) => {
         Image.getSize(result.uri, (w, h) => resolve({ width: w, height: h, isPortrait: h > w }), () => resolve({ width: cropData.width, height: cropData.height, isPortrait: cropData.height > cropData.width }));
       });
@@ -468,6 +552,17 @@ export default function FormScreen({ route, navigation }) {
     if (!selectedImage) return;
     setImages(prev => prev.map(img => img.id === selectedImage.id ? { ...img, objectPosition: position } : img));
     setSelectedImage(prev => ({ ...prev, objectPosition: position }));
+  };
+
+  // ─── Picker helpers ──────────────────────────────────────────────────────
+  const openPicker = (key, title, items) => setPicker({ visible: true, key, title, items, search: '' });
+  const selectPickerItem = (value) => {
+    if (picker.key === 'Marka') {
+      setFormData(p => ({ ...p, Marka: value, Model: '' }));
+    } else {
+      setFormData(p => ({ ...p, [picker.key]: value }));
+    }
+    setPicker(p => ({ ...p, visible: false }));
   };
 
   // ─── Form handlers ───────────────────────────────────────────────────────
@@ -510,7 +605,7 @@ export default function FormScreen({ route, navigation }) {
   const pickLogo = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true, aspect: [1, 1], quality: 0.8, base64: true,
       });
       if (!result.canceled) {
@@ -530,6 +625,7 @@ export default function FormScreen({ route, navigation }) {
           setCompanyName('');
           setLogo(null);
           setImages([]);
+          setEkspertizData({});
           AsyncStorage.removeItem(STORAGE_KEY(category.id));
         },
       },
@@ -541,7 +637,9 @@ export default function FormScreen({ route, navigation }) {
       saveCompanyProfile({ name: companyName, logoUri: logo?.uri || null, logoBase64: logo?.base64 || null });
     }
     if (isPersonal) {
-      navigation.navigate('Preview', { category, images, formData, logo, companyName, template: { id: 0, name: 'CV', color: '#9B6EF7', emoji: '📄' } });
+      navigation.navigate('Preview', { category, images, formData, logo, companyName, template: { id: 0, name: 'CV', color: '#9B6EF7', iconName: 'file-document-outline' } });
+    } else if (mode === 'sales-card-story') {
+      navigation.navigate('Format', { category, images, formData, logo, companyName, mode: 'sales-card-story' });
     } else if (format && format.id !== 'standard') {
       navigation.navigate('RealEstatePreview', { category, images, formData, logo, companyName, format, ekspertizData });
     } else {
@@ -566,7 +664,7 @@ export default function FormScreen({ route, navigation }) {
               </View>
             </View>
             <TouchableOpacity onPress={() => removeLanguage(idx)} style={styles.removeBtn}>
-              <Ionicons name="trash-outline" size={16} color="#e05555" />
+              <Icon name="delete-outline" size={16} color="#e05555" />
             </TouchableOpacity>
           </View>
         ))}
@@ -590,8 +688,8 @@ export default function FormScreen({ route, navigation }) {
               );
             })}
           </ScrollView>
-          <TouchableOpacity style={[styles.addItemBtn, { backgroundColor: theme.blue, opacity: langInput.dil && langInput.seviye ? 1 : 0.5 }]} onPress={addLanguage}>
-            <Ionicons name="add" size={16} color="#fff" />
+          <TouchableOpacity style={[styles.addItemBtn, { backgroundColor: GOLD, opacity: langInput.dil && langInput.seviye ? 1 : 0.5 }]} onPress={addLanguage}>
+            <Icon name="plus" size={16} color="#fff" />
             <Text style={styles.addItemBtnText}>Ekle</Text>
           </TouchableOpacity>
         </View>
@@ -611,7 +709,7 @@ export default function FormScreen({ route, navigation }) {
               <View style={styles.skillBarWrap}><View style={[styles.skillBarFill, { width: `${s.seviye}%`, backgroundColor: '#c9a84c' }]} /></View>
               <Text style={[{ fontSize: 10, color: theme.textSecondary }]}>{s.seviye}%</Text>
             </View>
-            <TouchableOpacity onPress={() => removeSkill(idx)} style={styles.removeBtn}><Ionicons name="trash-outline" size={16} color="#e05555" /></TouchableOpacity>
+            <TouchableOpacity onPress={() => removeSkill(idx)} style={styles.removeBtn}><Icon name="delete-outline" size={16} color="#e05555" /></TouchableOpacity>
           </View>
         ))}
         <View style={[styles.addBox, { backgroundColor: theme.surface2, borderColor: theme.border }]}>
@@ -619,8 +717,8 @@ export default function FormScreen({ route, navigation }) {
           <TextInput style={[styles.addInput, { backgroundColor: theme.bg, borderColor: theme.border, color: theme.text }]} placeholder="Örn: Araç Kullanımı, MS Office..." placeholderTextColor={theme.textSecondary} value={skillInput.beceri} onChangeText={(v) => setSkillInput(p => ({ ...p, beceri: v }))} />
           <Text style={[styles.addBoxLabel, { color: theme.textSecondary, marginTop: 10 }]}>Seviye (0–100)</Text>
           <TextInput style={[styles.addInput, { backgroundColor: theme.bg, borderColor: theme.border, color: theme.text }]} placeholder="Örn: 85" placeholderTextColor={theme.textSecondary} value={skillInput.seviye} onChangeText={(v) => setSkillInput(p => ({ ...p, seviye: v.replace(/\D/g,'') }))} keyboardType="numeric" />
-          <TouchableOpacity style={[styles.addItemBtn, { backgroundColor: theme.blue, opacity: skillInput.beceri && skillInput.seviye ? 1 : 0.5 }]} onPress={addSkill}>
-            <Ionicons name="add" size={16} color="#fff" />
+          <TouchableOpacity style={[styles.addItemBtn, { backgroundColor: GOLD, opacity: skillInput.beceri && skillInput.seviye ? 1 : 0.5 }]} onPress={addSkill}>
+            <Icon name="plus" size={16} color="#fff" />
             <Text style={styles.addItemBtnText}>Ekle</Text>
           </TouchableOpacity>
         </View>
@@ -640,7 +738,7 @@ export default function FormScreen({ route, navigation }) {
               {w.pozisyon ? <Text style={[{ fontSize: 12, color: '#c9a84c', marginTop: 2 }]}>{w.pozisyon}</Text> : null}
               {w.yil ? <Text style={[{ fontSize: 11, color: theme.textSecondary, marginTop: 1 }]}>{w.yil}</Text> : null}
             </View>
-            <TouchableOpacity onPress={() => removeWork(idx)} style={styles.removeBtn}><Ionicons name="trash-outline" size={16} color="#e05555" /></TouchableOpacity>
+            <TouchableOpacity onPress={() => removeWork(idx)} style={styles.removeBtn}><Icon name="delete-outline" size={16} color="#e05555" /></TouchableOpacity>
           </View>
         ))}
         <View style={[styles.addBox, { backgroundColor: theme.surface2, borderColor: theme.border }]}>
@@ -650,8 +748,8 @@ export default function FormScreen({ route, navigation }) {
           <TextInput style={[styles.addInput, { backgroundColor: theme.bg, borderColor: theme.border, color: theme.text }]} placeholder="Örn: Şoför, Muhasebeci..." placeholderTextColor={theme.textSecondary} value={workInput.pozisyon} onChangeText={(v) => setWorkInput(p => ({ ...p, pozisyon: v }))} />
           <Text style={[styles.addBoxLabel, { color: theme.textSecondary, marginTop: 10 }]}>Çalışma Dönemi</Text>
           <TextInput style={[styles.addInput, { backgroundColor: theme.bg, borderColor: theme.border, color: theme.text }]} placeholder="Örn: 2022 – 2025 veya 2023 – Devam" placeholderTextColor={theme.textSecondary} value={workInput.yil} onChangeText={(v) => setWorkInput(p => ({ ...p, yil: v }))} />
-          <TouchableOpacity style={[styles.addItemBtn, { backgroundColor: theme.blue, opacity: workInput.sirket ? 1 : 0.5 }]} onPress={addWork}>
-            <Ionicons name="add" size={16} color="#fff" />
+          <TouchableOpacity style={[styles.addItemBtn, { backgroundColor: GOLD, opacity: workInput.sirket ? 1 : 0.5 }]} onPress={addWork}>
+            <Icon name="plus" size={16} color="#fff" />
             <Text style={styles.addItemBtnText}>Ekle</Text>
           </TouchableOpacity>
         </View>
@@ -689,6 +787,46 @@ export default function FormScreen({ route, navigation }) {
     if (field === 'Beceriler')      return <View key={field}>{renderBeceriler()}</View>;
     if (field === 'İş Geçmişi')    return <View key={field}>{renderIsGecmisi()}</View>;
     if (field === 'CV Teması')      return <View key={field}>{renderCVTema()}</View>;
+
+    if (field === 'Marka') {
+      const val = formData['Marka'] || '';
+      return (
+        <View key={field + index} style={styles.fieldWrap}>
+          <Text style={[styles.fieldLabel, { color: theme.textSecondary }]}>MARKA</Text>
+          <TouchableOpacity
+            style={[styles.input, styles.pickerBtn, { backgroundColor: theme.surface2, borderColor: theme.border }]}
+            onPress={() => openPicker('Marka', 'Marka Seç', MARKALAR)}
+            activeOpacity={0.7}
+          >
+            <Text style={{ flex: 1, fontSize: 14, color: val ? theme.text : theme.textSecondary }}>
+              {val || 'Marka seçin…'}
+            </Text>
+            <Text style={{ fontSize: 16, color: theme.textSecondary }}>›</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    if (field === 'Model') {
+      const marka = formData['Marka'] || '';
+      const modeller = marka ? (MARKA_MODELLER[marka] || []) : [];
+      const val = formData['Model'] || '';
+      return (
+        <View key={field + index} style={styles.fieldWrap}>
+          <Text style={[styles.fieldLabel, { color: theme.textSecondary }]}>MODEL</Text>
+          <TouchableOpacity
+            style={[styles.input, styles.pickerBtn, { backgroundColor: theme.surface2, borderColor: theme.border, opacity: !marka ? 0.5 : 1 }]}
+            onPress={() => marka && openPicker('Model', 'Model Seç', modeller)}
+            activeOpacity={0.7}
+          >
+            <Text style={{ flex: 1, fontSize: 14, color: val ? theme.text : theme.textSecondary }}>
+              {val || (marka ? 'Model seçin…' : 'Önce marka seçin')}
+            </Text>
+            <Text style={{ fontSize: 16, color: theme.textSecondary }}>›</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
 
     const isLarge  = field === 'Açıklama' || field === 'Alt Başlık';
     const isHybrid = HYBRID_SELECT_OPTIONS[field];
@@ -740,19 +878,22 @@ export default function FormScreen({ route, navigation }) {
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={theme.bg} />
 
       {/* ── NAV ── */}
-      <View style={[styles.nav, { borderBottomColor: theme.border, backgroundColor: theme.bg }]}>
+      <View style={[styles.nav, { borderBottomColor: theme.border, backgroundColor: theme.bg, paddingTop: insets.top + 12 }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.backBtn, { backgroundColor: theme.surface2, borderColor: theme.border }]}>
-          <Text style={[styles.backText, { color: theme.text }]}>←</Text>
+          <Icon name="arrow-left" size={18} color={theme.text} />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={[styles.navTitle, { color: theme.text }]}>Bilgileri Girin</Text>
           <Text style={[styles.navSub, { color: theme.textSecondary }]}>
-            {category.emoji} {category.name}{format ? ` · ${format.name}` : ''}
+            {category.name}{format ? ` · ${format.name}` : ''}
           </Text>
+        </View>
+        <View style={styles.stepChip}>
+          <Text style={styles.stepTxt}>1 / 3</Text>
         </View>
         {hasDraft && (
           <TouchableOpacity onPress={clearDraft} style={[styles.clearBtn, { borderColor: theme.border }]}>
-            <Ionicons name="trash-outline" size={15} color={theme.textSecondary} />
+            <Icon name="delete-outline" size={15} color={theme.textSecondary} />
           </TouchableOpacity>
         )}
       </View>
@@ -760,15 +901,15 @@ export default function FormScreen({ route, navigation }) {
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
         {/* ── FOTOĞRAFLAR ── */}
-        <View style={[styles.section, { backgroundColor: theme.surface, borderColor: images.length > 0 ? (isDark ? 'rgba(79,110,247,0.3)' : 'rgba(79,110,247,0.4)') : theme.border }]}>
+        {!isPersonal && <View style={[styles.section, { backgroundColor: theme.surface, borderColor: images.length > 0 ? (isDark ? 'rgba(201,168,76,0.3)' : 'rgba(201,168,76,0.4)') : theme.border }]}>
           <View style={styles.sectionHeader}>
-            <View style={[styles.sectionIconWrap, { backgroundColor: images.length > 0 ? 'rgba(79,110,247,0.15)' : theme.surface2 }]}>
-              <Text style={styles.sectionIconEmoji}>{isPersonal ? '🤳' : '📷'}</Text>
+            <View style={[styles.sectionIconWrap, { backgroundColor: images.length > 0 ? 'rgba(201,168,76,0.15)' : theme.surface2 }]}>
+              <Icon name={isPersonal ? 'camera-account' : 'camera-outline'} size={20} color={images.length > 0 ? GOLD : theme.textSecondary} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={[styles.sectionTitle, { color: theme.text }]}>{isPersonal ? 'Profil Fotoğrafı' : 'Fotoğraflar'}</Text>
               {images.length > 0
-                ? <Text style={[styles.filledCount, { color: theme.blue }]}>{images.length} fotoğraf eklendi</Text>
+                ? <Text style={[styles.filledCount, { color: GOLD }]}>{images.length} fotoğraf eklendi</Text>
                 : <Text style={[styles.filledCount, { color: theme.textSecondary }]}>{isPersonal ? 'Opsiyonel · max 1' : `Opsiyonel · max ${maxPhotos}`}</Text>
               }
             </View>
@@ -783,11 +924,11 @@ export default function FormScreen({ route, navigation }) {
             {/* Upload buttons */}
             <View style={styles.uploadRow}>
               <TouchableOpacity style={[styles.uploadPill, { backgroundColor: theme.surface2, borderColor: theme.border }]} onPress={() => pickImage(true)} activeOpacity={0.75}>
-                <Text style={styles.uploadPillEmoji}>📷</Text>
+                <Icon name="camera-outline" size={17} color={theme.textSecondary} />
                 <Text style={[styles.uploadPillLabel, { color: theme.text }]}>Kamera</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.uploadPill, styles.uploadPillPrimary, { backgroundColor: theme.blue }]} onPress={() => pickImage(false)} activeOpacity={0.75}>
-                <Text style={styles.uploadPillEmoji}>🖼️</Text>
+              <TouchableOpacity style={[styles.uploadPill, styles.uploadPillPrimary, { backgroundColor: GOLD }]} onPress={() => pickImage(false)} activeOpacity={0.75}>
+                <Icon name="image-multiple-outline" size={17} color="#fff" />
                 <Text style={[styles.uploadPillLabel, { color: '#fff' }]}>Galeriden Seç</Text>
               </TouchableOpacity>
             </View>
@@ -797,13 +938,13 @@ export default function FormScreen({ route, navigation }) {
               <SortablePhotoGrid images={images} onReorder={setImages} onEdit={openEditModal} onRemove={removeImage} theme={theme} />
             )}
           </View>
-        </View>
+        </View>}
 
         {/* ── ŞİRKET / PROFİL ── */}
         <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
           <View style={styles.sectionHeader}>
             <View style={[styles.sectionIconWrap, { backgroundColor: theme.surface2 }]}>
-              <Text style={styles.sectionIconEmoji}>{isPersonal ? '👤' : '🏢'}</Text>
+              <Icon name={isPersonal ? 'account-circle-outline' : 'domain'} size={20} color={theme.textSecondary} />
             </View>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
               {isPersonal ? 'CV Bilgileri' : 'Şirket Bilgileri'}
@@ -832,14 +973,14 @@ export default function FormScreen({ route, navigation }) {
               {logo ? (
                 <View style={styles.logoPreview}>
                   <Image source={{ uri: logo.uri }} style={[styles.logoImage, { backgroundColor: theme.surface2 }]} />
-                  <TouchableOpacity style={[styles.changeLogoBtn, { backgroundColor: theme.blue }]} onPress={pickLogo}>
-                    <Ionicons name="refresh" size={16} color="#fff" />
+                  <TouchableOpacity style={[styles.changeLogoBtn, { backgroundColor: GOLD }]} onPress={pickLogo}>
+                    <Icon name="refresh" size={16} color="#fff" />
                     <Text style={styles.changeLogoText}>Değiştir</Text>
                   </TouchableOpacity>
                 </View>
               ) : (
                 <TouchableOpacity style={[styles.logoBtn, { backgroundColor: theme.surface2, borderColor: theme.border }]} onPress={pickLogo}>
-                  <Ionicons name={isPersonal ? 'person-circle-outline' : 'image-outline'} size={28} color={theme.textSecondary} />
+                  <Icon name={isPersonal ? 'account-circle-outline' : 'image-outline'} size={28} color={theme.textSecondary} />
                   <Text style={[styles.logoBtnText, { color: theme.textSecondary }]}>
                     {isPersonal ? 'Fotoğraf Seç' : 'Logo Yükle'}
                   </Text>
@@ -849,22 +990,78 @@ export default function FormScreen({ route, navigation }) {
           </View>
         </View>
 
+        {/* ── ARAÇLARIM SEÇ (sadece araç kategorisi) ── */}
+        {category.id === 'auto' && (
+          <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <View style={styles.sectionHeader}>
+              <View style={[styles.sectionIconWrap, { backgroundColor: theme.surface2 }]}>
+                <Icon name="car-multiple" size={20} color={GOLD} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.sectionTitle, { color: theme.text }]}>Araçlarımdan Seç</Text>
+                <Text style={[styles.filledCount, { color: theme.textSecondary }]}>
+                  {araçlarimList.length > 0 ? 'Seç → alanlar otomatik dolsun' : 'Henüz araç eklemediniz'}
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={[styles.addAracBtn, { backgroundColor: GOLD + '18', borderColor: GOLD + '40' }]}
+                onPress={() => navigation.navigate('SahsiAracEkle')}
+                activeOpacity={0.8}
+              >
+                <Icon name="plus" size={16} color={GOLD} />
+                <Text style={[styles.addAracTxt, { color: GOLD }]}>Ekle</Text>
+              </TouchableOpacity>
+            </View>
+            {araçlarimList.length > 0 && (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: 12, paddingBottom: 12 }}>
+                {araçlarimList.map(arac => {
+                  const isSel = selectedAracId === arac.id;
+                  return (
+                    <TouchableOpacity
+                      key={arac.id}
+                      style={[styles.aracChip, {
+                        backgroundColor: isSel ? GOLD + '18' : theme.surface2,
+                        borderColor: isSel ? GOLD : theme.border,
+                      }]}
+                      onPress={() => handleSelectArac(arac)}
+                      activeOpacity={0.75}
+                    >
+                      <Icon name="car-outline" size={14} color={isSel ? GOLD : theme.textSecondary} />
+                      <View>
+                        <Text style={[styles.aracChipMain, { color: isSel ? GOLD : theme.text }]}>
+                          {arac.marka} {arac.model}
+                        </Text>
+                        {(arac.yil || arac.plaka) ? (
+                          <Text style={[styles.aracChipSub, { color: theme.textSecondary }]}>
+                            {[arac.yil, arac.plaka].filter(Boolean).join(' · ')}
+                          </Text>
+                        ) : null}
+                      </View>
+                      {isSel && <Icon name="check-circle" size={14} color={GOLD} />}
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            )}
+          </View>
+        )}
+
         {/* ── FORM ALANLARI ── */}
         {sections ? (
           sections.map((sec) => {
             const isOpen = openSections[sec.id];
             const filled = countFilled(sec.fields);
             return (
-              <View key={sec.id} style={[styles.section, { backgroundColor: theme.surface, borderColor: isOpen ? (isDark ? 'rgba(79,110,247,0.3)' : 'rgba(79,110,247,0.4)') : theme.border }]}>
+              <View key={sec.id} style={[styles.section, { backgroundColor: theme.surface, borderColor: isOpen ? (isDark ? 'rgba(201,168,76,0.3)' : 'rgba(201,168,76,0.4)') : theme.border }]}>
                 <TouchableOpacity style={styles.sectionHeader} onPress={() => toggleSection(sec.id)} activeOpacity={0.7}>
-                  <View style={[styles.sectionIconWrap, { backgroundColor: isOpen ? 'rgba(79,110,247,0.15)' : theme.surface2 }]}>
-                    <Text style={styles.sectionIconEmoji}>{sec.icon}</Text>
+                  <View style={[styles.sectionIconWrap, { backgroundColor: isOpen ? 'rgba(201,168,76,0.15)' : theme.surface2 }]}>
+                    <Icon name={sec.iconName} size={20} color={isOpen ? GOLD : theme.textSecondary} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={[styles.sectionTitle, { color: theme.text }]}>{sec.title}</Text>
-                    {filled > 0 && <Text style={[styles.filledCount, { color: theme.blue }]}>{filled} alan dolu</Text>}
+                    {filled > 0 && <Text style={[styles.filledCount, { color: GOLD }]}>{filled} alan dolu</Text>}
                   </View>
-                  <Text style={[styles.chevron, { color: theme.textSecondary, transform: [{ rotate: isOpen ? '180deg' : '0deg' }] }]}>▾</Text>
+                  <Icon name="chevron-down" size={18} color={theme.textSecondary} style={{ transform: [{ rotate: isOpen ? '180deg' : '0deg' }] }} />
                 </TouchableOpacity>
                 {isOpen && (
                   <View style={styles.sectionBody}>
@@ -894,14 +1091,14 @@ export default function FormScreen({ route, navigation }) {
           ].filter(Boolean).join('  ');
           return (
             <TouchableOpacity
-              style={[styles.expertizBtn, { backgroundColor: theme.surface, borderColor: markedCount > 0 ? theme.blue : theme.border }]}
+              style={[styles.expertizBtn, { backgroundColor: theme.surface, borderColor: markedCount > 0 ? GOLD : theme.border }]}
               onPress={() => navigation.navigate('Expertiz', { categoryId: category.id, ekspertizData: ekspertizData || {} })}
               activeOpacity={0.8}
             >
-              <Text style={styles.expertizEmoji}>🔍</Text>
+              <Icon name="car-search-outline" size={22} color={markedCount > 0 ? GOLD : theme.textSecondary} />
               <View style={{ flex: 1 }}>
                 <Text style={[styles.expertizTitle, { color: theme.text }]}>Hasar &amp; Boya Haritası</Text>
-                <Text style={[styles.expertizSub, { color: markedCount > 0 ? theme.blue : theme.textSecondary }]}>
+                <Text style={[styles.expertizSub, { color: markedCount > 0 ? GOLD : theme.textSecondary }]}>
                   {markedCount > 0 ? summaryParts : 'Parça durumlarını işaretle (opsiyonel)'}
                 </Text>
               </View>
@@ -915,12 +1112,12 @@ export default function FormScreen({ route, navigation }) {
 
       {/* ── DEVAM BUTONU ── */}
       <View style={[styles.bottomBar, { backgroundColor: theme.bg, borderTopColor: theme.border }]}>
-        <TouchableOpacity style={[styles.continueBtn, { backgroundColor: theme.blue }]} onPress={handleContinue} activeOpacity={0.88}>
+        <TouchableOpacity style={[styles.continueBtn, { backgroundColor: GOLD }]} onPress={handleContinue} activeOpacity={0.88}>
           <Text style={styles.continueBtnText}>
             {isPersonal ? 'Devam Et' : 'Şablon Seç'}
           </Text>
           <View style={styles.continueBtnIcon}>
-            <Ionicons name={isPersonal ? 'arrow-forward' : 'color-palette'} size={18} color="#fff" />
+            <Icon name={isPersonal ? 'arrow-right' : 'palette'} size={18} color="#fff" />
           </View>
         </TouchableOpacity>
       </View>
@@ -933,13 +1130,13 @@ export default function FormScreen({ route, navigation }) {
             <Text style={[styles.modalSub, { color: theme.textSecondary }]}>Fotoğrafları nasıl sıralamak istersiniz?</Text>
             <View style={{ gap: 10 }}>
               {[
-                { key: 'date-asc',  icon: '📅', label: 'Tarihe Göre (Eski → Yeni)', desc: 'En eski fotoğraf başta' },
-                { key: 'date-desc', icon: '📅', label: 'Tarihe Göre (Yeni → Eski)', desc: 'En yeni fotoğraf başta' },
-                { key: 'name-asc',  icon: '🔤', label: 'İsme Göre (A → Z)',         desc: 'Alfabetik sıralama' },
-                { key: 'name-desc', icon: '🔤', label: 'İsme Göre (Z → A)',         desc: 'Ters alfabetik sıralama' },
+                { key: 'date-asc',  iconName: 'sort-calendar-ascending',   label: 'Tarihe Göre (Eski → Yeni)', desc: 'En eski fotoğraf başta' },
+                { key: 'date-desc', iconName: 'sort-calendar-descending',  label: 'Tarihe Göre (Yeni → Eski)', desc: 'En yeni fotoğraf başta' },
+                { key: 'name-asc',  iconName: 'sort-alphabetical-ascending',  label: 'İsme Göre (A → Z)',      desc: 'Alfabetik sıralama' },
+                { key: 'name-desc', iconName: 'sort-alphabetical-descending', label: 'İsme Göre (Z → A)',      desc: 'Ters alfabetik sıralama' },
               ].map(opt => (
                 <TouchableOpacity key={opt.key} style={[styles.sortOption, { backgroundColor: theme.bg, borderColor: theme.border }]} onPress={() => sortImages(opt.key)}>
-                  <Text style={{ fontSize: 24 }}>{opt.icon}</Text>
+                  <Icon name={opt.iconName} size={22} color={theme.textSecondary} />
                   <View style={{ flex: 1 }}>
                     <Text style={[{ fontSize: 14, fontWeight: '600', color: theme.text }]}>{opt.label}</Text>
                     <Text style={[{ fontSize: 11, marginTop: 2, color: theme.textSecondary }]}>{opt.desc}</Text>
@@ -962,18 +1159,24 @@ export default function FormScreen({ route, navigation }) {
             <Text style={[styles.modalSub, { color: theme.textSecondary }]}>Odak noktası, döndürme ve kırpma</Text>
             {selectedImage && (
               <View style={{ gap: 4 }}>
-                <Text style={[{ fontSize: 14, fontWeight: '700', color: theme.text }]}>📍 PDF Odak Noktası</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Icon name="image-filter-center-focus" size={16} color={GOLD} />
+                  <Text style={[{ fontSize: 14, fontWeight: '700', color: theme.text }]}>PDF Odak Noktası</Text>
+                </View>
                 <Text style={[{ fontSize: 11, fontWeight: '300', color: theme.textSecondary, marginBottom: 8 }]}>Sürükleyerek PDF'te görünecek alanı seçin</Text>
                 <PhotoPositioner key={selectedImage.id} image={selectedImage} onPositionChange={handlePositionChange} />
               </View>
             )}
             <View style={{ gap: 16 }}>
               <View style={{ gap: 8 }}>
-                <Text style={[{ fontSize: 14, fontWeight: '700', color: theme.text }]}>🔄 Döndür</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Icon name="rotate-right" size={16} color={GOLD} />
+                  <Text style={[{ fontSize: 14, fontWeight: '700', color: theme.text }]}>Döndür</Text>
+                </View>
                 <View style={{ flexDirection: 'row', gap: 8 }}>
-                  {[{ deg: -90, icon: '↶', label: '90° Sola' }, { deg: 90, icon: '↷', label: '90° Sağa' }, { deg: 180, icon: '↻', label: '180°' }].map(r => (
+                  {[{ deg: -90, iconName: 'rotate-left', label: '90° Sola' }, { deg: 90, iconName: 'rotate-right', label: '90° Sağa' }, { deg: 180, iconName: 'rotate-3d-variant', label: '180°' }].map(r => (
                     <TouchableOpacity key={r.deg} style={[styles.editOption, { backgroundColor: theme.bg, borderColor: theme.border }]} onPress={() => handleRotateImage(r.deg)}>
-                      <Text style={{ fontSize: 20 }}>{r.icon}</Text>
+                      <Icon name={r.iconName} size={22} color={GOLD} />
                       <Text style={[{ fontSize: 11, fontWeight: '600', color: theme.text }]}>{r.label}</Text>
                     </TouchableOpacity>
                   ))}
@@ -997,6 +1200,58 @@ export default function FormScreen({ route, navigation }) {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      {/* ── MARKA/MODEL PICKER MODAL ── */}
+      <Modal visible={picker.visible} animationType="slide" transparent onRequestClose={() => setPicker(p => ({ ...p, visible: false }))}>
+        <KeyboardAvoidingView style={styles.pickerOverlay} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <View style={[styles.pickerSheet, { backgroundColor: theme.surface }]}>
+            <View style={[styles.pickerHeader, { borderBottomColor: theme.border }]}>
+              <Text style={[styles.pickerTitle, { color: theme.text }]}>{picker.title}</Text>
+              <TouchableOpacity onPress={() => setPicker(p => ({ ...p, visible: false }))}>
+                <Text style={{ fontSize: 18, color: theme.textSecondary, paddingHorizontal: 4 }}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <TextInput
+              style={[styles.pickerSearch, { backgroundColor: isDark ? '#0d0f14' : '#f3f4f6', borderColor: theme.border, color: theme.text }]}
+              placeholder="Ara…"
+              placeholderTextColor={theme.textSecondary}
+              value={picker.search}
+              onChangeText={s => setPicker(p => ({ ...p, search: s }))}
+              autoFocus
+            />
+            <FlatList
+              data={picker.items.filter(i => i.toLowerCase().includes(picker.search.toLowerCase()))}
+              keyExtractor={i => i}
+              keyboardShouldPersistTaps="handled"
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[styles.pickerItem, { borderBottomColor: theme.border }, item === formData[picker.key] && { backgroundColor: GOLD + '18' }]}
+                  onPress={() => selectPickerItem(item)}
+                >
+                  <Text style={[styles.pickerItemTxt, { color: theme.text }, item === formData[picker.key] && { color: GOLD, fontWeight: '700' }]}>
+                    {item}
+                  </Text>
+                  {item === formData[picker.key] && <Text style={{ color: GOLD }}>✓</Text>}
+                </TouchableOpacity>
+              )}
+              ListFooterComponent={
+                picker.search.trim().length > 0 ? (
+                  <TouchableOpacity
+                    style={[styles.pickerItem, { borderBottomColor: 'transparent', backgroundColor: GOLD + '12' }]}
+                    onPress={() => selectPickerItem(picker.search.trim())}
+                  >
+                    <Text style={{ color: GOLD, fontWeight: '700', fontSize: 14 }}>+ "{picker.search.trim()}" olarak kullan</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <View style={{ paddingHorizontal: 20, paddingVertical: 14 }}>
+                    <Text style={{ color: theme.textSecondary, fontSize: 12 }}>Listede bulamadıysanız yukarıya yazıp "+ olarak kullan" seçeneğine basın</Text>
+                  </View>
+                )
+              }
+            />
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -1013,6 +1268,11 @@ const styles = StyleSheet.create({
   backText: { fontSize: 16 },
   navTitle: { fontSize: 16, fontWeight: '700', letterSpacing: -0.3 },
   navSub: { fontSize: 11, marginTop: 1 },
+  stepChip: {
+    paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8,
+    backgroundColor: 'rgba(201,168,76,0.12)', borderWidth: 1, borderColor: 'rgba(201,168,76,0.25)',
+  },
+  stepTxt: { fontSize: 11, fontWeight: '700', color: GOLD },
   clearBtn: { width: 36, height: 36, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
 
   scroll: { flex: 1 },
@@ -1066,6 +1326,11 @@ const styles = StyleSheet.create({
   themeCardDesc: { fontSize: 11 },
   themeCheck: { position: 'absolute', top: 10, right: 10, width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
 
+  addAracBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, borderWidth: 1 },
+  addAracTxt: { fontSize: 12, fontWeight: '700' },
+  aracChip: { flexDirection: 'row', alignItems: 'center', gap: 7, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, borderWidth: 1 },
+  aracChipMain: { fontSize: 13, fontWeight: '700' },
+  aracChipSub: { fontSize: 10, marginTop: 1 },
   expertizBtn: { flexDirection: 'row', alignItems: 'center', gap: 12, marginHorizontal: 16, marginTop: 10, padding: 16, borderRadius: 16, borderWidth: 1.5 },
   expertizEmoji: { fontSize: 22 },
   expertizTitle: { fontSize: 14, fontWeight: '700', letterSpacing: -0.2 },
@@ -1092,4 +1357,13 @@ const styles = StyleSheet.create({
   sortOption: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 12, borderWidth: 1, gap: 12 },
   modalCancel: { padding: 14, borderRadius: 12, borderWidth: 1, alignItems: 'center', marginTop: 8 },
   editOption: { flex: 1, padding: 12, borderRadius: 10, borderWidth: 1, alignItems: 'center', gap: 4 },
+
+  pickerBtn: { flexDirection: 'row', alignItems: 'center' },
+  pickerOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  pickerSheet: { borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '75%' },
+  pickerHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1 },
+  pickerTitle: { fontSize: 16, fontWeight: '700' },
+  pickerSearch: { margin: 12, borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 11, fontSize: 14 },
+  pickerItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 15, borderBottomWidth: 1 },
+  pickerItemTxt: { fontSize: 14 },
 });

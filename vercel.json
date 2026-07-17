@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    { "source": "/servis/:plaka", "destination": "/servis.html" },
+    { "source": "/gizlilik", "destination": "/gizlilik.html" },
+    { "source": "/hesap-sil", "destination": "/hesap-sil/index.html" },
+    { "source": "/plan", "destination": "/plan.html" },
+    { "source": "/basvuru", "destination": "/basvuru.html" }
+  ]
+}
