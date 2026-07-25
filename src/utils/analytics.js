@@ -34,8 +34,7 @@ export const getStatistics = async () => {
       monthlyData: [], // { month: 'YYYY-MM', count: 0 }
       lastPDFs: [], // { date, category, theme, photoCount }
     };
-  } catch (error) {
-    console.error('Error reading statistics:', error);
+  } catch {
     return null;
   }
 };
@@ -103,8 +102,7 @@ export const trackPDFGeneration = async (category, theme, photoCount, title = 'B
     // Save updated stats
     await AsyncStorage.setItem(STATS_KEY, JSON.stringify(stats));
     return stats;
-  } catch (error) {
-    console.error('Error tracking PDF:', error);
+  } catch {
     return null;
   }
 };
@@ -125,8 +123,7 @@ export const getMonthlyChartData = async () => {
     const data = stats.monthlyData.map(m => m.count);
 
     return { labels, data };
-  } catch (error) {
-    console.error('Error getting chart data:', error);
+  } catch {
     return { labels: [], data: [] };
   }
 };
@@ -136,8 +133,7 @@ export const resetStatistics = async () => {
   try {
     await AsyncStorage.removeItem(STATS_KEY);
     return true;
-  } catch (error) {
-    console.error('Error resetting statistics:', error);
+  } catch {
     return false;
   }
 };
@@ -150,8 +146,7 @@ export const getPDFHistory = async () => {
       return [];
     }
     return stats.lastPDFs;
-  } catch (error) {
-    console.error('Error getting PDF history:', error);
+  } catch {
     return [];
   }
 };
@@ -164,8 +159,7 @@ export const clearAllHistory = async () => {
     stats.lastPDFs = [];
     await AsyncStorage.setItem(STATS_KEY, JSON.stringify(stats));
     return true;
-  } catch (error) {
-    console.error('Error clearing history:', error);
+  } catch {
     return false;
   }
 };
@@ -180,8 +174,7 @@ export const deletePDFFromHistory = async (pdfId) => {
     
     await AsyncStorage.setItem(STATS_KEY, JSON.stringify(stats));
     return true;
-  } catch (error) {
-    console.error('Error deleting PDF from history:', error);
+  } catch {
     return false;
   }
 };

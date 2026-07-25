@@ -4,18 +4,26 @@ import {
   ScrollView, StatusBar, Alert, ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Sharing from 'expo-sharing';
 import { useTheme } from '../context/ThemeContext';
 import { getTheme } from '../themes/colors';
 import { getPDFHistory, deletePDFFromHistory, clearAllHistory } from '../utils/analytics';
 import { pdfFileExists, deletePDFFile } from '../utils/pdfStorage';
+import Icon from '../components/Icon';
+
+const GOLD  = '#C9A84C';
+const NAVY  = '#0F172A';
+const NAVY2 = '#1A2744';
 
 export default function HistoryScreen({ navigation }) {
   const { isDark } = useTheme();
   const theme = getTheme(isDark);
+  const insets = useSafeAreaInsets();
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sharingId, setSharingId] = useState(null);
+  const [activeFilter, setActiveFilter] = useState('Tümü');
 
   useEffect(() => {
     let isMounted = true;
@@ -87,9 +95,7 @@ export default function HistoryScreen({ navigation }) {
         {
           text: 'Tümünü Sil', style: 'destructive',
           onPress: async () => {
-            for (const item of history) {
-              await deletePDFFile(item.permanentUri);
-            }
+            await Promise.all(history.map(item => deletePDFFile(item.permanentUri)));
             await clearAllHistory();
             setHistory([]);
           },
@@ -98,15 +104,31 @@ export default function HistoryScreen({ navigation }) {
     );
   };
 
-  const getCategoryEmoji = (cat) => {
-    const map = { 'Araç Galerisi': '🚗', 'Emlak': '🏠', 'Ofis / Kurumsal': '💼', 'Kişisel / CV': '👤', 'Diğer': '📄' };
-    return map[cat] || '📄';
+  const getCategoryIcon = (cat) => {
+    const map = {
+      'Araç Galerisi': 'car-outline',
+      'Emlak': 'home-city-outline',
+      'Ofis / Kurumsal': 'briefcase-outline',
+      'Kişisel / CV': 'account-outline',
+      'Diğer': 'file-document-outline',
+    };
+    return map[cat] || 'file-document-outline';
   };
 
   const getCategoryColor = (cat) => {
-    const map = { 'Araç Galerisi': '#E05555', 'Emlak': '#3DBA7C', 'Ofis / Kurumsal': '#4F6EF7', 'Kişisel / CV': '#9B6EF7' };
+    const map = { 'Araç Galerisi': '#E05555', 'Emlak': '#3DBA7C', 'Ofis / Kurumsal': '#C9A84C', 'Kişisel / CV': '#9B6EF7' };
     return map[cat] || '#888';
   };
+
+  const FILTERS = [
+    { label: 'Tümü', value: 'Tümü' },
+    { label: 'Araç', value: 'Araç Galerisi' },
+    { label: 'Emlak', value: 'Emlak' },
+    { label: 'Ofis', value: 'Ofis / Kurumsal' },
+    { label: 'CV', value: 'Kişisel / CV' },
+  ];
+
+  const filtered = activeFilter === 'Tümü' ? history : history.filter(item => item.category === activeFilter);
 
   const formatDate = (ts) => {
     if (!ts) return '';
@@ -124,20 +146,19 @@ export default function HistoryScreen({ navigation }) {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.bg }]}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={theme.bg} />
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
-      {/* Header */}
       <LinearGradient
-        colors={theme.heroGradient}
+        colors={[NAVY, NAVY2]}
         start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-        style={styles.header}
+        style={[styles.header, { paddingTop: insets.top + 12 }]}
       >
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backText}>←</Text>
+          <Icon name="arrow-left" size={20} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>PDF Geçmişi</Text>
         <View style={styles.headerRight}>
-          <Text style={[styles.headerCount, { color: theme.blueLight }]}>{history.length} PDF</Text>
+          <Text style={styles.headerCount}>{history.length} PDF</Text>
           {history.length > 0 && (
             <TouchableOpacity onPress={handleClearAll} style={styles.clearBtn}>
               <Text style={styles.clearText}>Tümünü Sil</Text>
@@ -146,18 +167,48 @@ export default function HistoryScreen({ navigation }) {
         </View>
       </LinearGradient>
 
+      {/* Filter chips */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={[styles.filterBar, { backgroundColor: theme.bg, borderBottomColor: theme.border }]}
+        contentContainerStyle={styles.filterContent}
+      >
+        {FILTERS.map(f => (
+          <TouchableOpacity
+            key={f.value}
+            onPress={() => setActiveFilter(f.value)}
+            style={[
+              styles.filterChip,
+              { borderColor: theme.border, backgroundColor: theme.surface },
+              activeFilter === f.value && { backgroundColor: GOLD, borderColor: GOLD },
+            ]}
+          >
+            <Text style={[
+              styles.filterChipText,
+              { color: theme.textSecondary },
+              activeFilter === f.value && { color: '#fff' },
+            ]}>
+              {f.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
         {loading ? (
           <View style={styles.center}>
-            <ActivityIndicator color={theme.blue} size="large" />
+            <ActivityIndicator color={GOLD} size="large" />
           </View>
         ) : history.length === 0 ? (
           <View style={styles.center}>
-            <Text style={styles.emptyIcon}>📭</Text>
+            <View style={[styles.emptyIconWrap, { backgroundColor: isDark ? 'rgba(201,168,76,0.1)' : 'rgba(15,23,42,0.06)' }]}>
+              <Icon name="tray-remove" size={48} color={GOLD} />
+            </View>
             <Text style={[styles.emptyTitle, { color: theme.text }]}>Henüz PDF Yok</Text>
             <Text style={[styles.emptySub, { color: theme.textSecondary }]}>İlk PDF'inizi oluşturarak başlayın</Text>
             <TouchableOpacity
-              style={[styles.emptyBtn, { backgroundColor: theme.blue }]}
+              style={[styles.emptyBtn, { backgroundColor: GOLD }]}
               onPress={() => navigation.navigate('Home')}
             >
               <Text style={styles.emptyBtnText}>Yeni PDF Oluştur</Text>
@@ -165,21 +216,31 @@ export default function HistoryScreen({ navigation }) {
           </View>
         ) : (
           <View style={styles.list}>
-            {history.map((item, idx) => {
+            {filtered.length === 0 && (
+              <View style={styles.center}>
+                <Text style={[styles.emptyTitle, { color: theme.text, fontSize: 16 }]}>Kayıt Bulunamadı</Text>
+                <Text style={[styles.emptySub, { color: theme.textSecondary }]}>Bu kategoride henüz PDF yok</Text>
+              </View>
+            )}
+            {filtered.map((item, idx) => {
               const color = getCategoryColor(item.category);
+              const iconName = getCategoryIcon(item.category);
               const hasFile = !!item.permanentUri;
               const isSharing = sharingId === item.id;
 
               return (
-                <View key={item.id || idx} style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                  {/* Sol renk çizgisi */}
+                <TouchableOpacity
+                  key={item.id || idx}
+                  activeOpacity={0.85}
+                  onPress={() => handleShare(item)}
+                  style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}
+                >
                   <View style={[styles.colorBar, { backgroundColor: color }]} />
 
                   <View style={styles.cardInner}>
-                    {/* Üst satır */}
                     <View style={styles.cardTop}>
                       <View style={[styles.iconWrap, { backgroundColor: color + '20' }]}>
-                        <Text style={styles.iconEmoji}>{getCategoryEmoji(item.category)}</Text>
+                        <Icon name={iconName} size={22} color={color} />
                       </View>
                       <View style={styles.cardInfo}>
                         <Text style={[styles.cardTitle, { color: theme.text }]} numberOfLines={1}>
@@ -190,11 +251,10 @@ export default function HistoryScreen({ navigation }) {
                         </Text>
                       </View>
                       <TouchableOpacity onPress={() => handleDelete(item)} style={styles.deleteBtn}>
-                        <Text style={styles.deleteIcon}>🗑️</Text>
+                        <Icon name="delete-outline" size={20} color="#EF4444" />
                       </TouchableOpacity>
                     </View>
 
-                    {/* Alt satır */}
                     <View style={[styles.cardBottom, { borderTopColor: theme.border }]}>
                       <Text style={[styles.dateText, { color: theme.textSecondary }]}>
                         {formatDate(item.timestamp)}
@@ -211,13 +271,13 @@ export default function HistoryScreen({ navigation }) {
                         {isSharing
                           ? <ActivityIndicator color={hasFile ? '#fff' : theme.textSecondary} size="small" />
                           : <Text style={[styles.shareBtnText, { color: hasFile ? '#fff' : theme.textSecondary }]}>
-                              {hasFile ? '↑ Paylaş' : 'Dosya Yok'}
+                              {hasFile ? 'Paylaş' : 'Dosya Yok'}
                             </Text>
                         }
                       </TouchableOpacity>
                     </View>
                   </View>
-                </View>
+                </TouchableOpacity>
               );
             })}
           </View>
@@ -233,19 +293,18 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
 
   header: {
-    paddingTop: 50, paddingBottom: 20, paddingHorizontal: 20,
+    paddingBottom: 20, paddingHorizontal: 20,
     flexDirection: 'row', alignItems: 'center',
   },
   backBtn: {
-    width: 40, height: 40, borderRadius: 20,
+    width: 36, height: 36, borderRadius: 12,
     backgroundColor: 'rgba(255,255,255,0.15)',
     alignItems: 'center', justifyContent: 'center',
   },
-  backText: { fontSize: 22, color: '#fff' },
   headerTitle: { flex: 1, fontSize: 20, fontWeight: '700', color: '#fff', marginLeft: 14 },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   headerCount: {
-    fontSize: 12, fontWeight: '600',
+    fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.85)',
     backgroundColor: 'rgba(255,255,255,0.15)',
     paddingHorizontal: 10, paddingVertical: 5,
     borderRadius: 10, overflow: 'hidden',
@@ -256,13 +315,24 @@ const styles = StyleSheet.create({
   },
   clearText: { fontSize: 11, fontWeight: '700', color: '#fff' },
 
+  filterBar: { flexGrow: 0, borderBottomWidth: 1 },
+  filterContent: { paddingHorizontal: 16, paddingVertical: 10, gap: 8 },
+  filterChip: {
+    paddingHorizontal: 14, paddingVertical: 6,
+    borderRadius: 20, borderWidth: 1,
+  },
+  filterChipText: { fontSize: 13, fontWeight: '600' },
+
   scroll: { flex: 1 },
 
   center: {
     alignItems: 'center', justifyContent: 'center',
     paddingVertical: 80, paddingHorizontal: 40,
   },
-  emptyIcon: { fontSize: 60, marginBottom: 16 },
+  emptyIconWrap: {
+    width: 88, height: 88, borderRadius: 44,
+    alignItems: 'center', justifyContent: 'center', marginBottom: 16,
+  },
   emptyTitle: { fontSize: 20, fontWeight: '700', marginBottom: 8 },
   emptySub: { fontSize: 14, textAlign: 'center', marginBottom: 24 },
   emptyBtn: { paddingHorizontal: 24, paddingVertical: 12, borderRadius: 14 },
@@ -279,12 +349,10 @@ const styles = StyleSheet.create({
 
   cardTop: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
   iconWrap: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  iconEmoji: { fontSize: 22 },
   cardInfo: { flex: 1 },
   cardTitle: { fontSize: 15, fontWeight: '700', marginBottom: 3 },
   cardMeta: { fontSize: 12 },
   deleteBtn: { width: 34, height: 34, alignItems: 'center', justifyContent: 'center' },
-  deleteIcon: { fontSize: 16 },
 
   cardBottom: {
     flexDirection: 'row', alignItems: 'center',

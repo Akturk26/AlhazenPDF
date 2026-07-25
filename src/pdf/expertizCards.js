@@ -498,13 +498,13 @@ export const buildKozmikMukarnasHTML = (data) => {
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=595">
 <title>AlhazenPDF · Kozmik Mukarnas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&family=Barlow+Condensed:wght@200;300;400;500;600;700;800;900&family=Share+Tech+Mono&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
-body { background: var(--void); font-family: 'Barlow Condensed', sans-serif; }
+body { background: var(--void); font-family: 'Barlow Condensed', sans-serif; width:595px; margin:0; padding:0; }
 :root {
   --void:#04030A;--deep1:#080618;--deep2:#0E0A24;--nebula1:#1A0E3A;--nebula2:#2A1660;--nebula3:#3D2280;
   --pillar1:#0A1F16;--pillar2:#0D2B1F;--pillar3:#1A4A32;--pillar4:#2E7A50;
@@ -972,13 +972,13 @@ export const buildIbnulHeysemHTML = (data) => {
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=595">
 <title>AlhazenPDF · Kitabül Menazir</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Barlow+Condensed:wght@200;300;400;500;600;700;800;900&family=DM+Sans:wght@300;400;500&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{background:#05080F;font-family:'DM Sans',sans-serif;}
+body{background:#05080F;font-family:'DM Sans',sans-serif;width:595px;margin:0;padding:0;}
 :root{
   --void:#060A14;--deep:#0C1428;--ocean:#142240;
   --light:#E8C84A;--light2:#F4DC7A;--amber:#C49A1A;

@@ -4,7 +4,9 @@ import {
   ScrollView, Alert, ActivityIndicator, Modal, Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from '../components/Icon';
+import { usePremium } from '../context/PremiumContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Sharing from 'expo-sharing';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system/legacy';
@@ -145,6 +147,9 @@ export default function RealEstatePreviewScreen({ route, navigation }) {
   const viewShotRef = useRef(null);
   const { isDark } = useTheme();
   const theme = getTheme(isDark);
+  const insets = useSafeAreaInsets();
+  const { gate } = usePremium();
+  const GOLD = '#C9A84C';
 
   const isSocial = SOCIAL_IDS.includes(format.id);
   const isSales = SALES_IDS.includes(format.id);
@@ -183,6 +188,7 @@ export default function RealEstatePreviewScreen({ route, navigation }) {
   };
 
   const handleGenerate = async () => {
+    if (!(await gate())) return;
     try {
       setIsGenerating(true);
       const photos = await preparePhotos();
@@ -272,6 +278,7 @@ export default function RealEstatePreviewScreen({ route, navigation }) {
   };
 
   const handleSaveImage = async () => {
+    if (!(await gate())) return;
     try {
       setIsGenerating(true);
       const html = await buildSocialHtml();
@@ -305,6 +312,8 @@ export default function RealEstatePreviewScreen({ route, navigation }) {
       } else {
         Alert.alert('Hazır', 'Resim oluşturuldu!');
       }
+      // Geçici dosyayı temizle
+      FileSystem.deleteAsync(uri, { idempotent: true }).catch(() => {});
     } catch (err) {
       setCaptureVisible(false);
       setIsCapturing(false);
@@ -334,9 +343,12 @@ export default function RealEstatePreviewScreen({ route, navigation }) {
         <LinearGradient
           colors={[format.color, format.color + 'BB']}
           start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-          style={styles.header}
+          style={[styles.header, { paddingTop: insets.top + 14 }]}
         >
           <View style={styles.headerTop}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBackBtn}>
+              <Icon name="arrow-left" size={18} color="#fff" />
+            </TouchableOpacity>
             <View style={styles.headerIcon}>
               <Text style={styles.headerEmoji}>{format.icon}</Text>
             </View>
@@ -346,7 +358,8 @@ export default function RealEstatePreviewScreen({ route, navigation }) {
             </View>
             {pdfUri && (
               <View style={styles.readyBadge}>
-                <Text style={styles.readyText}>✓ Hazır</Text>
+                <Icon name="check" size={11} color="#fff" />
+                <Text style={styles.readyText}>Hazır</Text>
               </View>
             )}
           </View>
@@ -411,8 +424,8 @@ export default function RealEstatePreviewScreen({ route, navigation }) {
               activeOpacity={0.8}
             >
               {isGenerating
-                ? <ActivityIndicator color={theme.blue} size="small" />
-                : <><Ionicons name="document-outline" size={18} color={theme.blue} /><Text style={[styles.btnSecText, { color: theme.blue }]}>PDF</Text></>
+                ? <ActivityIndicator color={GOLD} size="small" />
+                : <><Icon name="file-document-outline" size={18} color={GOLD} /><Text style={[styles.btnSecText, { color: GOLD }]}>PDF</Text></>
               }
             </TouchableOpacity>
 
@@ -430,7 +443,7 @@ export default function RealEstatePreviewScreen({ route, navigation }) {
                 {isGenerating
                   ? <ActivityIndicator color="#fff" />
                   : <>
-                      <Ionicons name="image-outline" size={18} color="#fff" />
+                      <Icon name="image-outline" size={18} color="#fff" />
                       <Text style={styles.btnPriText}>JPG / PNG Paylaş</Text>
                     </>
                 }
@@ -454,7 +467,7 @@ export default function RealEstatePreviewScreen({ route, navigation }) {
                 {isGenerating
                   ? <ActivityIndicator color="#fff" />
                   : <>
-                      <Ionicons name="image-outline" size={18} color="#fff" />
+                      <Icon name="image-outline" size={18} color="#fff" />
                       <Text style={styles.btnPriText}>JPG/PNG Paylaş</Text>
                     </>
                 }
@@ -471,8 +484,8 @@ export default function RealEstatePreviewScreen({ route, navigation }) {
               activeOpacity={0.8}
             >
               {isGenerating
-                ? <ActivityIndicator color={theme.blue} size="small" />
-                : <><Ionicons name="eye-outline" size={18} color={theme.blue} /><Text style={[styles.btnSecText, { color: theme.blue }]}>Önizle</Text></>
+                ? <ActivityIndicator color={GOLD} size="small" />
+                : <><Icon name="eye-outline" size={18} color={GOLD} /><Text style={[styles.btnSecText, { color: GOLD }]}>Önizle</Text></>
               }
             </TouchableOpacity>
 
@@ -490,7 +503,7 @@ export default function RealEstatePreviewScreen({ route, navigation }) {
                 {isGenerating
                   ? <ActivityIndicator color="#fff" />
                   : <>
-                      <Ionicons name="share-social" size={18} color="#fff" />
+                      <Icon name="share-variant" size={18} color="#fff" />
                       <Text style={styles.btnPriText}>{pdfUri ? 'Tekrar Paylaş' : 'PDF Oluştur & Paylaş'}</Text>
                     </>
                 }
@@ -504,7 +517,7 @@ export default function RealEstatePreviewScreen({ route, navigation }) {
         style={[styles.homeLink, { backgroundColor: theme.bg }]}
         onPress={() => navigation.navigate('Home')}
       >
-        <Text style={[styles.homeLinkText, { color: theme.textSecondary }]}>← Ana Sayfaya Dön</Text>
+        <Text style={[styles.homeLinkText, { color: theme.textSecondary }]}>Ana Sayfaya Dön</Text>
       </TouchableOpacity>
 
       {/* ── Image Capture Modal ── */}
@@ -543,20 +556,26 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { flex: 1 },
 
-  header: { paddingTop: 28, paddingBottom: 20, paddingHorizontal: 20, gap: 16 },
-  headerTop: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  headerIcon: {
-    width: 48, height: 48, borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    alignItems: 'center', justifyContent: 'center',
+  header: { paddingBottom: 20, paddingHorizontal: 16, gap: 16 },
+  headerTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  headerBackBtn: {
+    width: 34, height: 34, borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
-  headerEmoji: { fontSize: 24 },
+  headerIcon: {
+    width: 40, height: 40, borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  headerEmoji: { fontSize: 22 },
   headerInfo: { flex: 1 },
-  headerTitle: { fontSize: 17, fontWeight: '800', color: '#fff', letterSpacing: -0.3 },
-  headerSub: { fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 2 },
+  headerTitle: { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: -0.3 },
+  headerSub: { fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 },
   readyBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
     backgroundColor: 'rgba(255,255,255,0.25)',
-    paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8,
+    paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8,
   },
   readyText: { fontSize: 11, fontWeight: '700', color: '#fff' },
 

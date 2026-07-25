@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { navigationRef } from './navigationRef';
 import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 import { useTheme } from '../context/ThemeContext';
 import { getTheme } from '../themes/colors';
@@ -20,6 +21,22 @@ import ExpertizScreen from '../screens/ExpertizScreen';
 import ExpertizliFormScreen from '../screens/ExpertizliFormScreen';
 import ExpertizliTemplateScreen from '../screens/ExpertizliTemplateScreen';
 import ExpertizliPreviewScreen from '../screens/ExpertizliPreviewScreen';
+import ServisFormScreen from '../screens/ServisFormScreen';
+import ServisGecmisScreen from '../screens/ServisGecmisScreen';
+import TeknikServisScreen from '../screens/TeknikServisScreen';
+import AracSorgulaScreen from '../screens/AracSorgulaScreen';
+import TeklifFaturaFormScreen from '../screens/TeklifFaturaFormScreen';
+import SatisTakipScreen from '../screens/SatisTakipScreen';
+import AracEkleScreen from '../screens/AracEkleScreen';
+import EmlakPortfolyoScreen from '../screens/EmlakPortfolyoScreen';
+import AraclarimScreen from '../screens/AraclarimScreen';
+import SahsiAracEkleScreen from '../screens/SahsiAracEkleScreen';
+import AracDetayScreen from '../screens/AracDetayScreen';
+import AuthScreen from '../screens/AuthScreen';
+import PlanScreen from '../screens/PlanScreen';
+import CompanySelectScreen from '../screens/CompanySelectScreen';
+import TeamMembersScreen from '../screens/TeamMembersScreen';
+import HasarHaritasiScreen from '../screens/HasarHaritasiScreen';
 
 const Stack = createStackNavigator();
 
@@ -41,7 +58,7 @@ export default function AppNavigator() {
   };
 
   return (
-    <NavigationContainer theme={navigationTheme}>
+    <NavigationContainer ref={navigationRef} theme={navigationTheme}>
       <Stack.Navigator
         initialRouteName="Home"
         screenOptions={{
@@ -81,30 +98,30 @@ export default function AppNavigator() {
           component={HistoryScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="Category" 
+        <Stack.Screen
+          name="Category"
           component={CategoryScreen}
-          options={{ title: 'Kategori Seçin' }}
+          options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="Camera" 
+        <Stack.Screen
+          name="Camera"
           component={CameraScreen}
           options={{ title: 'Fotoğraf Ekle' }}
         />
-        <Stack.Screen 
-          name="Form" 
+        <Stack.Screen
+          name="Form"
           component={FormScreen}
-          options={{ title: 'Bilgileri Girin' }}
+          options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="Template" 
+        <Stack.Screen
+          name="Template"
           component={TemplateScreen}
-          options={{ title: 'Şablon Seçin' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="Preview"
           component={PreviewScreen}
-          options={{ title: 'PDF Önizleme' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="Format"
@@ -114,7 +131,7 @@ export default function AppNavigator() {
         <Stack.Screen
           name="RealEstatePreview"
           component={RealEstatePreviewScreen}
-          options={{ title: 'PDF Önizleme' }}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="Settings"
@@ -139,6 +156,86 @@ export default function AppNavigator() {
         <Stack.Screen
           name="ExpertizliPreview"
           component={ExpertizliPreviewScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ServisForm"
+          component={ServisFormScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ServisGecmis"
+          component={ServisGecmisScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="TeknikServis"
+          component={TeknikServisScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="AracSorgula"
+          component={AracSorgulaScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="TeklifFatura"
+          component={TeklifFaturaFormScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="SatisTakip"
+          component={SatisTakipScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="AracEkle"
+          component={AracEkleScreen}
+          options={{ headerShown: false, unmountOnBlur: false }}
+        />
+        <Stack.Screen
+          name="HasarHaritasi"
+          component={HasarHaritasiScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="EmlakPortfolyo"
+          component={EmlakPortfolyoScreen}
+          options={{ headerShown: false, gestureEnabled: false }}
+        />
+        <Stack.Screen
+          name="Araclarim"
+          component={AraclarimScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="SahsiAracEkle"
+          component={SahsiAracEkleScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="AracDetay"
+          component={AracDetayScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Auth"
+          component={AuthScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Plan"
+          component={PlanScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="CompanySelect"
+          component={CompanySelectScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="TeamMembers"
+          component={TeamMembersScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

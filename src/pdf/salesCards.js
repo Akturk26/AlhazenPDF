@@ -19,6 +19,13 @@ const postProcess = (html, width, height) => {
    ═══════════════════════════════════════════════════════════════ */
 export const buildSalesArchHTML = (data, isStory = true) => {
   const { formData = {}, photos = [], companyName = '' } = data;
+  const isRealEstate = data.category?.id === 'real-estate';
+  const emlakTuru = formData['Emlak Türü'] || '';
+  const ilanTuru = formData['İlan Türü'] || 'Satılık';
+  const odaSayisi = formData['Oda Sayısı'] || '';
+  const m2Brut = formData['M² (Brüt)'] || formData['M² (Net)'] || '';
+  const binaYasi = formData['Bina Yaşı'] || '';
+  const katNo = formData['Kat'] || '';
   const width = isStory ? 405 : 540;
   const height = isStory ? 720 : 540;
 
@@ -86,11 +93,11 @@ body{background:#141414;font-family:Arial,Helvetica,sans-serif}
 <div class="concrete"></div><div class="grain"></div><div class="grid"></div>
 <div class="rust"></div><div class="steel-top"></div><div class="glass"></div>
 <div class="content">
-<div class="top-bar"><div><div class="brand">${companyName || 'Galeri'}</div><div class="sub">Araç Galerisi</div></div><div class="wm">AlhazenPDF</div></div>
+<div class="top-bar"><div><div class="brand">${companyName || 'Galeri'}</div><div class="sub">${isRealEstate ? 'Emlak' : 'Araç Galerisi'}</div></div><div class="wm">AlhazenPDF</div></div>
 <div class="hero-area">
-<div class="type"><div class="bolt"></div><div class="type-txt">Satılık Araç</div><div class="type-line"></div></div>
-<div class="big">${marka || '—'}</div>
-<div class="model">${model || ''}</div>
+<div class="type"><div class="bolt"></div><div class="type-txt">${isRealEstate ? ilanTuru + ' Emlak' : 'Satılık Araç'}</div><div class="type-line"></div></div>
+<div class="big">${isRealEstate ? (emlakTuru || '—') : (marka || '—')}</div>
+<div class="model">${isRealEstate ? odaSayisi : (model || '')}</div>
 </div>
 <div class="pf">
 <div class="pi">${photo ? `<img src="${photo}"/>` : 'FOTOĞRAF'}</div>
@@ -100,10 +107,10 @@ body{background:#141414;font-family:Arial,Helvetica,sans-serif}
 </div>
 <div class="specs">
 <div class="spec-row">
-<div class="spec-cell"><div class="spk">Motor</div><div class="spv">${motor || '—'}</div></div>
-<div class="spec-cell"><div class="spk">Vites</div><div class="spv steel">${sanziman || '—'}</div></div>
-<div class="spec-cell"><div class="spk">Yakıt</div><div class="spv rust">${yakıt || '—'}</div></div>
-<div class="spec-cell"><div class="spk">KM</div><div class="spv">${km ? km + ' km' : '—'}</div></div>
+<div class="spec-cell"><div class="spk">${isRealEstate ? 'M²' : 'Motor'}</div><div class="spv">${isRealEstate ? (m2Brut || '—') : (motor || '—')}</div></div>
+<div class="spec-cell"><div class="spk">${isRealEstate ? 'Oda' : 'Vites'}</div><div class="spv steel">${isRealEstate ? (odaSayisi || '—') : (sanziman || '—')}</div></div>
+<div class="spec-cell"><div class="spk">${isRealEstate ? 'Kat' : 'Yakıt'}</div><div class="spv rust">${isRealEstate ? (katNo || '—') : (yakıt || '—')}</div></div>
+<div class="spec-cell"><div class="spk">${isRealEstate ? 'Bina Yaşı' : 'KM'}</div><div class="spv">${isRealEstate ? (binaYasi || '—') : (km ? km + ' km' : '—')}</div></div>
 </div>
 <div class="footer">
 <div><div class="plbl">Fiyat</div><div class="pval">${fiyat || '—'}</div></div>
@@ -122,6 +129,10 @@ body{background:#141414;font-family:Arial,Helvetica,sans-serif}
    ═══════════════════════════════════════════════════════════════ */
 export const buildSalesSakuraHTML = (data, isStory = true) => {
   const { formData = {}, photos = [], companyName = '' } = data;
+  const isRealEstate = data.category?.id === 'real-estate';
+  const emlakTuru = formData['Emlak Türü'] || '';
+  const ilanTuru = formData['İlan Türü'] || 'Satılık';
+  const odaSayisi = formData['Oda Sayısı'] || '';
   const width = isStory ? 405 : 540;
   const height = isStory ? 720 : 540;
 
@@ -182,6 +193,18 @@ body{background:#100A0D;font-family:Georgia,serif}
 <body>
 <div class="card">
 <div class="bg"></div><div class="petal p1"></div><div class="petal p2"></div><div class="petal p3"></div><div class="petal p4"></div><div class="petal p5"></div>
+<div class="ink-bar"></div><div class="gold-top"></div>
+<div class="content">
+<div class="hdr"><div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">${isRealEstate ? 'Emlak' : 'Araç Galerisi'}</div></div><div class="wm">AlhazenPDF</div></div>
+<div class="type"><div class="bloom"></div><div class="type-txt">${isRealEstate ? ilanTuru + ' Emlak' : 'Satılık Araç'}</div><div class="type-line"></div></div>
+<div class="big">${isRealEstate ? (emlakTuru || '—') : (marka || '—')}</div>
+<div class="model">${isRealEstate ? odaSayisi : (model || '')}</div>
+<div class="pf">
+<div class="pi">${photo ? `<img src="${photo}"/>` : 'FOTOĞRAF'}</div>
+<div class="po"></div><div class="pfl"></div>
+<div class="cm cm-tl"></div><div class="cm cm-tr"></div>
+<div class="cm cm-bl"></div><div class="cm cm-br"></div>
+</div>
 <div class="footer">
 <div><div class="plbl">Fiyat</div><div class="pval">${fiyat || '—'}</div></div>
 <div><div class="clbl">İletişim</div><div class="cnum">${telefon || '—'}</div><div class="calh">${companyName || 'Galeri'}</div></div>
@@ -198,6 +221,10 @@ body{background:#100A0D;font-family:Georgia,serif}
    ═══════════════════════════════════════════════════════════════ */
 export const buildSalesDeepHTML = (data, isStory = true) => {
   const { formData = {}, photos = [], companyName = '' } = data;
+  const isRealEstate = data.category?.id === 'real-estate';
+  const emlakTuru = formData['Emlak Türü'] || '';
+  const ilanTuru = formData['İlan Türü'] || 'Satılık';
+  const odaSayisi = formData['Oda Sayısı'] || '';
   const width = isStory ? 405 : 540;
   const height = isStory ? 720 : 540;
 
@@ -258,10 +285,10 @@ body{background:#04111A;font-family:Arial,Helvetica,sans-serif}
 <div class="bg"></div><div class="wave w1"></div><div class="wave w2"></div><div class="wave w3"></div>
 <div class="depth-bar"></div><div class="silver-top"></div>
 <div class="content">
-<div class="hdr"><div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">Araç Galerisi</div></div><div class="wm">AlhazenPDF</div></div>
-<div class="type"><div class="ripple"></div><div class="type-txt">Satılık Araç</div><div class="type-line"></div></div>
-<div class="big">${marka || '—'}</div>
-<div class="model">${model || ''}</div>
+<div class="hdr"><div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">${isRealEstate ? 'Emlak' : 'Araç Galerisi'}</div></div><div class="wm">AlhazenPDF</div></div>
+<div class="type"><div class="ripple"></div><div class="type-txt">${isRealEstate ? ilanTuru + ' Emlak' : 'Satılık Araç'}</div><div class="type-line"></div></div>
+<div class="big">${isRealEstate ? (emlakTuru || '—') : (marka || '—')}</div>
+<div class="model">${isRealEstate ? odaSayisi : (model || '')}</div>
 <div class="pf">
 <div class="pi">${photo ? `<img src="${photo}"/>` : 'FOTOĞRAF'}</div>
 <div class="po"></div><div class="pfl"></div>
@@ -284,6 +311,10 @@ body{background:#04111A;font-family:Arial,Helvetica,sans-serif}
    ═══════════════════════════════════════════════════════════════ */
 export const buildSalesVolcanoHTML = (data, isStory = true) => {
   const { formData = {}, photos = [], companyName = '' } = data;
+  const isRealEstate = data.category?.id === 'real-estate';
+  const emlakTuru = formData['Emlak Türü'] || '';
+  const ilanTuru = formData['İlan Türü'] || 'Satılık';
+  const odaSayisi = formData['Oda Sayısı'] || '';
   const width = isStory ? 405 : 540;
   const height = isStory ? 720 : 540;
 
@@ -344,10 +375,10 @@ body{background:#0A0000;font-family:Arial,Helvetica,sans-serif}
 <div class="bg"></div><div class="lava l1"></div><div class="lava l2"></div><div class="lava l3"></div>
 <div class="ember-bar"></div><div class="ash-top"></div>
 <div class="content">
-<div class="hdr"><div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">Araç Galerisi</div></div><div class="wm">AlhazenPDF</div></div>
-<div class="type"><div class="ember"></div><div class="type-txt">Satılık Araç</div><div class="type-line"></div></div>
-<div class="big">${marka || '—'}</div>
-<div class="model">${model || ''}</div>
+<div class="hdr"><div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">${isRealEstate ? 'Emlak' : 'Araç Galerisi'}</div></div><div class="wm">AlhazenPDF</div></div>
+<div class="type"><div class="ember"></div><div class="type-txt">${isRealEstate ? ilanTuru + ' Emlak' : 'Satılık Araç'}</div><div class="type-line"></div></div>
+<div class="big">${isRealEstate ? (emlakTuru || '—') : (marka || '—')}</div>
+<div class="model">${isRealEstate ? odaSayisi : (model || '')}</div>
 <div class="pf">
 <div class="pi">${photo ? `<img src="${photo}"/>` : 'FOTOĞRAF'}</div>
 <div class="po"></div><div class="pfl"></div>
@@ -370,6 +401,10 @@ body{background:#0A0000;font-family:Arial,Helvetica,sans-serif}
    ═══════════════════════════════════════════════════════════════ */
 export const buildSalesHistHTML = (data, isStory = true) => {
   const { formData = {}, photos = [], companyName = '' } = data;
+  const isRealEstate = data.category?.id === 'real-estate';
+  const emlakTuru = formData['Emlak Türü'] || '';
+  const ilanTuru = formData['İlan Türü'] || 'Satılık';
+  const odaSayisi = formData['Oda Sayısı'] || '';
   const width = isStory ? 405 : 540;
   const height = isStory ? 720 : 540;
 
@@ -430,10 +465,10 @@ body{background:#F2E8D5;font-family:Georgia,serif}
 <div class="bronze-line"></div><div class="antik-top"></div><div class="antik-btm"></div>
 <div class="seal">𐤀</div>
 <div class="content">
-<div class="hdr"><div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">Araç Galerisi</div></div><div class="wm">AlhazenPDF</div></div>
-<div class="type"><div class="laur"></div><div class="type-txt">Satılık Araç</div><div class="type-line"></div></div>
-<div class="big">${marka || '—'}</div>
-<div class="model">${model || ''}</div>
+<div class="hdr"><div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">${isRealEstate ? 'Emlak' : 'Araç Galerisi'}</div></div><div class="wm">AlhazenPDF</div></div>
+<div class="type"><div class="laur"></div><div class="type-txt">${isRealEstate ? ilanTuru + ' Emlak' : 'Satılık Araç'}</div><div class="type-line"></div></div>
+<div class="big">${isRealEstate ? (emlakTuru || '—') : (marka || '—')}</div>
+<div class="model">${isRealEstate ? odaSayisi : (model || '')}</div>
 <div class="pf">
 <div class="pi">${photo ? `<img src="${photo}"/>` : 'FOTOĞRAF'}</div>
 <div class="po"></div>

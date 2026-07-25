@@ -19,9 +19,13 @@ ${lokal   ? `<div style="display:flex;align-items:center;gap:5px"><span style="w
 };
 
 const postProcess = (html, width, height) => {
-  const pageSize = `${width}px ${height}px`;
+  // expo-print width/height are PDF points (72dpi).
+  // Card HTML is at 96dpi CSS pixels. Ratio: 1pt = 4/3 px.
+  // zoom:4/3 scales the 595px card to fill a 595pt (≈793px) A4 page.
+  const zoom = (4 / 3).toFixed(6);
+  const fixStyle = `<style>@page{size:${width}pt ${height}pt;margin:0}body{zoom:${zoom}}</style>`;
   return html
-    .replace(/(<(?:style|head)[^>]*>)/i, `$1<style>@page{size:${pageSize};margin:0;}</style>`)
+    .replace(/(<(?:style|head)[^>]*>)/i, `$1${fixStyle}`)
     .replace(/content="width=device-width[^"]*"/g, `content="width=${width}"`)
     .replace(/width\s*:\s*100vw/g, `width: ${width}px`)
     .replace(/height\s*:\s*100vh/g, `height: ${height}px`);
@@ -29,6 +33,7 @@ const postProcess = (html, width, height) => {
 
 const parseVehicleData = (data) => {
   const { formData = {}, photos = [], companyName = '', ekspertizData = {} } = data;
+  const isRealEstate = data.category?.id === 'real-estate';
   return {
     width: 595, height: 842,
     marka: formData['Marka'] || '',
@@ -44,6 +49,13 @@ const parseVehicleData = (data) => {
     photo: photos[0]?.base64 || '',
     companyName,
     ekspertizData,
+    isRealEstate,
+    emlakTuru: formData['Emlak Türü'] || '',
+    ilanTuru: formData['İlan Türü'] || 'Satılık',
+    odaSayisi: formData['Oda Sayısı'] || '',
+    m2Brut: formData['M² (Brüt)'] || formData['M² (Net)'] || '',
+    binaYasi: formData['Bina Yaşı'] || '',
+    katNo: formData['Kat'] || '',
   };
 };
 
@@ -51,7 +63,7 @@ const parseVehicleData = (data) => {
    3. YEŞİL / GREEN (Natural Elegant)
    ═══════════════════════════════════════════════════════════════ */
 export const buildA4GreenHTML = (data) => {
-  const { width, height, marka, model, yil, motor, sanziman, yakıt, km, fiyat, telefon, renk, photo, companyName, ekspertizData } = parseVehicleData(data);
+  const { width, height, marka, model, yil, motor, sanziman, yakıt, km, fiyat, telefon, renk, photo, companyName, ekspertizData, isRealEstate, emlakTuru, ilanTuru, odaSayisi, m2Brut, binaYasi, katNo } = parseVehicleData(data);
 
   const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=${width}">
@@ -113,13 +125,13 @@ ${photo ? `.ph-bg{background:none}.ph-bg img{width:100%;height:100%;object-fit:c
 <div class="card">
 <div class="bg"></div><div class="side"></div><div class="top"></div>
 <div class="hdr">
-<div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">Araç Galerisi</div></div>
+<div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">${isRealEstate ? 'Emlak' : 'Araç Galerisi'}</div></div>
 <div class="badge"><div class="badge-diamond"></div><div><div class="badge-text">AlhazenPDF</div><div class="badge-sub">Premium · PDF</div></div></div>
 </div>
 <div class="veh">
-<div class="type-tag"><div class="type-leaf"></div><div class="type-txt">Satılık Araç</div></div>
-<div class="make">${marka}</div>
-<div class="model">${model}</div>
+<div class="type-tag"><div class="type-leaf"></div><div class="type-txt">${isRealEstate ? ilanTuru + ' Emlak' : 'Satılık Araç'}</div></div>
+<div class="make">${isRealEstate ? (emlakTuru || '—') : marka}</div>
+<div class="model">${isRealEstate ? odaSayisi : model}</div>
 </div>
 <div class="pf">
 <div class="ph-bg">${photo ? `<img src="${photo}"/>` : `<span class="ph-txt">ARAÇ FOTOĞRAFI</span>`}</div>
@@ -129,11 +141,11 @@ ${photo ? `.ph-bg{background:none}.ph-bg img{width:100%;height:100%;object-fit:c
 </div>
 <div class="specs">
 <div class="spec-row">
-<div class="spec-item"><div class="spk">Motor</div><div class="spv hi">${motor}</div></div>
-<div class="spec-item"><div class="spk">Şanzıman</div><div class="spv">${sanziman}</div></div>
-<div class="spec-item"><div class="spk">Yakıt</div><div class="spv">${yakıt}</div></div>
-<div class="spec-item"><div class="spk">Kilometre</div><div class="spv hi">${km}</div></div>
-<div class="spec-item"><div class="spk">Renk</div><div class="spv">${renk}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'M²' : 'Motor'}</div><div class="spv hi">${isRealEstate ? (m2Brut || '—') : motor}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Oda' : 'Şanzıman'}</div><div class="spv">${isRealEstate ? (odaSayisi || '—') : sanziman}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Kat' : 'Yakıt'}</div><div class="spv">${isRealEstate ? (katNo || '—') : yakıt}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Bina Yaşı' : 'Kilometre'}</div><div class="spv hi">${isRealEstate ? (binaYasi || '—') : km}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'İlan Türü' : 'Renk'}</div><div class="spv">${isRealEstate ? ilanTuru : renk}</div></div>
 </div>
 </div>
 ${buildEkspertizSection(ekspertizData, 'rgba(74,103,68,0.15)', 'rgba(26,21,16,0.55)')}
@@ -152,7 +164,7 @@ ${buildEkspertizSection(ekspertizData, 'rgba(74,103,68,0.15)', 'rgba(26,21,16,0.
    4. GALAKTİK / GALACTIC (Space Theme)
    ═══════════════════════════════════════════════════════════════ */
 export const buildA4GalacticHTML = (data) => {
-  const { width, height, marka, model, yil, motor, sanziman, yakıt, km, fiyat, telefon, renk, photo, companyName, ekspertizData } = parseVehicleData(data);
+  const { width, height, marka, model, yil, motor, sanziman, yakıt, km, fiyat, telefon, renk, photo, companyName, ekspertizData, isRealEstate, emlakTuru, ilanTuru, odaSayisi, m2Brut, binaYasi, katNo } = parseVehicleData(data);
 
   const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=${width}">
@@ -230,13 +242,13 @@ ${photo ? `.ph-bg{background:none}.ph-bg img{width:100%;height:100%;object-fit:c
 <div class="planet"></div>
 <div class="side"></div><div class="top"></div>
 <div class="hdr">
-<div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">Araç Galerisi</div></div>
+<div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">${isRealEstate ? 'Emlak' : 'Araç Galerisi'}</div></div>
 <div class="badge"><div class="badge-diamond"></div><div><div class="badge-text">AlhazenPDF</div><div class="badge-sub">Premium · PDF</div></div></div>
 </div>
 <div class="veh">
-<div class="type-tag"><div class="type-dot"></div><div class="type-txt">Satılık Araç</div></div>
-<div class="make">${marka}</div>
-<div class="model">${model}</div>
+<div class="type-tag"><div class="type-dot"></div><div class="type-txt">${isRealEstate ? ilanTuru + ' Emlak' : 'Satılık Araç'}</div></div>
+<div class="make">${isRealEstate ? (emlakTuru || '—') : marka}</div>
+<div class="model">${isRealEstate ? odaSayisi : model}</div>
 </div>
 <div class="pf">
 <div class="ph-bg">${photo ? `<img src="${photo}"/>` : `<span class="ph-txt">ARAÇ FOTOĞRAFI</span>`}</div>
@@ -246,11 +258,11 @@ ${photo ? `.ph-bg{background:none}.ph-bg img{width:100%;height:100%;object-fit:c
 </div>
 <div class="specs">
 <div class="spec-row">
-<div class="spec-item"><div class="spk">Motor</div><div class="spv hi">${motor}</div></div>
-<div class="spec-item"><div class="spk">Şanzıman</div><div class="spv">${sanziman}</div></div>
-<div class="spec-item"><div class="spk">Yakıt</div><div class="spv">${yakıt}</div></div>
-<div class="spec-item"><div class="spk">Kilometre</div><div class="spv hi">${km}</div></div>
-<div class="spec-item"><div class="spk">Renk</div><div class="spv">${renk}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'M²' : 'Motor'}</div><div class="spv hi">${isRealEstate ? (m2Brut || '—') : motor}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Oda' : 'Şanzıman'}</div><div class="spv">${isRealEstate ? (odaSayisi || '—') : sanziman}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Kat' : 'Yakıt'}</div><div class="spv">${isRealEstate ? (katNo || '—') : yakıt}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Bina Yaşı' : 'Kilometre'}</div><div class="spv hi">${isRealEstate ? (binaYasi || '—') : km}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'İlan Türü' : 'Renk'}</div><div class="spv">${isRealEstate ? ilanTuru : renk}</div></div>
 </div>
 </div>
 ${buildEkspertizSection(ekspertizData)}
@@ -269,7 +281,7 @@ ${buildEkspertizSection(ekspertizData)}
    5. SALDA / PIRATE (Beach Theme)
    ═══════════════════════════════════════════════════════════════ */
 export const buildA4SaldaHTML = (data) => {
-  const { width, height, marka, model, yil, motor, sanziman, yakıt, km, fiyat, telefon, renk, photo, companyName, ekspertizData } = parseVehicleData(data);
+  const { width, height, marka, model, yil, motor, sanziman, yakıt, km, fiyat, telefon, renk, photo, companyName, ekspertizData, isRealEstate, emlakTuru, ilanTuru, odaSayisi, m2Brut, binaYasi, katNo } = parseVehicleData(data);
 
   const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=${width}">
@@ -339,13 +351,13 @@ ${photo ? `.ph-bg{background:none}.ph-bg img{width:100%;height:100%;object-fit:c
 <div class="bg"></div><div class="sand"></div><div class="water"></div><div class="corsair"></div>
 <div class="side"></div><div class="top"></div>
 <div class="hdr">
-<div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">Araç Galerisi</div></div>
+<div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">${isRealEstate ? 'Emlak' : 'Araç Galerisi'}</div></div>
 <div class="badge"><div class="badge-diamond"></div><div><div class="badge-text">AlhazenPDF</div><div class="badge-sub">Premium · PDF</div></div></div>
 </div>
 <div class="veh">
-<div class="type-tag"><div class="type-skull"></div><div class="type-txt">Satılık Araç</div></div>
-<div class="make">${marka}</div>
-<div class="model">${model}</div>
+<div class="type-tag"><div class="type-skull"></div><div class="type-txt">${isRealEstate ? ilanTuru + ' Emlak' : 'Satılık Araç'}</div></div>
+<div class="make">${isRealEstate ? (emlakTuru || '—') : marka}</div>
+<div class="model">${isRealEstate ? odaSayisi : model}</div>
 </div>
 <div class="pf">
 <div class="ph-bg">${photo ? `<img src="${photo}"/>` : `<span class="ph-txt">ARAÇ FOTOĞRAFI</span>`}</div>
@@ -355,11 +367,11 @@ ${photo ? `.ph-bg{background:none}.ph-bg img{width:100%;height:100%;object-fit:c
 </div>
 <div class="specs">
 <div class="spec-row">
-<div class="spec-item"><div class="spk">Motor</div><div class="spv hi">${motor}</div></div>
-<div class="spec-item"><div class="spk">Şanzıman</div><div class="spv">${sanziman}</div></div>
-<div class="spec-item"><div class="spk">Yakıt</div><div class="spv">${yakıt}</div></div>
-<div class="spec-item"><div class="spk">Kilometre</div><div class="spv hi">${km}</div></div>
-<div class="spec-item"><div class="spk">Renk</div><div class="spv">${renk}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'M²' : 'Motor'}</div><div class="spv hi">${isRealEstate ? (m2Brut || '—') : motor}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Oda' : 'Şanzıman'}</div><div class="spv">${isRealEstate ? (odaSayisi || '—') : sanziman}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Kat' : 'Yakıt'}</div><div class="spv">${isRealEstate ? (katNo || '—') : yakıt}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Bina Yaşı' : 'Kilometre'}</div><div class="spv hi">${isRealEstate ? (binaYasi || '—') : km}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'İlan Türü' : 'Renk'}</div><div class="spv">${isRealEstate ? ilanTuru : renk}</div></div>
 </div>
 </div>
 ${buildEkspertizSection(ekspertizData)}
@@ -379,7 +391,7 @@ ${buildEkspertizSection(ekspertizData)}
    6. KRİSTAL / CRYSTAL (Multi-Color Theme)
    ═══════════════════════════════════════════════════════════════ */
 export const buildA4CrystalHTML = (data) => {
-  const { width, height, marka, model, yil, motor, sanziman, yakıt, km, fiyat, telefon, renk, photo, companyName, ekspertizData } = parseVehicleData(data);
+  const { width, height, marka, model, yil, motor, sanziman, yakıt, km, fiyat, telefon, renk, photo, companyName, ekspertizData, isRealEstate, emlakTuru, ilanTuru, odaSayisi, m2Brut, binaYasi, katNo } = parseVehicleData(data);
 
   const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=${width}">
@@ -441,13 +453,13 @@ ${photo ? `.ph-bg{background:none}.ph-bg img{width:100%;height:100%;object-fit:c
 <div class="card">
 <div class="bg"></div><div class="side"></div><div class="top"></div>
 <div class="hdr">
-<div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">Araç Galerisi</div></div>
+<div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">${isRealEstate ? 'Emlak' : 'Araç Galerisi'}</div></div>
 <div class="badge"><div class="badge-diamond"></div><div><div class="badge-text">AlhazenPDF</div><div class="badge-sub">Premium · PDF</div></div></div>
 </div>
 <div class="veh">
-<div class="type-tag"><div class="type-gem"></div><div class="type-txt">Satılık Araç</div></div>
-<div class="make">${marka}</div>
-<div class="model">${model}</div>
+<div class="type-tag"><div class="type-gem"></div><div class="type-txt">${isRealEstate ? ilanTuru + ' Emlak' : 'Satılık Araç'}</div></div>
+<div class="make">${isRealEstate ? (emlakTuru || '—') : marka}</div>
+<div class="model">${isRealEstate ? odaSayisi : model}</div>
 </div>
 <div class="pf">
 <div class="ph-bg">${photo ? `<img src="${photo}"/>` : `<span class="ph-txt">ARAÇ FOTOĞRAFI</span>`}</div>
@@ -457,11 +469,11 @@ ${photo ? `.ph-bg{background:none}.ph-bg img{width:100%;height:100%;object-fit:c
 </div>
 <div class="specs">
 <div class="spec-row">
-<div class="spec-item"><div class="spk">Motor</div><div class="spv hi">${motor}</div></div>
-<div class="spec-item"><div class="spk">Şanzıman</div><div class="spv">${sanziman}</div></div>
-<div class="spec-item"><div class="spk">Yakıt</div><div class="spv">${yakıt}</div></div>
-<div class="spec-item"><div class="spk">Kilometre</div><div class="spv hi">${km}</div></div>
-<div class="spec-item"><div class="spk">Renk</div><div class="spv">${renk}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'M²' : 'Motor'}</div><div class="spv hi">${isRealEstate ? (m2Brut || '—') : motor}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Oda' : 'Şanzıman'}</div><div class="spv">${isRealEstate ? (odaSayisi || '—') : sanziman}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Kat' : 'Yakıt'}</div><div class="spv">${isRealEstate ? (katNo || '—') : yakıt}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Bina Yaşı' : 'Kilometre'}</div><div class="spv hi">${isRealEstate ? (binaYasi || '—') : km}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'İlan Türü' : 'Renk'}</div><div class="spv">${isRealEstate ? ilanTuru : renk}</div></div>
 </div>
 </div>
 ${buildEkspertizSection(ekspertizData)}
@@ -479,7 +491,7 @@ ${buildEkspertizSection(ekspertizData)}
    7. KEHRİBAR / AMBER (Resin Theme)
    ═══════════════════════════════════════════════════════════════ */
 export const buildA4AmberHTML = (data) => {
-  const { width, height, marka, model, yil, motor, sanziman, yakıt, km, fiyat, telefon, renk, photo, companyName, ekspertizData } = parseVehicleData(data);
+  const { width, height, marka, model, yil, motor, sanziman, yakıt, km, fiyat, telefon, renk, photo, companyName, ekspertizData, isRealEstate, emlakTuru, ilanTuru, odaSayisi, m2Brut, binaYasi, katNo } = parseVehicleData(data);
 
   const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=${width}">
@@ -548,13 +560,13 @@ ${photo ? `.ph-bg{background:none}.ph-bg img{width:100%;height:100%;object-fit:c
 <div class="vein v1"></div><div class="vein v2"></div><div class="vein v3"></div>
 <div class="side"></div><div class="top"></div>
 <div class="hdr">
-<div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">Araç Galerisi</div></div>
+<div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">${isRealEstate ? 'Emlak' : 'Araç Galerisi'}</div></div>
 <div class="badge"><div class="badge-diamond"></div><div><div class="badge-text">AlhazenPDF</div><div class="badge-sub">Premium · PDF</div></div></div>
 </div>
 <div class="veh">
-<div class="type-tag"><div class="type-amber"></div><div class="type-txt">Satılık Araç</div></div>
-<div class="make">${marka}</div>
-<div class="model">${model}</div>
+<div class="type-tag"><div class="type-amber"></div><div class="type-txt">${isRealEstate ? ilanTuru + ' Emlak' : 'Satılık Araç'}</div></div>
+<div class="make">${isRealEstate ? (emlakTuru || '—') : marka}</div>
+<div class="model">${isRealEstate ? odaSayisi : model}</div>
 </div>
 <div class="pf">
 <div class="ph-bg">${photo ? `<img src="${photo}"/>` : `<span class="ph-txt">ARAÇ FOTOĞRAFI</span>`}</div>
@@ -564,11 +576,11 @@ ${photo ? `.ph-bg{background:none}.ph-bg img{width:100%;height:100%;object-fit:c
 </div>
 <div class="specs">
 <div class="spec-row">
-<div class="spec-item"><div class="spk">Motor</div><div class="spv hi">${motor}</div></div>
-<div class="spec-item"><div class="spk">Şanzıman</div><div class="spv">${sanziman}</div></div>
-<div class="spec-item"><div class="spk">Yakıt</div><div class="spv">${yakıt}</div></div>
-<div class="spec-item"><div class="spk">Kilometre</div><div class="spv hi">${km}</div></div>
-<div class="spec-item"><div class="spk">Renk</div><div class="spv">${renk}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'M²' : 'Motor'}</div><div class="spv hi">${isRealEstate ? (m2Brut || '—') : motor}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Oda' : 'Şanzıman'}</div><div class="spv">${isRealEstate ? (odaSayisi || '—') : sanziman}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Kat' : 'Yakıt'}</div><div class="spv">${isRealEstate ? (katNo || '—') : yakıt}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Bina Yaşı' : 'Kilometre'}</div><div class="spv hi">${isRealEstate ? (binaYasi || '—') : km}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'İlan Türü' : 'Renk'}</div><div class="spv">${isRealEstate ? ilanTuru : renk}</div></div>
 </div>
 </div>
 ${buildEkspertizSection(ekspertizData)}
@@ -586,7 +598,7 @@ ${buildEkspertizSection(ekspertizData)}
    8. OLTU TAŞ / OPAL (Black Opal Theme)
    ═══════════════════════════════════════════════════════════════ */
 export const buildA4OltuHTML = (data) => {
-  const { width, height, marka, model, yil, motor, sanziman, yakıt, km, fiyat, telefon, renk, photo, companyName, ekspertizData } = parseVehicleData(data);
+  const { width, height, marka, model, yil, motor, sanziman, yakıt, km, fiyat, telefon, renk, photo, companyName, ekspertizData, isRealEstate, emlakTuru, ilanTuru, odaSayisi, m2Brut, binaYasi, katNo } = parseVehicleData(data);
 
   const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=${width}">
@@ -654,13 +666,13 @@ ${photo ? `.ph-bg{background:none}.ph-bg img{width:100%;height:100%;object-fit:c
 <div class="opal-ray r1"></div><div class="opal-ray r2"></div>
 <div class="side"></div><div class="top"></div>
 <div class="hdr">
-<div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">Araç Galerisi</div></div>
+<div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">${isRealEstate ? 'Emlak' : 'Araç Galerisi'}</div></div>
 <div class="badge"><div class="badge-diamond"></div><div><div class="badge-text">AlhazenPDF</div><div class="badge-sub">Premium · PDF</div></div></div>
 </div>
 <div class="veh">
-<div class="type-tag"><div class="type-opal"></div><div class="type-txt">Satılık Araç</div></div>
-<div class="make">${marka}</div>
-<div class="model">${model}</div>
+<div class="type-tag"><div class="type-opal"></div><div class="type-txt">${isRealEstate ? ilanTuru + ' Emlak' : 'Satılık Araç'}</div></div>
+<div class="make">${isRealEstate ? (emlakTuru || '—') : marka}</div>
+<div class="model">${isRealEstate ? odaSayisi : model}</div>
 </div>
 <div class="pf">
 <div class="ph-bg">${photo ? `<img src="${photo}"/>` : `<span class="ph-txt">ARAÇ FOTOĞRAFI</span>`}</div>
@@ -670,11 +682,11 @@ ${photo ? `.ph-bg{background:none}.ph-bg img{width:100%;height:100%;object-fit:c
 </div>
 <div class="specs">
 <div class="spec-row">
-<div class="spec-item"><div class="spk">Motor</div><div class="spv hi">${motor}</div></div>
-<div class="spec-item"><div class="spk">Şanzıman</div><div class="spv">${sanziman}</div></div>
-<div class="spec-item"><div class="spk">Yakıt</div><div class="spv">${yakıt}</div></div>
-<div class="spec-item"><div class="spk">Kilometre</div><div class="spv hi">${km}</div></div>
-<div class="spec-item"><div class="spk">Renk</div><div class="spv">${renk}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'M²' : 'Motor'}</div><div class="spv hi">${isRealEstate ? (m2Brut || '—') : motor}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Oda' : 'Şanzıman'}</div><div class="spv">${isRealEstate ? (odaSayisi || '—') : sanziman}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Kat' : 'Yakıt'}</div><div class="spv">${isRealEstate ? (katNo || '—') : yakıt}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Bina Yaşı' : 'Kilometre'}</div><div class="spv hi">${isRealEstate ? (binaYasi || '—') : km}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'İlan Türü' : 'Renk'}</div><div class="spv">${isRealEstate ? ilanTuru : renk}</div></div>
 </div>
 </div>
 ${buildEkspertizSection(ekspertizData)}
@@ -692,7 +704,7 @@ ${buildEkspertizSection(ekspertizData)}
    9. VOLKAN / VOLCANIC (Lava Theme)
    ═══════════════════════════════════════════════════════════════ */
 export const buildA4VolkanHTML = (data) => {
-  const { width, height, marka, model, yil, motor, sanziman, yakıt, km, fiyat, telefon, renk, photo, companyName, ekspertizData } = parseVehicleData(data);
+  const { width, height, marka, model, yil, motor, sanziman, yakıt, km, fiyat, telefon, renk, photo, companyName, ekspertizData, isRealEstate, emlakTuru, ilanTuru, odaSayisi, m2Brut, binaYasi, katNo } = parseVehicleData(data);
 
   const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=${width}">
@@ -763,13 +775,13 @@ ${photo ? `.ph-bg{background:none}.ph-bg img{width:100%;height:100%;object-fit:c
 <div class="ash a1"></div><div class="ash a2"></div><div class="ash a3"></div>
 <div class="side"></div><div class="ash-top"></div><div class="lava-glow"></div>
 <div class="hdr">
-<div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">Araç Galerisi</div></div>
+<div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">${isRealEstate ? 'Emlak' : 'Araç Galerisi'}</div></div>
 <div class="badge"><div class="badge-diamond"></div><div><div class="badge-text">AlhazenPDF</div><div class="badge-sub">Premium · PDF</div></div></div>
 </div>
 <div class="veh">
-<div class="type-tag"><div class="type-ember"></div><div class="type-txt">Satılık Araç</div></div>
-<div class="make">${marka}</div>
-<div class="model">${model}</div>
+<div class="type-tag"><div class="type-ember"></div><div class="type-txt">${isRealEstate ? ilanTuru + ' Emlak' : 'Satılık Araç'}</div></div>
+<div class="make">${isRealEstate ? (emlakTuru || '—') : marka}</div>
+<div class="model">${isRealEstate ? odaSayisi : model}</div>
 </div>
 <div class="pf">
 <div class="ph-bg">${photo ? `<img src="${photo}"/>` : `<span class="ph-txt">ARAÇ FOTOĞRAFI</span>`}</div>
@@ -779,11 +791,11 @@ ${photo ? `.ph-bg{background:none}.ph-bg img{width:100%;height:100%;object-fit:c
 </div>
 <div class="specs">
 <div class="spec-row">
-<div class="spec-item"><div class="spk">Motor</div><div class="spv hi">${motor}</div></div>
-<div class="spec-item"><div class="spk">Şanzıman</div><div class="spv">${sanziman}</div></div>
-<div class="spec-item"><div class="spk">Yakıt</div><div class="spv">${yakıt}</div></div>
-<div class="spec-item"><div class="spk">Kilometre</div><div class="spv hi">${km}</div></div>
-<div class="spec-item"><div class="spk">Renk</div><div class="spv">${renk}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'M²' : 'Motor'}</div><div class="spv hi">${isRealEstate ? (m2Brut || '—') : motor}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Oda' : 'Şanzıman'}</div><div class="spv">${isRealEstate ? (odaSayisi || '—') : sanziman}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Kat' : 'Yakıt'}</div><div class="spv">${isRealEstate ? (katNo || '—') : yakıt}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Bina Yaşı' : 'Kilometre'}</div><div class="spv hi">${isRealEstate ? (binaYasi || '—') : km}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'İlan Türü' : 'Renk'}</div><div class="spv">${isRealEstate ? ilanTuru : renk}</div></div>
 </div>
 </div>
 ${buildEkspertizSection(ekspertizData)}
@@ -801,7 +813,7 @@ ${buildEkspertizSection(ekspertizData)}
    10. TARIHI / HISTORICAL (Historical Parchment Theme)
    ═══════════════════════════════════════════════════════════════ */
 export const buildA4TarihiHTML = (data) => {
-  const { width, height, marka, model, yil, motor, sanziman, yakıt, km, fiyat, telefon, renk, photo, companyName, ekspertizData } = parseVehicleData(data);
+  const { width, height, marka, model, yil, motor, sanziman, yakıt, km, fiyat, telefon, renk, photo, companyName, ekspertizData, isRealEstate, emlakTuru, ilanTuru, odaSayisi, m2Brut, binaYasi, katNo } = parseVehicleData(data);
 
   const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=${width}">
@@ -872,13 +884,13 @@ ${photo ? `.ph-bg{background:none;border:2px solid rgba(139,105,20,0.35)}.ph-bg 
 <div class="hc hc-tl"></div><div class="hc hc-tr"></div><div class="hc hc-bl"></div><div class="hc hc-br"></div>
 <div class="seal"><div class="seal-text">AL<br>HAZ</div></div>
 <div class="hdr">
-<div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">Araç Galerisi</div></div>
+<div><div class="brand">${companyName || 'Galeri'}</div><div class="brand-sub">${isRealEstate ? 'Emlak' : 'Araç Galerisi'}</div></div>
 <div class="badge"><div class="badge-text">AlhazenPDF</div><div class="badge-sub">Premium · PDF</div></div>
 </div>
 <div class="veh">
-<div class="type-tag"><div class="type-dec"></div><div class="type-txt">Satılık Araç</div></div>
-<div class="make">${marka}</div>
-<div class="model">${model}</div>
+<div class="type-tag"><div class="type-dec"></div><div class="type-txt">${isRealEstate ? ilanTuru + ' Emlak' : 'Satılık Araç'}</div></div>
+<div class="make">${isRealEstate ? (emlakTuru || '—') : marka}</div>
+<div class="model">${isRealEstate ? odaSayisi : model}</div>
 </div>
 <div class="pf">
 <div class="ph-bg">${photo ? `<img src="${photo}"/>` : `<span class="ph-txt">ARAÇ FOTOĞRAFI</span>`}</div>
@@ -888,11 +900,11 @@ ${photo ? `.ph-bg{background:none;border:2px solid rgba(139,105,20,0.35)}.ph-bg 
 </div>
 <div class="specs">
 <div class="spec-row">
-<div class="spec-item"><div class="spk">Motor</div><div class="spv hi">${motor}</div></div>
-<div class="spec-item"><div class="spk">Şanzıman</div><div class="spv">${sanziman}</div></div>
-<div class="spec-item"><div class="spk">Yakıt</div><div class="spv">${yakıt}</div></div>
-<div class="spec-item"><div class="spk">Kilometre</div><div class="spv hi">${km}</div></div>
-<div class="spec-item"><div class="spk">Renk</div><div class="spv">${renk}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'M²' : 'Motor'}</div><div class="spv hi">${isRealEstate ? (m2Brut || '—') : motor}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Oda' : 'Şanzıman'}</div><div class="spv">${isRealEstate ? (odaSayisi || '—') : sanziman}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Kat' : 'Yakıt'}</div><div class="spv">${isRealEstate ? (katNo || '—') : yakıt}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'Bina Yaşı' : 'Kilometre'}</div><div class="spv hi">${isRealEstate ? (binaYasi || '—') : km}</div></div>
+<div class="spec-item"><div class="spk">${isRealEstate ? 'İlan Türü' : 'Renk'}</div><div class="spv">${isRealEstate ? ilanTuru : renk}</div></div>
 </div>
 </div>
 ${buildEkspertizSection(ekspertizData)}

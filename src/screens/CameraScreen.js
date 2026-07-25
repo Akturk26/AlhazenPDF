@@ -4,8 +4,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from '../components/Icon';
 import { useTheme } from '../context/ThemeContext';
 import { getTheme } from '../themes/colors';
+
+const GOLD = '#C9A84C';
 
 const MAX_PHOTOS = 25;
 
@@ -63,14 +66,14 @@ function SortablePhotoItem({ item, index, total, dragFromIndex, dragToIndex, onD
       style={[
         { width: ITEM_SIZE, height: ITEM_SIZE, borderRadius: 12, overflow: 'hidden', position: 'relative' },
         isDragging && { opacity: 0.45, transform: [{ scale: 1.05 }] },
-        isTarget  && { borderWidth: 3, borderColor: '#4F6EF7', borderRadius: 12 },
+        isTarget  && { borderWidth: 3, borderColor: GOLD, borderRadius: 12 },
       ]}
       {...panResponder.panHandlers}
     >
       <Image source={{ uri: item.uri }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
 
       {/* Sıra numarası */}
-      <View style={{ position: 'absolute', bottom: 6, left: 6, width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.blue }}>
+      <View style={{ position: 'absolute', bottom: 6, left: 6, width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: GOLD }}>
         <Text style={{ fontSize: 10, fontWeight: '700', color: '#fff' }}>{index + 1}</Text>
       </View>
 
@@ -81,7 +84,7 @@ function SortablePhotoItem({ item, index, total, dragFromIndex, dragToIndex, onD
 
       {/* Düzenle butonu */}
       <TouchableOpacity
-        style={{ position: 'absolute', top: 6, right: 30, width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', zIndex: 3, backgroundColor: theme.blue, borderWidth: 2, borderColor: '#fff' }}
+        style={{ position: 'absolute', top: 6, right: 30, width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', zIndex: 3, backgroundColor: GOLD, borderWidth: 2, borderColor: '#fff' }}
         onPress={() => onEdit(item)}
         activeOpacity={0.8}
       >
@@ -99,7 +102,7 @@ function SortablePhotoItem({ item, index, total, dragFromIndex, dragToIndex, onD
 
       {/* Sürükleme vurgusu */}
       {isDragging && (
-        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(79,110,247,0.25)', borderWidth: 2, borderColor: '#4F6EF7', borderRadius: 12 }} pointerEvents="none" />
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(201,168,76,0.25)', borderWidth: 2, borderColor: GOLD, borderRadius: 12 }} pointerEvents="none" />
       )}
     </View>
   );
@@ -404,8 +407,7 @@ export default function CameraScreen({ route, navigation }) {
       setImages(updatedImages);
       setSelectedImage({ ...selectedImage, uri: manipResult.uri, ...newDimensions });
       Alert.alert('✓ Döndürüldü', `Fotoğraf ${degrees}° döndürüldü.`);
-    } catch (error) {
-      console.error('Rotate error:', error);
+    } catch {
       Alert.alert('Hata', 'Fotoğraf döndürülürken hata oluştu.');
     }
   };
@@ -498,8 +500,7 @@ export default function CameraScreen({ route, navigation }) {
       setImages(updatedImages);
       setSelectedImage({ ...selectedImage, uri: manipResult.uri, ...newDimensions });
       Alert.alert('✓ Kırpıldı', `Fotoğraf ${cropType} olarak kırpıldı.`);
-    } catch (error) {
-      console.error('Crop error:', error);
+    } catch {
       Alert.alert('Hata', 'Fotoğraf kırpılırken hata oluştu.');
     }
   };
@@ -536,7 +537,7 @@ export default function CameraScreen({ route, navigation }) {
           onPress={() => navigation.goBack()}
           style={[styles.navBack, { backgroundColor: theme.surface2, borderColor: theme.border }]}
         >
-          <Text style={[styles.navBackText, { color: theme.text }]}>←</Text>
+          <Icon name="arrow-left" size={18} color={theme.text} />
         </TouchableOpacity>
         <Text style={[styles.navTitle, { color: theme.text }]}>Fotoğraf Ekle</Text>
       </View>
@@ -549,12 +550,12 @@ export default function CameraScreen({ route, navigation }) {
           end={{ x: 1, y: 1 }}
           style={[styles.photoHero, { borderBottomColor: theme.border }]}
         >
-          <View style={[styles.heroGlow, { backgroundColor: isDark ? 'rgba(79,110,247,0.08)' : 'rgba(79,70,229,0.05)' }]} />
+          <View style={[styles.heroGlow, { backgroundColor: isDark ? 'rgba(201,168,76,0.06)' : 'rgba(201,168,76,0.04)' }]} />
           
           {/* Category Badge */}
-          <View style={[styles.photoCatBadge, { backgroundColor: theme.blueDim, borderColor: isDark ? 'rgba(79,110,247,0.2)' : 'rgba(79,70,229,0.2)' }]}>
-            <View style={[styles.photoCatDot, { backgroundColor: theme.blueLight }]} />
-            <Text style={[styles.photoCatLabel, { color: theme.blueLight }]}>{category.name}</Text>
+          <View style={[styles.photoCatBadge, { backgroundColor: 'rgba(201,168,76,0.12)', borderColor: 'rgba(201,168,76,0.3)' }]}>
+            <View style={[styles.photoCatDot, { backgroundColor: GOLD }]} />
+            <Text style={[styles.photoCatLabel, { color: GOLD }]}>{category.name}</Text>
           </View>
 
           <Text style={[styles.photoHeroTitle, { color: theme.text }]}>
@@ -575,7 +576,7 @@ export default function CameraScreen({ route, navigation }) {
               </View>
               <View style={[styles.progressLine, styles.progressLineDone, { backgroundColor: theme.green }]} />
               <View style={styles.progressStep}>
-                <View style={[styles.progressCircle, styles.progressCircleActive, { backgroundColor: theme.blue }]}>
+                <View style={[styles.progressCircle, styles.progressCircleActive, { backgroundColor: GOLD }]}>
                   <Text style={styles.progressCircleText}>2</Text>
                 </View>
                 <Text style={[styles.progressLabel, { color: theme.textSecondary }]}>Fotoğraf</Text>
@@ -606,16 +607,16 @@ export default function CameraScreen({ route, navigation }) {
               onPress={() => pickImage(true)}
               activeOpacity={0.75}
             >
-              <Text style={styles.uploadPillEmoji}>📷</Text>
+              <Icon name="camera-outline" size={18} color={theme.text} />
               <Text style={[styles.uploadPillLabel, { color: theme.text }]}>Kamera</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.uploadPill, styles.uploadPillPrimary, { backgroundColor: theme.blue }]}
+              style={[styles.uploadPill, styles.uploadPillPrimary, { backgroundColor: GOLD }]}
               onPress={() => pickImage(false)}
               activeOpacity={0.75}
             >
-              <Text style={styles.uploadPillEmoji}>🖼️</Text>
+              <Icon name="image-multiple-outline" size={18} color="#fff" />
               <Text style={[styles.uploadPillLabel, { color: '#fff' }]}>Galeriden Seç</Text>
             </TouchableOpacity>
           </View>
@@ -623,7 +624,7 @@ export default function CameraScreen({ route, navigation }) {
           {/* Sayaç + sırala — tek satır */}
           <View style={[styles.countRow, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             <Text style={[styles.countText, { color: theme.textSecondary }]}>
-              <Text style={[styles.countNum, { color: theme.blueLight }]}>{images.length}</Text>
+              <Text style={[styles.countNum, { color: GOLD }]}>{images.length}</Text>
               {'  /  '}{MAX_PHOTOS} fotoğraf
             </Text>
             {images.length > 1 && (
@@ -960,7 +961,7 @@ const styles = StyleSheet.create({
   },
   progressCircleDone: {},
   progressCircleActive: {
-    shadowColor: 'rgba(79,110,247,0.4)',
+    shadowColor: 'rgba(201,168,76,0.4)',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 12,

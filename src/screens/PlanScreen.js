@@ -1,22 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
-  StatusBar, Linking, ActivityIndicator,
+  StatusBar, Linking, ActivityIndicator, Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Purchases from 'react-native-purchases';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { getTheme } from '../themes/colors';
 import supabase from '../utils/supabaseClient';
 import { ACTIVE_CO_KEY } from './CompanySelectScreen';
 import Icon from '../components/Icon';
+import { usePremium } from '../context/PremiumContext';
 
+const PLAN_PACKAGES = {
+  bireysel: { monthly: '$rc_monthly',  yearly: '$rc_annual' },
+  solo:     { monthly: 'solo_aylik',   yearly: 'solo_yillik' },
+  takim:    { monthly: 'takim_aylik',  yearly: 'takim_yillik' },
+};
 const GOLD  = '#C9A84C';
 const NAVY  = '#0F172A';
 const NAVY2 = '#1A2744';
 
 const WA_GENEL = 'https://wa.me/905533069006?text=' + encodeURIComponent('Merhaba, AlhazenPDF hakkında bilgi almak istiyorum.');
+
+const BIREYSEL_PLAN = {
+  key: 'bireysel', name: 'Bireysel', color: '#7C6FE0', badge: 'Başlangıç',
+  features: [
+    { ok: true,  txt: '3 PDF / gün' },
+    { ok: true,  txt: 'Tüm PDF şablonları' },
+    { ok: true,  txt: 'Filigransız çıktı' },
+    { ok: false, txt: 'Bulut senkronizasyon' },
+    { ok: false, txt: 'Araç & Emlak modülleri' },
+    { ok: false, txt: 'Takım özelliği' },
+  ],
+};
 
 const GALERI_PLANS = [
   {
@@ -31,6 +50,7 @@ const GALERI_PLANS = [
       { ok: false, txt: 'Takım özelliği' },
     ],
   },
+  BIREYSEL_PLAN,
   {
     key: 'solo', name: 'Galeri Solo', price: '₺300', sub: '/ ay', color: GOLD, badge: 'Popüler',
     features: [
@@ -67,6 +87,7 @@ const SERVIS_PLANS = [
       { ok: false, txt: 'Takım özelliği' },
     ],
   },
+  BIREYSEL_PLAN,
   {
     key: 'solo', name: 'Servis Solo', price: '₺200', sub: '/ ay', color: GOLD, badge: 'Popüler',
     features: [
@@ -103,6 +124,7 @@ const EMLAK_PLANS = [
       { ok: false, txt: 'Takım özelliği' },
     ],
   },
+  BIREYSEL_PLAN,
   {
     key: 'solo', name: 'Emlak Solo', price: '₺300', sub: '/ ay', color: '#B45309', badge: 'Popüler',
     features: [
@@ -136,9 +158,12 @@ export default function PlanScreen({ navigation }) {
   const { isDark } = useTheme();
   const theme = getTheme(isDark);
   const insets = useSafeAreaInsets();
+  const { onPurchaseSuccess, premiumTier } = usePremium();
 
-  const [company, setCompany] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [company, setCompany]     = useState(null);
+  const [loading, setLoading]     = useState(true);
+  const [packages, setPackages]   = useState({});
+  const [purchasing, setPurchasing] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -154,20 +179,51 @@ export default function PlanScreen({ navigation }) {
       } catch {}
       setLoading(false);
     })();
+
+    (async () => {
+      try {
+        const offerings = await Purchases.getOfferings();
+        const map = {};
+        for (const key of Object.keys(offerings.all ?? {})) {
+          for (const p of (offerings.all[key].availablePackages ?? [])) {
+            map[p.identifier] = p;
+            if (p.product?.identifier) map[p.product.identifier] = p;
+          }
+        }
+        setPackages(map);
+      } catch {}
+    })();
   }, []);
+
+  const handlePurchase = async (planKey, period) => {
+    const pkgId = PLAN_PACKAGES[planKey]?.[period];
+    const pkg = packages[pkgId];
+    if (!pkg) { Alert.alert('Hata', 'Ürün yüklenemedi, tekrar deneyin.'); return; }
+    setPurchasing(`${planKey}_${period}`);
+    try {
+      await Purchases.purchasePackage(pkg);
+      await onPurchaseSuccess();
+      navigation.goBack();
+    } catch (e) {
+      if (!e.userCancelled) Alert.alert('Hata', 'Satın alma başarısız. Tekrar deneyin.');
+    }
+    setPurchasing(null);
+  };
 
   const companyType = company?.type || 'galeri';
   const plans = companyType === 'teknik_servis' ? SERVIS_PLANS : companyType === 'emlak' ? EMLAK_PLANS : GALERI_PLANS;
   const currentPlan = company?.plan || 'free';
   const kalan = company ? trialKalan(company.trial_ends_at) : 0;
   const trialAktif = currentPlan === 'free' && kalan > 0;
-  const trialBitti = currentPlan === 'free' && kalan === 0 && !!company;
+  // Deneme süresi doldu: ancak gerçekten trial_ends_at varsa göster (trial almamış free kullanıcıyı etkileme)
+  const trialBitti = currentPlan === 'free' && kalan === 0 && !!company?.trial_ends_at;
 
   const typeLabel = companyType === 'teknik_servis' ? 'Teknik Servis' : companyType === 'emlak' ? 'Emlak' : 'Galeri';
 
   function bannerColor() {
     if (trialAktif) return GOLD;
     if (trialBitti) return '#EF4444';
+    if (currentPlan === 'bireysel' || premiumTier === 'bireysel') return '#7C6FE0';
     if (currentPlan === 'solo')  return GOLD;
     if (currentPlan === 'takim') return '#059669';
     return '#6B7280';
@@ -177,12 +233,11 @@ export default function PlanScreen({ navigation }) {
     if (!company) return null;
     if (trialAktif) return `Deneme Süresi — ${kalan} gün kaldı`;
     if (trialBitti) return 'Deneme Süreniz Doldu';
+    if (currentPlan === 'bireysel' || premiumTier === 'bireysel') return 'Bireysel Premium — Aktif';
     if (currentPlan === 'solo')  return `${typeLabel} Solo — Aktif`;
     if (currentPlan === 'takim') return `${typeLabel} Takım — Aktif`;
     return null;
   }
-
-  const basvuruUrl = 'https://alhazenpdf.com/basvuru';
 
   const bc = bannerColor();
   const bt = bannerText();
@@ -229,7 +284,9 @@ export default function PlanScreen({ navigation }) {
 
           <View style={styles.planList}>
             {plans.map(plan => {
-              const isActive = currentPlan === plan.key;
+              const isActive = plan.key === 'bireysel'
+                ? premiumTier === 'bireysel'
+                : currentPlan === plan.key;
               return (
                 <View key={plan.key} style={[styles.planCard, {
                   backgroundColor: theme.surface,
@@ -269,14 +326,30 @@ export default function PlanScreen({ navigation }) {
                   ))}
 
                   {!isActive && plan.key !== 'free' && (
-                    <TouchableOpacity
-                      style={styles.upgradeBtn}
-                      onPress={() => Linking.openURL(basvuruUrl)}
-                      activeOpacity={0.85}
-                    >
-                      <Icon name="web" size={18} color="#fff" style={{ marginRight: 8 }} />
-                      <Text style={styles.upgradeBtnTxt}>alhazenpdf.com'dan Başvur</Text>
-                    </TouchableOpacity>
+                    <View style={styles.purchaseRow}>
+                      <TouchableOpacity
+                        style={[styles.upgradeBtn, { flex: 1, backgroundColor: plan.color, opacity: purchasing ? 0.6 : 1 }]}
+                        onPress={() => handlePurchase(plan.key, 'monthly')}
+                        disabled={!!purchasing}
+                        activeOpacity={0.85}
+                      >
+                        {purchasing === `${plan.key}_monthly`
+                          ? <ActivityIndicator color="#fff" />
+                          : <Text style={styles.upgradeBtnTxt}>Aylık</Text>
+                        }
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.upgradeBtn, { flex: 1.5, backgroundColor: plan.color, opacity: purchasing ? 0.6 : 1 }]}
+                        onPress={() => handlePurchase(plan.key, 'yearly')}
+                        disabled={!!purchasing}
+                        activeOpacity={0.85}
+                      >
+                        {purchasing === `${plan.key}_yearly`
+                          ? <ActivityIndicator color="#fff" />
+                          : <Text style={styles.upgradeBtnTxt}>Yıllık · 2 Ay Bedava</Text>
+                        }
+                      </TouchableOpacity>
+                    </View>
                   )}
                 </View>
               );
@@ -284,9 +357,9 @@ export default function PlanScreen({ navigation }) {
           </View>
 
           <View style={[styles.footerBox, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            <Text style={[styles.footerTitle, { color: theme.text }]}>Plan yükseltme & sorular</Text>
+            <Text style={[styles.footerTitle, { color: theme.text }]}>Yardım & Destek</Text>
             <Text style={[styles.footerSub, { color: theme.textSecondary }]}>
-              Plan yükseltmek veya yıllık fiyatlandırma için bizimle iletişime geçin.
+              Teknik destek veya sorularınız için 7/24 WhatsApp hattımızdan ulaşabilirsiniz.
             </Text>
             <TouchableOpacity
               style={styles.contactBtn}
@@ -294,7 +367,7 @@ export default function PlanScreen({ navigation }) {
               activeOpacity={0.8}
             >
               <Icon name="whatsapp" size={16} color="#fff" style={{ marginRight: 6 }} />
-              <Text style={styles.contactBtnTxt}>WhatsApp: 0553 306 90 06</Text>
+              <Text style={styles.contactBtnTxt}>Destek Hattı: 0553 306 90 06</Text>
             </TouchableOpacity>
           </View>
 
@@ -332,8 +405,9 @@ const styles = StyleSheet.create({
   divider: { height: 1, marginVertical: 6 },
   featureRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 2 },
   featureTxt: { fontSize: 13, fontWeight: '500', flex: 1 },
-  upgradeBtn: { marginTop: 12, borderRadius: 12, paddingVertical: 14, alignItems: 'center', backgroundColor: '#25D366', flexDirection: 'row', justifyContent: 'center' },
-  upgradeBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  purchaseRow: { flexDirection: 'row', gap: 8, marginTop: 12 },
+  upgradeBtn: { borderRadius: 12, paddingVertical: 14, alignItems: 'center', justifyContent: 'center' },
+  upgradeBtnTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },
 
   footerBox: { margin: 16, marginTop: 20, borderRadius: 16, borderWidth: 1, padding: 18, gap: 6 },
   footerTitle: { fontSize: 14, fontWeight: '700' },

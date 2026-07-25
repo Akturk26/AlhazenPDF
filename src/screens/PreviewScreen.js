@@ -4,11 +4,16 @@ import {
   Alert, ActivityIndicator, Animated,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from '../components/Icon';
+import { usePremium } from '../context/PremiumContext';
 import * as Sharing from 'expo-sharing';
+
+const GOLD = '#C9A84C';
+import { shareToWhatsApp } from '../utils/whatsappShare';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { generatePDF } from '../pdf/generatePDF';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { getTheme } from '../themes/colors';
 import { trackPDFGeneration } from '../utils/analytics';
@@ -22,6 +27,7 @@ const THEME_MAP = {
 
 export default function PreviewScreen({ route, navigation }) {
   const { category, images, formData, template, logo, companyName } = route.params;
+  const { gate } = usePremium();
   const [status, setStatus]       = useState('generating'); // 'generating' | 'ready' | 'error'
   const [pdfUri, setPdfUri]       = useState(null);
   const [fileSize, setFileSize]   = useState(null);
@@ -30,6 +36,7 @@ export default function PreviewScreen({ route, navigation }) {
   const readyAnim                 = useRef(new Animated.Value(0)).current;
   const { isDark } = useTheme();
   const theme = getTheme(isDark);
+  const insets = useSafeAreaInsets();
 
   const filledFields = Object.entries(formData).filter(
     ([, v]) => v && !Array.isArray(v) && typeof v !== 'object' && String(v).trim()
@@ -41,7 +48,10 @@ export default function PreviewScreen({ route, navigation }) {
 
   // Ekran açılır açılmaz PDF üretimi başlasın
   useEffect(() => {
-    generatePDFInBackground();
+    gate().then(allowed => {
+      if (allowed) generatePDFInBackground();
+      else navigation.goBack();
+    });
     return () => { setPdfUri(null); };
   }, []);
 
@@ -123,8 +133,7 @@ export default function PreviewScreen({ route, navigation }) {
         toValue: 1, useNativeDriver: true, tension: 80, friction: 7,
       }).start();
 
-    } catch (error) {
-      console.error('❌ PDF Hatası:', error);
+    } catch {
       setStatus('error');
     }
   };
@@ -192,11 +201,14 @@ export default function PreviewScreen({ route, navigation }) {
         <LinearGradient
           colors={[template.color, template.color + 'BB']}
           start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-          style={styles.header}
+          style={[styles.header, { paddingTop: insets.top + 14 }]}
         >
           <View style={styles.headerTop}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBackBtn}>
+              <Icon name="arrow-left" size={18} color="#fff" />
+            </TouchableOpacity>
             <View style={styles.headerIcon}>
-              <Ionicons name="document-text" size={26} color="#fff" />
+              <Icon name="file-document-outline" size={22} color="#fff" />
             </View>
             <View style={styles.headerInfo}>
               <Text style={styles.headerTitle}>{template.name} Teması</Text>
@@ -204,7 +216,8 @@ export default function PreviewScreen({ route, navigation }) {
             </View>
             {status === 'ready' && (
               <Animated.View style={[styles.readyBadge, { transform: [{ scale: readyAnim }] }]}>
-                <Text style={styles.readyText}>✓ Hazır</Text>
+                <Icon name="check" size={11} color="#fff" />
+                <Text style={styles.readyText}>Hazır</Text>
               </Animated.View>
             )}
           </View>
@@ -257,7 +270,7 @@ export default function PreviewScreen({ route, navigation }) {
             <Animated.View style={{ opacity: readyAnim, transform: [{ translateY: readyAnim.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }] }}>
               <View style={[styles.readyCard, { backgroundColor: template.color + '14', borderColor: template.color + '40' }]}>
                 <View style={[styles.readyIconWrap, { backgroundColor: template.color }]}>
-                  <Ionicons name="checkmark" size={22} color="#fff" />
+                  <Icon name="check" size={22} color="#fff" />
                 </View>
                 <View style={styles.readyInfo}>
                   <Text style={[styles.readyCardTitle, { color: theme.text }]}>PDF Hazır!</Text>
@@ -271,7 +284,7 @@ export default function PreviewScreen({ route, navigation }) {
 
           {status === 'error' && (
             <View style={[styles.statusCard, { backgroundColor: '#FFF0F0', borderColor: '#FFD0D0' }]}>
-              <Text style={{ fontSize: 36 }}>⚠️</Text>
+              <Icon name="alert-circle-outline" size={44} color="#C00" />
               <Text style={[styles.statusTitle, { color: '#C00' }]}>PDF Oluşturulamadı</Text>
               <Text style={[styles.statusSub, { color: '#900' }]}>Fotoğrafları kontrol edip tekrar deneyin.</Text>
               <TouchableOpacity
@@ -313,8 +326,8 @@ export default function PreviewScreen({ route, navigation }) {
           disabled={status !== 'ready'}
           activeOpacity={0.8}
         >
-          <Ionicons name="eye-outline" size={18} color={theme.blue} />
-          <Text style={[styles.btnSecText, { color: theme.blue }]}>Aç</Text>
+          <Icon name="eye-outline" size={18} color={GOLD} />
+          <Text style={[styles.btnSecText, { color: GOLD }]}>Aç</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -330,18 +343,39 @@ export default function PreviewScreen({ route, navigation }) {
           >
             {status === 'generating'
               ? <><ActivityIndicator color="#fff" size="small" /><Text style={styles.btnPriText}>Hazırlanıyor...</Text></>
-              : <><Ionicons name="share-social" size={18} color="#fff" /><Text style={styles.btnPriText}>PDF Paylaş</Text></>
+              : <><Icon name="share-variant" size={18} color="#fff" /><Text style={styles.btnPriText}>PDF Paylaş</Text></>
             }
           </LinearGradient>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.btnWhatsApp, { opacity: status === 'ready' ? 1 : 0.4 }]}
+          onPress={() => shareToWhatsApp(pdfUri)}
+          disabled={status !== 'ready'}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.btnWhatsAppTxt}>WA</Text>
+        </TouchableOpacity>
       </View>
 
-      <TouchableOpacity
-        style={[styles.homeLink, { backgroundColor: theme.bg }]}
-        onPress={() => navigation.navigate('Home')}
-      >
-        <Text style={[styles.homeLinkText, { color: theme.textSecondary }]}>← Ana Sayfaya Dön</Text>
-      </TouchableOpacity>
+      <View style={[styles.secondaryRow, { backgroundColor: theme.bg, paddingBottom: insets.bottom + 12 }]}>
+        <TouchableOpacity
+          style={[styles.secondaryBtn, { backgroundColor: theme.surface2, borderColor: theme.border }]}
+          onPress={() => navigation.navigate('Home')}
+          activeOpacity={0.8}
+        >
+          <Icon name="home-outline" size={16} color={theme.textSecondary} />
+          <Text style={[styles.secondaryBtnTxt, { color: theme.textSecondary }]}>Ana Sayfa</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.secondaryBtn, { backgroundColor: theme.surface2, borderColor: theme.border }]}
+          onPress={() => navigation.navigate('Category', { mode: 'pdf' })}
+          activeOpacity={0.8}
+        >
+          <Icon name="plus-circle-outline" size={16} color={GOLD} />
+          <Text style={[styles.secondaryBtnTxt, { color: GOLD }]}>Yeni PDF</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -350,19 +384,25 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { flex: 1 },
 
-  header: { paddingTop: 28, paddingBottom: 20, paddingHorizontal: 20, gap: 16 },
-  headerTop: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  header: { paddingBottom: 20, paddingHorizontal: 16, gap: 16 },
+  headerTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  headerBackBtn: {
+    width: 34, height: 34, borderRadius: 10,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
   headerIcon: {
-    width: 46, height: 46, borderRadius: 13,
+    width: 38, height: 38, borderRadius: 11,
     backgroundColor: 'rgba(255,255,255,0.2)',
-    alignItems: 'center', justifyContent: 'center',
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
   headerInfo: { flex: 1 },
-  headerTitle: { fontSize: 17, fontWeight: '800', color: '#fff', letterSpacing: -0.3 },
-  headerSub: { fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 2 },
+  headerTitle: { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: -0.3 },
+  headerSub: { fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 2 },
   readyBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
     backgroundColor: 'rgba(255,255,255,0.25)',
-    paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8,
+    paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8,
   },
   readyText: { fontSize: 11, fontWeight: '700', color: '#fff' },
 
@@ -439,7 +479,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center', gap: 8, padding: 14,
   },
   btnPriText: { fontSize: 14, fontWeight: '700', color: '#fff' },
+  btnWhatsApp: {
+    width: 50, height: 50, borderRadius: 14,
+    backgroundColor: '#25D366',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  btnWhatsAppTxt: { fontSize: 11, fontWeight: '800', color: '#fff', letterSpacing: 0.5 },
 
-  homeLink: { alignItems: 'center', paddingVertical: 12, paddingBottom: 24 },
-  homeLinkText: { fontSize: 13 },
+  secondaryRow: {
+    flexDirection: 'row', gap: 10,
+    paddingHorizontal: 16, paddingTop: 0, paddingBottom: 24,
+  },
+  secondaryBtn: {
+    flex: 1, borderRadius: 12, borderWidth: 1,
+    paddingVertical: 12, alignItems: 'center', justifyContent: 'center',
+    flexDirection: 'row', gap: 6,
+  },
+  secondaryBtnTxt: { fontSize: 13, fontWeight: '600' },
 });

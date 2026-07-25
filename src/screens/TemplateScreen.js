@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { getTheme } from '../themes/colors';
+import Icon from '../components/Icon';
 
 const TEMPLATES = [
   {
@@ -151,6 +153,7 @@ export default function TemplateScreen({ route, navigation }) {
   const [selected, setSelected] = useState(null);
   const { isDark } = useTheme();
   const theme = getTheme(isDark);
+  const insets = useSafeAreaInsets();
 
   const handleContinue = () => {
     if (!selected) return;
@@ -162,16 +165,19 @@ export default function TemplateScreen({ route, navigation }) {
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={theme.bg} />
 
       {/* Nav */}
-      <View style={[styles.nav, { borderBottomColor: theme.border }]}>
+      <View style={[styles.nav, { borderBottomColor: theme.border, paddingTop: insets.top + 12 }]}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={[styles.backBtn, { backgroundColor: theme.surface2, borderColor: theme.border }]}
         >
-          <Text style={[styles.backText, { color: theme.text }]}>←</Text>
+          <Icon name="arrow-left" size={18} color={theme.text} />
         </TouchableOpacity>
-        <View>
+        <View style={{ flex: 1 }}>
           <Text style={[styles.navTitle, { color: theme.text }]}>Tema Seçin</Text>
           <Text style={[styles.navSub, { color: theme.textSecondary }]}>9 profesyonel tema</Text>
+        </View>
+        <View style={styles.stepChip}>
+          <Text style={styles.stepTxt}>2 / 3</Text>
         </View>
       </View>
 
@@ -210,7 +216,7 @@ export default function TemplateScreen({ route, navigation }) {
                   )}
                 </View>
                 <Text style={[styles.cardSub, { color: theme.textSecondary }]}>
-                  {tmpl.thumb.serif ? 'Serif · Klasik tipografi' : 'Sans-serif · Modern tipografi'}
+                  {tmpl.thumb.serif ? 'Zarif · Klasik yazı stili' : 'Sade · Modern yazı stili'}
                 </Text>
               </View>
 
@@ -227,9 +233,12 @@ export default function TemplateScreen({ route, navigation }) {
         })}
 
         <View style={[styles.infoBox, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-          <Text style={[styles.infoBoxText, { color: theme.textSecondary }]}>
-            💡{'  '}<Text style={{ fontWeight: '600', color: theme.text }}>Çok Sayfalı</Text>{' '}temalar 4–25 fotoğrafla birden fazla sayfa oluşturur.
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+            <Icon name="information-outline" size={16} color="#C9A84C" style={{ marginTop: 1 }} />
+            <Text style={[styles.infoBoxText, { color: theme.textSecondary, flex: 1 }]}>
+              <Text style={{ fontWeight: '600', color: theme.text }}>Çok Sayfalı</Text>{' '}temalar 4–25 fotoğrafla birden fazla sayfa oluşturur.
+            </Text>
+          </View>
         </View>
 
         <View style={{ height: 100 }} />
@@ -271,6 +280,11 @@ const styles = StyleSheet.create({
   backText: { fontSize: 16 },
   navTitle: { fontSize: 17, fontWeight: '700', letterSpacing: -0.3 },
   navSub: { fontSize: 11, marginTop: 1 },
+  stepChip: {
+    paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8,
+    backgroundColor: 'rgba(201,168,76,0.12)', borderWidth: 1, borderColor: 'rgba(201,168,76,0.25)',
+  },
+  stepTxt: { fontSize: 11, fontWeight: '700', color: '#C9A84C' },
 
   scroll: { flex: 1 },
   list: { padding: 16, gap: 10 },

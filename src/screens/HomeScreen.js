@@ -164,14 +164,6 @@ export default function HomeScreen({ navigation }) {
               <Text style={[styles.statChipBold, { color: isDark ? '#f0f2f8' : '#0F172A' }]}>{totalCount}</Text>
               <Text style={styles.statChipText}>belge</Text>
             </View>
-            <TouchableOpacity
-              style={[styles.statChip, { backgroundColor: isDark ? '#1e2330' : '#FFF8E1', borderColor: isDark ? 'rgba(201,168,76,0.2)' : 'rgba(201,168,76,0.3)' }]}
-              onPress={() => navigation.navigate('Settings')}
-              activeOpacity={0.7}
-            >
-              <Icon name="star-four-points" size={12} color="#C9A84C" />
-              <Text style={[styles.statChipBold, { color: '#C9A84C', fontSize: 11 }]}>Premium</Text>
-            </TouchableOpacity>
           </View>
         </View>
 

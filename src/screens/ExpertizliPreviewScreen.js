@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  StatusBar, Alert, ActivityIndicator, Dimensions, Modal,
+  StatusBar, Alert, ActivityIndicator, Modal,
 } from 'react-native';
 import Icon from '../components/Icon';
+import { usePremium } from '../context/PremiumContext';
 import { WebView } from 'react-native-webview';
 import ViewShot from 'react-native-view-shot';
 import * as Print from 'expo-print';
@@ -12,8 +13,6 @@ import { shareToWhatsApp } from '../utils/whatsappShare';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system/legacy';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '../context/ThemeContext';
-import { getTheme } from '../themes/colors';
 import {
   buildSaldaKorsanHTML,
   buildKozmikMukarnasHTML,
@@ -23,8 +22,6 @@ import {
   buildIznikCiniHTML,
 } from '../pdf/expertizCards';
 import { trackPDFGeneration } from '../utils/analytics';
-
-const { width: SCREEN_W } = Dimensions.get('window');
 
 const BUILDERS = {
   'salda-korsan':      buildSaldaKorsanHTML,
@@ -37,9 +34,8 @@ const BUILDERS = {
 
 export default function ExpertizliPreviewScreen({ route, navigation }) {
   const { formData = {}, companyName = '', donanim = [], tramer = true, ekspertizData = {}, photos = [], templateKey = 'salda-korsan' } = route.params || {};
-  const { isDark } = useTheme();
-  const theme = getTheme(isDark);
   const insets = useSafeAreaInsets();
+  const { gate } = usePremium();
 
   const [previewHtml, setPreviewHtml] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -82,6 +78,7 @@ export default function ExpertizliPreviewScreen({ route, navigation }) {
   };
 
   const handleGeneratePDF = async () => {
+    if (!(await gate())) return;
     try {
       setIsGenerating(true);
       const html = await buildHtml();
@@ -122,6 +119,7 @@ export default function ExpertizliPreviewScreen({ route, navigation }) {
   };
 
   const handleSaveImage = async () => {
+    if (!(await gate())) return;
     try {
       setIsGenerating(true);
       const html = await buildHtml();
@@ -223,52 +221,58 @@ export default function ExpertizliPreviewScreen({ route, navigation }) {
       </View>
 
       {/* Bottom bar */}
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 16 }]}>
+
+        {/* Yenile */}
         <TouchableOpacity
-          style={[styles.previewBtn, { borderColor: 'rgba(196,160,32,0.4)' }]}
+          style={styles.iconBtn}
           onPress={buildPreview}
           disabled={isLoading}
         >
-          <Icon name="refresh" size={18} color="#C4A020" />
+          <Icon name="refresh" size={18} color="rgba(255,255,255,0.45)" />
         </TouchableOpacity>
 
+        {/* PDF Oluştur → hazır olunca Paylaş */}
         <TouchableOpacity
-          style={[styles.generateBtn, isGenerating && { opacity: 0.6 }]}
-          onPress={handleGeneratePDF}
+          style={[styles.pdfBtn, (isGenerating && !captureVisible) && { opacity: 0.6 }]}
+          onPress={pdfUri ? () => handleShare() : handleGeneratePDF}
           disabled={isGenerating}
           activeOpacity={0.85}
         >
-          {isGenerating ? (
+          {isGenerating && !captureVisible ? (
             <ActivityIndicator color="#0E1E2A" size="small" />
           ) : (
-            <Text style={styles.generateBtnTxt}>PDF Oluştur</Text>
+            <>
+              <Icon name={pdfUri ? 'share-variant' : 'file-document-outline'} size={17} color="#0E1E2A" />
+              <Text style={styles.pdfBtnTxt}>{pdfUri ? 'PDF Paylaş' : 'PDF Oluştur'}</Text>
+            </>
           )}
         </TouchableOpacity>
 
+        {/* WhatsApp (PDF hazır olunca) */}
         {pdfUri && (
-          <TouchableOpacity
-            style={[styles.shareBtn, { borderColor: 'rgba(196,160,32,0.4)' }]}
-            onPress={() => handleShare()}
-          >
-            <Icon name="share-variant" size={18} color="#C4A020" />
+          <TouchableOpacity style={styles.waBtn} onPress={() => shareToWhatsApp(pdfUri)}>
+            <Icon name="whatsapp" size={18} color="#fff" />
           </TouchableOpacity>
         )}
-        {pdfUri && (
-          <TouchableOpacity
-            style={styles.whatsappBtn}
-            onPress={() => shareToWhatsApp(pdfUri)}
-          >
-            <Icon name="whatsapp" size={18} color="#25D366" />
-          </TouchableOpacity>
-        )}
+
+        {/* Görsel Kaydet */}
         <TouchableOpacity
-          style={[styles.imageBtn, isGenerating && { opacity: 0.6 }]}
+          style={[styles.imageBtn, (isGenerating && captureVisible) && { opacity: 0.6 }]}
           onPress={handleSaveImage}
           disabled={isGenerating}
           activeOpacity={0.85}
         >
-          <Icon name="image-outline" size={18} color="#C4A020" />
+          {isGenerating && captureVisible ? (
+            <ActivityIndicator color="#C4A020" size="small" />
+          ) : (
+            <>
+              <Icon name="image-outline" size={16} color="#C4A020" />
+              <Text style={styles.imageBtnTxt}>Görsel</Text>
+            </>
+          )}
         </TouchableOpacity>
+
       </View>
 
       {/* Capture Modal */}
@@ -320,35 +324,30 @@ const styles = StyleSheet.create({
   loadingTxt: { color: 'rgba(242,237,212,0.4)', fontSize: 13 },
 
   bottomBar: {
-    flexDirection: 'row', gap: 10, padding: 16,
+    flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingTop: 14,
     borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.08)',
-    backgroundColor: '#0E1E2A',
+    backgroundColor: '#0E1E2A', alignItems: 'center',
   },
-  previewBtn: {
-    flex: 1, borderRadius: 12, borderWidth: 1,
-    paddingVertical: 14, alignItems: 'center', justifyContent: 'center',
+  iconBtn: {
+    width: 46, height: 46, borderRadius: 12, borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+    alignItems: 'center', justifyContent: 'center',
   },
-  previewBtnTxt: { fontSize: 14, fontWeight: '700' },
-  generateBtn: {
-    flex: 2, borderRadius: 12,
-    paddingVertical: 14, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#C4A020',
+  pdfBtn: {
+    flex: 1, height: 46, borderRadius: 12, backgroundColor: '#C4A020',
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7,
   },
-  generateBtnTxt: { color: '#0E1E2A', fontSize: 14, fontWeight: '800', letterSpacing: 0.3 },
-  shareBtn: {
-    flex: 1, borderRadius: 12, borderWidth: 1,
-    paddingVertical: 14, alignItems: 'center', justifyContent: 'center',
+  pdfBtnTxt: { color: '#0E1E2A', fontSize: 14, fontWeight: '800', letterSpacing: 0.2 },
+  waBtn: {
+    width: 46, height: 46, borderRadius: 12, backgroundColor: '#25D366',
+    alignItems: 'center', justifyContent: 'center',
   },
   imageBtn: {
-    width: 48, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(196,160,32,0.4)',
-    paddingVertical: 14, alignItems: 'center', justifyContent: 'center',
+    height: 46, paddingHorizontal: 14, borderRadius: 12,
+    borderWidth: 1, borderColor: 'rgba(196,160,32,0.4)',
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5,
   },
-  imageBtnTxt: { fontSize: 20 },
-  whatsappBtn: {
-    width: 48, borderRadius: 12, backgroundColor: '#25D366',
-    paddingVertical: 14, alignItems: 'center', justifyContent: 'center',
-  },
-  whatsappBtnTxt: { fontSize: 11, fontWeight: '800', color: '#fff', letterSpacing: 0.5 },
+  imageBtnTxt: { color: '#C4A020', fontSize: 13, fontWeight: '700' },
   captureModal: {
     position: 'absolute', top: -2000, left: 0,
     width: 595, height: 842,

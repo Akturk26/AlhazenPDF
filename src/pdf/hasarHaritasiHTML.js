@@ -569,8 +569,6 @@ function save() {
   const json = JSON.stringify(result);
   if (window.ReactNativeWebView) {
     window.ReactNativeWebView.postMessage(json);
-  } else {
-    console.log('Ekspertiz data:', json);
   }
 }
 

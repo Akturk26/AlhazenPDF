@@ -2860,7 +2860,7 @@ export const buildMultiPageHTML = (data, theme) => {
     };
     const cell = (p) => `<div style="overflow:hidden;background:${bgColor};min-height:0;min-width:0;"><img src="${p.src}" loading="eager" style="${cellImgStyle(p)}"></div>`;
     const grid = (cols, rows, extra = '', content = '') =>
-      `<div style="display:grid;grid-template-columns:${cols};grid-template-rows:${rows};gap:5px;width:100%;height:100%;${extra}">${content}</div>`;
+      `<div style="display:grid;grid-template-columns:${cols};grid-template-rows:${rows};gap:0;width:100%;height:100%;${extra}">${content}</div>`;
 
     if (n === 1) {
       return grid('1fr', '1fr', '', cell(photoArr[0]));
@@ -2911,8 +2911,8 @@ export const buildMultiPageHTML = (data, theme) => {
       );
     }
 
-    // 6 photos: 3×2 grid
-    return grid('1fr 1fr 1fr', '1fr 1fr', '', photoArr.map(cell).join(''));
+    // 6 photos: 2×3 grid
+    return grid('1fr 1fr', '1fr 1fr 1fr', '', photoArr.map(cell).join(''));
   };
 
   // ═══════════════════════════════════════════════════════
@@ -3721,8 +3721,9 @@ export const buildCVHTML = (data) => {
   const phone     = formData['Telefon']      || '';
   const email     = formData['Email']        || '';
   const address   = formData['Adres']        || '';
-  const linkedin  = formData['LinkedIn']     || '';
-  const about     = formData['Açıklama']     || '';
+  const linkedin   = formData['LinkedIn']       || '';
+  const about      = formData['Açıklama']      || '';
+  const education  = formData['Eğitim Seviyesi'] || '';
 
   const workHistory = Array.isArray(formData['İş Geçmişi'])    ? formData['İş Geçmişi']    : [];
   const skills      = Array.isArray(formData['Beceriler'])      ? formData['Beceriler']      : [];
@@ -3806,12 +3807,13 @@ export const buildCVHTML = (data) => {
     </div>`;
 
   const infoItems = [
-    companyName && { k: 'Sunulan Şirket', v: companyName },
-    phone       && { k: 'Telefon',        v: phone },
-    email       && { k: 'E-posta',        v: email },
-    birthDate   && { k: 'Doğum Tarihi',   v: birthDate },
-    address     && { k: 'Adres',          v: address },
-    linkedin    && { k: 'LinkedIn',       v: linkedin },
+    companyName && { k: 'Sunulan Şirket',  v: companyName },
+    phone       && { k: 'Telefon',         v: phone },
+    email       && { k: 'E-posta',         v: email },
+    birthDate   && { k: 'Doğum Tarihi',    v: birthDate },
+    education   && { k: 'Eğitim Seviyesi', v: education },
+    address     && { k: 'Adres',           v: address },
+    linkedin    && { k: 'LinkedIn',        v: linkedin },
   ].filter(Boolean);
 
   const infoHTML = infoItems.length === 0 ? '' : `

@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlhazenPDF – Servis Bakım Kartı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800&family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0A0C10;
+  font-family: 'Barlow Condensed', sans-serif;
+  padding: 40px 16px 80px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 28px;
+}
+
+/* ── FORM PANELİ ── */
+.form-panel {
+  width: 760px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 22px 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.form-title {
+  grid-column: 1/-1;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.3em;
+  color: rgba(255,160,40,0.8); text-transform: uppercase;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,160,40,0.15);
+  display: flex; align-items: center; gap: 10px;
+}
+.form-title::before { content:'⚙'; font-size:14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group.full { grid-column: 1/-1; }
+.form-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px; letter-spacing: 0.38em; text-transform: uppercase;
+  color: rgba(255,255,255,0.32);
+}
+.form-input, .form-textarea {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.88);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; letter-spacing: 0.04em;
+  padding: 7px 10px;
+  outline: none;
+  transition: border-color .2s;
+}
+.form-input:focus, .form-textarea:focus { border-color: rgba(255,160,40,0.45); }
+.form-input::placeholder, .form-textarea::placeholder { color: rgba(255,255,255,0.2); font-size:12px; }
+.form-textarea { resize: none; height: 68px; line-height: 1.55; }
+.form-textarea.tall { height: 82px; }
+.form-note {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 7.5px; color: rgba(255,255,255,0.2);
+  letter-spacing: 0.15em; margin-top: 2px;
+}
+.form-btn {
+  grid-column: 1/-1;
+  padding: 10px;
+  background: rgba(255,160,40,0.12);
+  border: 1.5px solid rgba(255,160,40,0.45);
+  color: rgba(255,160,40,0.9);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.3em;
+  cursor: pointer; text-transform: uppercase;
+  transition: all .2s;
+}
+.form-btn:hover { background: rgba(255,160,40,0.2); border-color: rgba(255,160,40,0.7); }
+
+/* Logo yükleme alanı */
+.logo-upload-area {
+  grid-column: 1/-1;
+  display: flex; align-items: center; gap: 14px;
+}
+.logo-preview-box {
+  width: 68px; height: 56px; flex-shrink: 0;
+  border: 1.5px solid rgba(255,140,30,0.35);
+  background: rgba(14,18,24,0.9);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.logo-preview-box img {
+  width: 100%; height: 100%; object-fit: contain; padding: 4px;
+  display: none;
+}
+.logo-preview-ph {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 6.5px; letter-spacing: 0.2em;
+  color: rgba(255,140,30,0.3); text-align: center; line-height: 1.8;
+}
+.logo-upload-right { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.logo-file-label {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 14px;
+  background: rgba(255,140,30,0.08);
+  border: 1px solid rgba(255,140,30,0.35);
+  color: rgba(255,140,30,0.8);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase;
+  cursor: pointer; transition: all .2s;
+  align-self: flex-start;
+}
+.logo-file-label:hover { background: rgba(255,140,30,0.15); border-color: rgba(255,140,30,0.6); }
+.logo-file-label input[type="file"] { display: none; }
+.logo-clear-btn {
+  display: none;
+  background: none; border: none;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(200,50,50,0.6); cursor: pointer; padding: 0;
+  align-self: flex-start;
+}
+.logo-clear-btn:hover { color: rgba(200,50,50,0.9); }
+
+/* ── ANİMASYONLAR ── */
+@keyframes rise        { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+@keyframes scan-v      { from{transform:translateY(-100%)} to{transform:translateY(200%)} }
+@keyframes gear-spin   { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+@keyframes gear-rev    { from{transform:rotate(0deg)} to{transform:rotate(-360deg)} }
+@keyframes orange-pulse{ 0%,100%{opacity:0.7;box-shadow:0 0 8px rgba(255,140,30,0.3)} 50%{opacity:1;box-shadow:0 0 18px rgba(255,140,30,0.65)} }
+@keyframes bar-fill    { from{width:0} to{width:var(--w)} }
+@keyframes dot-blink   { 0%,100%{opacity:0.4} 50%{opacity:1} }
+@keyframes blueprint   { 0%,100%{opacity:0.04} 50%{opacity:0.09} }
+
+/* ── A4 KART ── */
+.a4 {
+  width: 595px; height: 842px;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column; flex-shrink: 0;
+  animation: rise .6s cubic-bezier(.22,.68,0,1.1) both;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  background: #0E1218;
+  color: #D0D8E8;
+  box-shadow:
+    0 0 0 1px rgba(255,140,30,0.35),
+    0 0 0 3px rgba(26,64,128,0.15),
+    0 0 60px rgba(255,140,30,0.06),
+    0 36px 90px rgba(0,0,0,0.99);
+}
+
+/* Arka plan blueprint dokusu */
+.bg-blueprint {
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(26,64,128,0.35) 0%,rgba(14,40,90,0.2) 45%,transparent 68%),
+    radial-gradient(ellipse 50% 35% at 100% 50%, rgba(255,140,30,0.12) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 30% at 0% 75%, rgba(26,64,128,0.18) 0%,transparent 65%),
+    linear-gradient(175deg, #121620 0%, #0E1218 42%, #0C1016 100%);
+}
+.bg-grid {
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    repeating-linear-gradient(0deg,   transparent 0,transparent 29px,rgba(26,64,128,0.06) 29px,rgba(26,64,128,0.06) 30px),
+    repeating-linear-gradient(90deg,  transparent 0,transparent 29px,rgba(26,64,128,0.06) 29px,rgba(26,64,128,0.06) 30px),
+    repeating-linear-gradient(0deg,   transparent 0,transparent 5px,rgba(26,64,128,0.025) 5px,rgba(26,64,128,0.025) 6px),
+    repeating-linear-gradient(90deg,  transparent 0,transparent 5px,rgba(26,64,128,0.025) 5px,rgba(26,64,128,0.025) 6px);
+  animation: blueprint 8s ease-in-out infinite;
+}
+.scan-line {
+  position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(255,140,30,0.12),rgba(255,140,30,0.25),rgba(255,140,30,0.12),transparent);
+  animation: scan-v 6s linear infinite;
+  pointer-events:none;z-index:3;
+}
+.gear-wrap {
+  position:absolute;bottom:-30px;right:-30px;
+  width:180px;height:180px;
+  pointer-events:none;z-index:2;opacity:0.05;
+}
+.gear-outer {
+  position:absolute;inset:0;border-radius:50%;
+  border:12px solid rgba(255,140,30,0.8);
+  animation:gear-spin 20s linear infinite;
+}
+.gear-inner {
+  position:absolute;inset:32px;border-radius:50%;
+  border:8px solid rgba(26,64,128,0.8);
+  animation:gear-rev 14s linear infinite;
+}
+
+/* ── KENARLAR ── */
+.edge-l {
+  position:absolute;left:0;top:0;bottom:0;width:6px;z-index:10;
+  background:linear-gradient(180deg,#1A4080 0%,#FF8C1E 18%,#FF8C1E 35%,#1A4080 50%,#FF8C1E 65%,#FF8C1E 82%,#1A4080);
+  box-shadow:2px 0 16px rgba(255,140,30,0.35);
+}
+.edge-l2 {
+  position:absolute;left:6px;top:0;bottom:0;width:1.5px;z-index:10;
+  background:linear-gradient(180deg,transparent,rgba(255,140,30,0.5) 20%,rgba(26,64,128,0.4) 55%,rgba(255,140,30,0.45) 85%,transparent);
+}
+.edge-t {
+  position:absolute;top:0;left:0;right:0;height:5px;z-index:10;
+  background:linear-gradient(90deg,#0E1218,#1A4080 8%,#FF8C1E 20%,#E8C020 32%,#FF8C1E 44%,#1A4080 54%,#28A060 64%,#FF8C1E 75%,#1A4080 86%,#0E1218);
+  box-shadow:0 2px 16px rgba(255,140,30,0.3);
+}
+.edge-r {
+  position:absolute;right:0;top:0;bottom:0;width:4px;z-index:10;
+  background:linear-gradient(180deg,transparent,rgba(255,140,30,0.25) 25%,rgba(26,64,128,0.2) 75%,transparent);
+}
+.edge-b {
+  position:absolute;bottom:0;left:0;right:0;height:3px;z-index:10;
+  background:linear-gradient(90deg,transparent,rgba(255,140,30,0.35) 20%,rgba(26,64,128,0.45) 50%,rgba(255,140,30,0.35) 80%,transparent);
+}
+
+/* ── HEADER ── */
+.srv-header {
+  position:relative;z-index:20;flex-shrink:0;
+  padding:12px 16px 10px 22px;
+  display:flex;justify-content:space-between;align-items:flex-start;
+  border-bottom:1px solid rgba(255,140,30,0.18);
+  background:linear-gradient(90deg,rgba(26,64,128,0.08),transparent 70%);
+}
+.srv-brand { display:flex;flex-direction:column;gap:2px; }
+.srv-brand-name {
+  font-family:'Orbitron',sans-serif;
+  font-size:9.5px;font-weight:600;letter-spacing:0.28em;
+  color:rgba(255,140,30,0.85);text-transform:uppercase;
+}
+.srv-brand-sub {
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;letter-spacing:0.22em;
+  color:rgba(128,144,168,0.55);
+}
+.srv-doc-info { display:flex;flex-direction:column;align-items:flex-end;gap:3px; }
+.srv-doc-no {
+  font-family:'Share Tech Mono',monospace;
+  font-size:8.5px;letter-spacing:0.2em;
+  color:rgba(255,140,30,0.6);
+}
+.srv-doc-date {
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;letter-spacing:0.18em;
+  color:rgba(128,144,168,0.5);
+}
+.srv-badge {
+  display:flex;align-items:center;gap:6px;
+  padding:5px 12px 5px 9px;
+  background:rgba(255,140,30,0.08);
+  border:1.5px solid rgba(255,140,30,0.4);
+  animation:orange-pulse 3s ease-in-out infinite;
+}
+.srv-badge-dot { width:8px;height:8px;background:#FF8C1E;border-radius:50%;box-shadow:0 0 8px rgba(255,140,30,0.8);flex-shrink:0; }
+.srv-badge-txt {
+  font-family:'Orbitron',sans-serif;
+  font-size:9px;font-weight:600;letter-spacing:0.18em;
+  color:#FF8C1E;text-transform:uppercase;
+}
+
+/* ── ARAÇ BİLGİ SATIRI ── */
+.vehicle-row {
+  position:relative;z-index:20;flex-shrink:0;
+  padding:10px 16px 8px 22px;
+  display:flex;align-items:flex-start;gap:14px;
+  border-bottom:1px solid rgba(26,64,128,0.25);
+  background:linear-gradient(90deg,rgba(26,64,128,0.06),transparent 75%);
+}
+
+/* Servis logo kutusu */
+.srv-logo-box {
+  width:82px;height:68px;flex-shrink:0;
+  border:1.5px solid rgba(255,140,30,0.35);
+  background:rgba(14,18,24,0.9);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  box-shadow:0 0 12px rgba(255,140,30,0.15);
+}
+.srv-logo-box img {
+  width:100%;height:100%;object-fit:contain;padding:6px;
+  display:none;
+}
+.srv-logo-placeholder {
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;letter-spacing:0.25em;
+  color:rgba(255,140,30,0.22);text-align:center;line-height:1.8;
+}
+/* Köşe süsler logo */
+.slb-c { position:absolute;width:10px;height:10px; }
+.slb-c::before,.slb-c::after{content:'';position:absolute;background:#FF8C1E;}
+.slb-c.tl{top:3px;left:3px} .slb-c.tl::before{top:0;left:0;right:0;height:1.5px} .slb-c.tl::after{top:0;left:0;bottom:0;width:1.5px}
+.slb-c.br{bottom:3px;right:3px} .slb-c.br::before{bottom:0;left:0;right:0;height:1.5px} .slb-c.br::after{top:0;right:0;bottom:0;width:1.5px}
+
+.veh-info { flex:1;display:flex;flex-direction:column;gap:5px; }
+.veh-top  { display:flex;align-items:baseline;gap:10px;flex-wrap:wrap; }
+.veh-make {
+  font-family:'Orbitron',sans-serif;
+  font-size:20px;font-weight:700;letter-spacing:0.08em;
+  color:#D0D8E8;
+  text-shadow:0 0 18px rgba(26,64,128,0.4);
+}
+.veh-model {
+  font-family:'Orbitron',sans-serif;
+  font-size:12px;font-weight:500;letter-spacing:0.18em;
+  color:rgba(255,140,30,0.75);
+}
+.veh-year {
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;letter-spacing:0.15em;
+  color:rgba(128,144,168,0.65);
+}
+.veh-meta { display:flex;gap:16px;flex-wrap:wrap; }
+.vm { display:flex;flex-direction:column;gap:1px; }
+.vm-k { font-family:'Share Tech Mono',monospace;font-size:6.5px;letter-spacing:0.35em;text-transform:uppercase;color:rgba(128,144,168,0.45); }
+.vm-v { font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;color:#D0D8E8;letter-spacing:0.06em; }
+.vm-v.orange { color:#FF8C1E; }
+.vm-v.blue   { color:#4A8AD0; }
+.veh-plate {
+  font-family:'Orbitron',sans-serif;
+  font-size:11px;font-weight:600;letter-spacing:0.2em;
+  color:#0E1218;
+  background:#E8C020;
+  padding:3px 10px;
+  border-radius:2px;
+  align-self:flex-start;
+  box-shadow:0 0 8px rgba(232,192,32,0.4);
+}
+
+/* ── KM PROGRESS BANDI ── */
+.km-band {
+  position:relative;z-index:20;flex-shrink:0;
+  padding:9px 16px 8px 22px;
+  background:rgba(26,64,128,0.08);
+  border-bottom:1px solid rgba(26,64,128,0.2);
+}
+.km-row { display:flex;align-items:center;gap:10px; }
+.km-label {
+  font-family:'Share Tech Mono',monospace;
+  font-size:7.5px;letter-spacing:0.32em;text-transform:uppercase;
+  color:rgba(74,138,208,0.55);flex-shrink:0;width:88px;
+}
+.km-val {
+  font-family:'Orbitron',sans-serif;
+  font-size:13px;font-weight:600;letter-spacing:0.12em;
+  flex-shrink:0;
+}
+.km-val.done { color:#28A060; }
+.km-val.next { color:#FF8C1E;animation:orange-pulse 2s ease-in-out infinite; }
+.km-track {
+  flex:1;height:8px;background:rgba(255,255,255,0.06);
+  border:1px solid rgba(26,64,128,0.3);
+  position:relative;overflow:hidden;
+}
+.km-fill {
+  height:100%;
+  background:linear-gradient(90deg,#28A060,#E8C020 60%,#FF8C1E);
+  width:var(--w,60%);
+  transition:width 1s cubic-bezier(.22,.68,0,1);
+  box-shadow:0 0 8px rgba(255,140,30,0.4);
+}
+.km-arrow {
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;color:rgba(128,144,168,0.5);flex-shrink:0;
+}
+.km-diff {
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;letter-spacing:0.18em;
+  color:rgba(232,192,32,0.6);flex-shrink:0;
+}
+
+/* ── ANA İÇERİK ── */
+.main-body {
+  position:relative;z-index:20;flex:1;min-height:0;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:0;overflow:hidden;
+}
+.panel-left {
+  border-right:1px solid rgba(26,64,128,0.2);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.panel-right {
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.panel-header {
+  padding:7px 12px 6px 14px;
+  display:flex;align-items:center;gap:7px;
+  flex-shrink:0;
+}
+.ph-icon { font-size:11px; }
+.ph-title {
+  font-family:'Orbitron',sans-serif;
+  font-size:8px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;
+}
+.ph-count {
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;letter-spacing:0.1em;
+  margin-left:auto;
+  opacity:0.45;
+}
+.panel-left .panel-header { background:rgba(40,160,96,0.06);border-bottom:1px solid rgba(40,160,96,0.15); }
+.panel-left .ph-title { color:#28A060; }
+.panel-right .panel-header { background:rgba(255,140,30,0.06);border-bottom:1px solid rgba(255,140,30,0.15); }
+.panel-right .ph-title { color:#FF8C1E; }
+.item-list { flex:1;overflow:hidden;padding:6px 12px 6px 14px;display:flex;flex-direction:column;gap:4px; }
+
+.done-item {
+  display:flex;align-items:flex-start;gap:7px;
+  padding:4px 6px;
+  background:rgba(40,160,96,0.04);
+  border-left:2px solid rgba(40,160,96,0.5);
+  flex-shrink:0;
+}
+.di-icon {
+  width:14px;height:14px;border-radius:50%;flex-shrink:0;
+  background:rgba(40,160,96,0.2);
+  border:1px solid rgba(40,160,96,0.55);
+  display:flex;align-items:center;justify-content:center;
+  font-size:8px;color:#28A060;margin-top:1px;
+}
+.di-text {
+  font-family:'Rajdhani',sans-serif;
+  font-size:12px;font-weight:500;letter-spacing:0.04em;
+  color:rgba(208,216,232,0.88);line-height:1.3;
+}
+
+.part-item {
+  display:flex;align-items:flex-start;gap:7px;
+  padding:4px 6px;
+  background:rgba(255,140,30,0.04);
+  border-left:2px solid rgba(255,140,30,0.45);
+  flex-shrink:0;
+}
+.pi-icon {
+  width:14px;height:14px;flex-shrink:0;transform:rotate(45deg);
+  background:rgba(255,140,30,0.18);
+  border:1px solid rgba(255,140,30,0.5);
+  display:flex;align-items:center;justify-content:center;
+  font-size:7px;color:#FF8C1E;margin-top:1px;
+}
+.pi-text {
+  font-family:'Rajdhani',sans-serif;
+  font-size:12px;font-weight:500;letter-spacing:0.04em;
+  color:rgba(208,216,232,0.88);line-height:1.3;
+}
+
+.empty-msg {
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;letter-spacing:0.2em;
+  color:rgba(128,144,168,0.25);
+  padding:12px 0;text-align:center;
+}
+
+/* ── ÖNERİLER BANDI ── */
+.suggest-band {
+  position:relative;z-index:20;flex-shrink:0;
+  border-top:1px solid rgba(232,192,32,0.25);
+  background:linear-gradient(90deg,rgba(232,192,32,0.06),rgba(14,18,24,0.97) 70%);
+}
+.suggest-header {
+  padding:5px 16px 4px 22px;
+  display:flex;align-items:center;gap:8px;
+}
+.sh-icon { font-size:11px; }
+.sh-title {
+  font-family:'Orbitron',sans-serif;
+  font-size:7.5px;font-weight:600;letter-spacing:0.3em;text-transform:uppercase;
+  color:rgba(232,192,32,0.75);
+}
+.sh-sub {
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;letter-spacing:0.15em;
+  color:rgba(232,192,32,0.4);margin-left:auto;
+}
+.suggest-list {
+  padding:4px 16px 7px 22px;
+  display:flex;flex-wrap:wrap;gap:5px;
+}
+.sug-chip {
+  font-family:'Rajdhani',sans-serif;
+  font-size:11px;font-weight:500;letter-spacing:0.06em;
+  color:rgba(232,192,32,0.85);
+  padding:2px 9px;
+  background:rgba(232,192,32,0.07);
+  border:1px solid rgba(232,192,32,0.28);
+  display:flex;align-items:center;gap:4px;
+}
+.sug-chip::before { content:'⚠ ';font-size:8px;opacity:0.7; }
+.sug-empty {
+  font-family:'Share Tech Mono',monospace;
+  font-size:7.5px;letter-spacing:0.2em;
+  color:rgba(232,192,32,0.2);font-style:italic;
+}
+
+/* ── NOTLAR BANDI ── */
+.notes-band {
+  position:relative;z-index:20;flex-shrink:0;
+  padding:5px 16px 5px 22px;
+  border-top:1px solid rgba(26,64,128,0.2);
+  background:rgba(26,64,128,0.04);
+  display:flex;align-items:flex-start;gap:8px;
+  min-height:28px;
+}
+.notes-label {
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;letter-spacing:0.3em;text-transform:uppercase;
+  color:rgba(74,138,208,0.45);flex-shrink:0;margin-top:1px;
+}
+.notes-text {
+  font-family:'Rajdhani',sans-serif;
+  font-size:11px;font-weight:400;letter-spacing:0.04em;
+  color:rgba(208,216,232,0.65);line-height:1.45;
+  font-style:italic;
+}
+
+/* ── FOOTER ── */
+.srv-footer {
+  position:relative;z-index:20;flex-shrink:0;
+  padding:8px 16px 11px 22px;
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+  border-top:1px solid rgba(255,140,30,0.18);
+  background:rgba(10,12,16,0.98);
+}
+.f-esnaf { display:flex;flex-direction:column;gap:2px; }
+.f-esnaf-name {
+  font-family:'Orbitron',sans-serif;
+  font-size:11px;font-weight:600;letter-spacing:0.14em;
+  color:rgba(208,216,232,0.85);
+}
+.f-esnaf-addr {
+  font-family:'Share Tech Mono',monospace;
+  font-size:7px;letter-spacing:0.15em;
+  color:rgba(128,144,168,0.42);
+}
+.f-center-block {
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:0 14px;
+  border-left:1px solid rgba(255,140,30,0.15);
+  border-right:1px solid rgba(255,140,30,0.15);
+}
+.f-logo-txt {
+  font-family:'Orbitron',sans-serif;
+  font-size:10px;font-weight:700;letter-spacing:0.2em;
+  background:linear-gradient(90deg,#FF8C1E,#E8C020,#4A8AD0);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;white-space:nowrap;
+}
+.f-logo-sub { font-family:'Share Tech Mono',monospace;font-size:6.5px;letter-spacing:0.3em;color:rgba(255,140,30,0.38);text-transform:uppercase; }
+.f-diam { width:10px;height:10px;transform:rotate(45deg);background:linear-gradient(135deg,#FF8C1E,#E8C020,#1A4080);box-shadow:0 0 10px rgba(255,140,30,0.5);margin-bottom:3px; }
+.f-right { display:flex;flex-direction:column;align-items:flex-end;gap:2px; }
+.f-phone {
+  font-family:'Orbitron',sans-serif;
+  font-size:11px;font-weight:500;letter-spacing:0.12em;
+  color:rgba(255,140,30,0.75);
+}
+.f-verify {
+  font-family:'Share Tech Mono',monospace;
+  font-size:6.5px;letter-spacing:0.18em;
+  color:rgba(40,160,96,0.55);
+}
+
+/* ── PRINT ── */
+@media print {
+  body{background:white;padding:0;}
+  .form-panel,.form-btn{display:none;}
+  .a4{width:210mm;height:297mm;box-shadow:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── FORM PANELİ ── -->
+<div class="form-panel">
+  <div class="form-title">Servis Bakım Kartı – Bilgi Girişi</div>
+
+  <!-- Araç -->
+  <div class="form-group">
+    <div class="form-label">Marka</div>
+    <input class="form-input" id="f-make" placeholder="Opel" oninput="render()">
+  </div>
+  <div class="form-group">
+    <div class="form-label">Model</div>
+    <input class="form-input" id="f-model" placeholder="Astra" oninput="render()">
+  </div>
+  <div class="form-group">
+    <div class="form-label">Yıl</div>
+    <input class="form-input" id="f-year" placeholder="2018" oninput="render()">
+  </div>
+  <div class="form-group">
+    <div class="form-label">Plaka</div>
+    <input class="form-input" id="f-plate" placeholder="26 ABC 123" oninput="render()">
+  </div>
+  <div class="form-group">
+    <div class="form-label">Yakıt Tipi</div>
+    <input class="form-input" id="f-fuel" placeholder="Dizel" oninput="render()">
+  </div>
+  <div class="form-group">
+    <div class="form-label">Renk</div>
+    <input class="form-input" id="f-color" placeholder="Gri" oninput="render()">
+  </div>
+
+  <!-- KM -->
+  <div class="form-group">
+    <div class="form-label">Mevcut KM (bakım yapılan)</div>
+    <input class="form-input" id="f-km-now" placeholder="97.750" oninput="render()">
+  </div>
+  <div class="form-group">
+    <div class="form-label">Sonraki Bakım KM</div>
+    <input class="form-input" id="f-km-next" placeholder="113.750" oninput="render()">
+  </div>
+
+  <!-- Tarih & Esnaf -->
+  <div class="form-group">
+    <div class="form-label">Tarih</div>
+    <input class="form-input" id="f-date" placeholder="15.05.2026" oninput="render()">
+  </div>
+  <div class="form-group">
+    <div class="form-label">Servis / Esnaf Adı</div>
+    <input class="form-input" id="f-shop" placeholder="Yılmaz Oto Servis" oninput="render()">
+  </div>
+  <div class="form-group">
+    <div class="form-label">Adres / Bölge</div>
+    <input class="form-input" id="f-addr" placeholder="Eskişehir Organize Sanayi" oninput="render()">
+  </div>
+  <div class="form-group">
+    <div class="form-label">Telefon</div>
+    <input class="form-input" id="f-phone" placeholder="0532 000 00 00" oninput="render()">
+  </div>
+
+  <!-- Servis Logosu -->
+  <div class="form-group full">
+    <div class="form-label">Servis Logosu (opsiyonel)</div>
+    <div class="logo-upload-area">
+      <div class="logo-preview-box" id="form-logo-box">
+        <img id="form-logo-img" src="" alt="logo önizleme">
+        <div class="logo-preview-ph" id="form-logo-ph">SERVİS<br>LOGO</div>
+      </div>
+      <div class="logo-upload-right">
+        <label class="logo-file-label">
+          ⬆ Logo Seç
+          <input type="file" id="f-logo" accept="image/*" onchange="handleLogo(event)">
+        </label>
+        <button class="logo-clear-btn" id="logo-clear-btn" onclick="clearLogo()">✕ Logoyu Kaldır</button>
+        <div class="form-note">PNG, JPG veya SVG · Şeffaf arka plan önerilir</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Yapılan işlemler -->
+  <div class="form-group full">
+    <div class="form-label">Yapılan Bakım / İşlemler (her satır ayrı işlem)</div>
+    <textarea class="form-textarea tall" id="f-done" oninput="render()"
+      placeholder="Yağ ve yağ filtresi değişimi&#10;Hava filtresi değişimi&#10;Antifriz bakımı ve takviyesi&#10;Polen filtresi değişimi"></textarea>
+    <div class="form-note">Her satır ayrı madde olarak görünür</div>
+  </div>
+
+  <!-- Değiştirilen parçalar -->
+  <div class="form-group full">
+    <div class="form-label">Değiştirilen Parçalar (her satır ayrı parça)</div>
+    <textarea class="form-textarea tall" id="f-parts" oninput="render()"
+      placeholder="Sol ön aks takımı&#10;Sağ arka salıncak ve amortisör takımı&#10;Buji ve bobin seti&#10;Triger kayışı ve gergi seti"></textarea>
+    <div class="form-note">Her satır ayrı madde – opsiyonel</div>
+  </div>
+
+  <!-- Öneriler -->
+  <div class="form-group full">
+    <div class="form-label">Sonraki Bakımda Önerilen İşlemler (virgülle ayır)</div>
+    <textarea class="form-textarea" id="f-suggest" oninput="render()"
+      placeholder="Baskı balata ve volant değişimi, Triger set değişimi, Fren hidroliği yenileme"></textarea>
+    <div class="form-note">Virgül veya yeni satırla ayır</div>
+  </div>
+
+  <!-- Notlar -->
+  <div class="form-group full">
+    <div class="form-label">Teknisyen Notu (opsiyonel)</div>
+    <input class="form-input" id="f-note"
+      placeholder="Aracın alt şasesi temiz, motor külbütör kapağında hafif sızıntı gözlemlendi."
+      oninput="render()">
+  </div>
+
+  <button class="form-btn" onclick="render()">⚙ KARTI GÜNCELLE</button>
+</div>
+
+<!-- ── SERVİS KARTI ── -->
+<div class="a4" id="the-card">
+
+  <div class="bg-blueprint"></div>
+  <div class="bg-grid"></div>
+  <div class="scan-line"></div>
+  <div class="gear-wrap">
+    <div class="gear-outer"></div>
+    <div class="gear-inner"></div>
+  </div>
+  <div class="edge-l"></div><div class="edge-l2"></div>
+  <div class="edge-t"></div><div class="edge-r"></div><div class="edge-b"></div>
+
+  <!-- HEADER -->
+  <div class="srv-header">
+    <div class="srv-brand">
+      <div class="srv-brand-name">AlhazenPDF · Servis</div>
+      <div class="srv-brand-sub">TEKNİK BAKIM KARTI</div>
+    </div>
+    <div class="srv-badge">
+      <div class="srv-badge-dot"></div>
+      <div class="srv-badge-txt">Bakım Tamamlandı</div>
+    </div>
+    <div class="srv-doc-info">
+      <div class="srv-doc-no" id="out-docno">SRV-2026-001</div>
+      <div class="srv-doc-date" id="out-date">15.05.2026</div>
+    </div>
+  </div>
+
+  <!-- ARAÇ BİLGİ SATIRI -->
+  <div class="vehicle-row">
+
+    <!-- Servis logo kutusu -->
+    <div class="srv-logo-box">
+      <div class="slb-c tl"></div>
+      <div class="slb-c br"></div>
+      <img id="out-logo" src="" alt="servis logo">
+      <div class="srv-logo-placeholder" id="out-logo-ph">SERVİS<br>LOGO</div>
+    </div>
+
+    <!-- Araç bilgileri -->
+    <div class="veh-info">
+      <div class="veh-top">
+        <span class="veh-make" id="out-make">OPEL</span>
+        <span class="veh-model" id="out-model">ASTRA</span>
+        <span class="veh-year" id="out-year">2018</span>
+        <span class="veh-plate" id="out-plate">26 ABC 123</span>
+      </div>
+      <div class="veh-meta">
+        <div class="vm">
+          <span class="vm-k">Yakıt</span>
+          <span class="vm-v blue" id="out-fuel">Dizel</span>
+        </div>
+        <div class="vm">
+          <span class="vm-k">Renk</span>
+          <span class="vm-v" id="out-color">Gri</span>
+        </div>
+        <div class="vm">
+          <span class="vm-k">Servis</span>
+          <span class="vm-v orange" id="out-shop-mini">Yılmaz Oto</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KM PROGRESS BANDI -->
+  <div class="km-band">
+    <div class="km-row">
+      <span class="km-label">Bakım Yapılan</span>
+      <span class="km-val done" id="out-km-now">97.750 km</span>
+      <span class="km-arrow">───▶</span>
+      <div class="km-track">
+        <div class="km-fill" id="out-km-bar" style="--w:60%"></div>
+      </div>
+      <span class="km-arrow">───▶</span>
+      <span class="km-val next" id="out-km-next">113.750 km</span>
+      <span class="km-label" style="text-align:right;width:70px;">Sonraki Bakım</span>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:3px;">
+      <span class="km-diff" id="out-km-diff">+ 16.000 km sonra bakım</span>
+    </div>
+  </div>
+
+  <!-- ANA İÇERİK – iki panel -->
+  <div class="main-body">
+
+    <!-- SOL: Yapılan işlemler -->
+    <div class="panel-left">
+      <div class="panel-header">
+        <span class="ph-icon">✓</span>
+        <span class="ph-title">Yapılan İşlemler</span>
+        <span class="ph-count" id="out-done-count">0 İşlem</span>
+      </div>
+      <div class="item-list" id="out-done-list">
+        <div class="empty-msg">İşlem girilmedi</div>
+      </div>
+    </div>
+
+    <!-- SAĞ: Değiştirilen parçalar -->
+    <div class="panel-right">
+      <div class="panel-header">
+        <span class="ph-icon">⬡</span>
+        <span class="ph-title">Değiştirilen Parçalar</span>
+        <span class="ph-count" id="out-parts-count">0 Parça</span>
+      </div>
+      <div class="item-list" id="out-parts-list">
+        <div class="empty-msg">Parça girilmedi</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ÖNERİLER -->
+  <div class="suggest-band">
+    <div class="suggest-header">
+      <span class="sh-icon">⚠</span>
+      <span class="sh-title">Sonraki Bakımda Önerilen İşlemler</span>
+      <span class="sh-sub" id="out-suggest-count">—</span>
+    </div>
+    <div class="suggest-list" id="out-suggest-list">
+      <span class="sug-empty">Öneri girilmedi</span>
+    </div>
+  </div>
+
+  <!-- NOTLAR -->
+  <div class="notes-band">
+    <span class="notes-label">Not:</span>
+    <span class="notes-text" id="out-note">Teknisyen notu girilmedi.</span>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="srv-footer">
+    <div class="f-esnaf">
+      <div class="f-esnaf-name" id="out-shop">Yılmaz Oto Servis</div>
+      <div class="f-esnaf-addr" id="out-addr">Eskişehir Organize Sanayi</div>
+    </div>
+    <div class="f-center-block">
+      <div class="f-diam"></div>
+      <div class="f-logo-txt">AlhazenPDF</div>
+      <div class="f-logo-sub">Servis · Bakım Kartı</div>
+    </div>
+    <div class="f-right">
+      <div class="f-phone" id="out-phone">0532 000 00 00</div>
+      <div class="f-verify">✓ Dijital Doğrulandı · AlhazenPDF</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* KM formatla */
+function fmtKm(str) {
+  if (!str) return '';
+  const n = parseInt(str.replace(/[^0-9]/g,''));
+  if (isNaN(n)) return str;
+  return n.toLocaleString('tr-TR') + ' km';
+}
+
+/* Satırları ayıkla */
+function lines(str) {
+  return str.split(/[\n]+/).map(s=>s.trim()).filter(s=>s.length>0);
+}
+function csvLines(str) {
+  return str.split(/[,\n]+/).map(s=>s.trim()).filter(s=>s.length>0);
+}
+
+/* Logo yükleme */
+function handleLogo(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const src = ev.target.result;
+    /* Form önizleme */
+    const formImg = document.getElementById('form-logo-img');
+    const formPh  = document.getElementById('form-logo-ph');
+    formImg.src = src;
+    formImg.style.display = 'block';
+    formPh.style.display  = 'none';
+    document.getElementById('logo-clear-btn').style.display = 'inline-block';
+    /* Kart çıktısı */
+    const cardImg = document.getElementById('out-logo');
+    const cardPh  = document.getElementById('out-logo-ph');
+    cardImg.src = src;
+    cardImg.style.display = 'block';
+    cardPh.style.display  = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearLogo() {
+  document.getElementById('f-logo').value = '';
+  document.getElementById('form-logo-img').style.display = 'none';
+  document.getElementById('form-logo-ph').style.display  = '';
+  document.getElementById('logo-clear-btn').style.display = 'none';
+  document.getElementById('out-logo').style.display = 'none';
+  document.getElementById('out-logo-ph').style.display   = '';
+}
+
+/* Ana render fonksiyonu */
+function render() {
+  const make    = document.getElementById('f-make').value.trim()    || 'OPEL';
+  const model   = document.getElementById('f-model').value.trim()   || 'ASTRA';
+  const year    = document.getElementById('f-year').value.trim()    || '2018';
+  const plate   = document.getElementById('f-plate').value.trim()   || '26 ABC 123';
+  const fuel    = document.getElementById('f-fuel').value.trim()    || 'Dizel';
+  const color   = document.getElementById('f-color').value.trim()   || 'Gri';
+  const kmNow   = document.getElementById('f-km-now').value.trim()  || '97.750';
+  const kmNext  = document.getElementById('f-km-next').value.trim() || '113.750';
+  const date    = document.getElementById('f-date').value.trim()    || '15.05.2026';
+  const shop    = document.getElementById('f-shop').value.trim()    || 'Yılmaz Oto Servis';
+  const addr    = document.getElementById('f-addr').value.trim()    || 'Eskişehir Organize Sanayi';
+  const phone   = document.getElementById('f-phone').value.trim()   || '0532 000 00 00';
+  const doneRaw = document.getElementById('f-done').value.trim();
+  const partsRaw= document.getElementById('f-parts').value.trim();
+  const sugRaw  = document.getElementById('f-suggest').value.trim();
+  const note    = document.getElementById('f-note').value.trim();
+
+  document.getElementById('out-make').textContent    = make.toUpperCase();
+  document.getElementById('out-model').textContent   = model.toUpperCase();
+  document.getElementById('out-year').textContent    = year;
+  document.getElementById('out-plate').textContent   = plate.toUpperCase();
+  document.getElementById('out-fuel').textContent    = fuel;
+  document.getElementById('out-color').textContent   = color;
+  document.getElementById('out-date').textContent    = date;
+  document.getElementById('out-shop').textContent    = shop;
+  document.getElementById('out-shop-mini').textContent = shop.split(' ').slice(0,2).join(' ');
+  document.getElementById('out-addr').textContent    = addr;
+  document.getElementById('out-phone').textContent   = phone;
+  document.getElementById('out-docno').textContent   = 'SRV-' + date.replace(/\./g,'').slice(-6);
+
+  /* KM */
+  document.getElementById('out-km-now').textContent  = fmtKm(kmNow);
+  document.getElementById('out-km-next').textContent = fmtKm(kmNext);
+  const n = parseInt(kmNow.replace(/[^0-9]/g,''));
+  const x = parseInt(kmNext.replace(/[^0-9]/g,''));
+  if (!isNaN(n) && !isNaN(x) && x > n) {
+    const diff = x - n;
+    document.getElementById('out-km-diff').textContent = '+ ' + diff.toLocaleString('tr-TR') + ' km sonra bakım';
+    document.getElementById('out-km-bar').style.setProperty('--w', '62%');
+  }
+
+  /* Not */
+  document.getElementById('out-note').textContent = note || 'Teknisyen notu girilmedi.';
+
+  /* Yapılan işlemler */
+  const doneItems = lines(doneRaw);
+  const doneEl = document.getElementById('out-done-list');
+  document.getElementById('out-done-count').textContent = doneItems.length + ' İşlem';
+  doneEl.innerHTML = doneItems.length === 0
+    ? '<div class="empty-msg">İşlem girilmedi</div>'
+    : doneItems.map(t => `<div class="done-item"><div class="di-icon">✓</div><div class="di-text">${t}</div></div>`).join('');
+
+  /* Değiştirilen parçalar */
+  const partItems = lines(partsRaw);
+  const partsEl = document.getElementById('out-parts-list');
+  document.getElementById('out-parts-count').textContent = partItems.length + ' Parça';
+  partsEl.innerHTML = partItems.length === 0
+    ? '<div class="empty-msg">Parça girilmedi</div>'
+    : partItems.map(t => `<div class="part-item"><div class="pi-icon">⬡</div><div class="di-text">${t}</div></div>`).join('');
+
+  /* Öneriler */
+  const sugItems = csvLines(sugRaw);
+  const sugEl = document.getElementById('out-suggest-list');
+  document.getElementById('out-suggest-count').textContent = sugItems.length > 0 ? sugItems.length + ' Öneri' : '—';
+  sugEl.innerHTML = sugItems.length === 0
+    ? '<span class="sug-empty">Öneri girilmedi</span>'
+    : sugItems.map(t => `<span class="sug-chip">${t}</span>`).join('');
+}
+
+/* Sayfa yüklenince demo verilerle doldur */
+window.onload = function() {
+  document.getElementById('f-make').value    = 'Opel';
+  document.getElementById('f-model').value   = 'Astra';
+  document.getElementById('f-year').value    = '2019';
+  document.getElementById('f-plate').value   = '26 KNK 26';
+  document.getElementById('f-fuel').value    = 'Dizel';
+  document.getElementById('f-color').value   = 'Gri';
+  document.getElementById('f-km-now').value  = '97750';
+  document.getElementById('f-km-next').value = '113750';
+  document.getElementById('f-date').value    = '15.05.2026';
+  document.getElementById('f-shop').value    = 'Yılmaz Oto Servis';
+  document.getElementById('f-addr').value    = 'Eskişehir Organize Sanayi 3. Cadde';
+  document.getElementById('f-phone').value   = '0222 333 44 55';
+  document.getElementById('f-done').value    =
+    'Yağ ve yağ filtresi değişimi\nHava filtresi değişimi\nAntifriz bakımı ve takviyesi\nPolen filtresi değişimi\nAlt takım genel kontrolü';
+  document.getElementById('f-parts').value   =
+    'Sol ön aks takımı\nSağ arka salıncak ve amortisör takımı\nBuji ve bobin seti\nZincir gergi seti';
+  document.getElementById('f-suggest').value =
+    'Baskı balata ve volant değişimi, Triger set değişimi, Fren hidroliği yenileme, Direksiyon kutusu kontrolü';
+  document.getElementById('f-note').value    =
+    'Alt şasi temiz. Motor külbütör kapağında hafif sızıntı gözlemlendi, takip önerilir.';
+  render();
+};
+</script>
+</body>
+</html>

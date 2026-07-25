@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const [isDark, setIsDark] = useState(true); // Default: dark mode
+  const [isDark, setIsDark] = useState(false); // Default: light mode
 
   // Load theme preference on mount
   useEffect(() => {
