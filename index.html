@@ -22,20 +22,26 @@ nav{
   display:flex;align-items:center;justify-content:space-between;
   transition:background 0.4s,box-shadow 0.4s;
 }
+/* Scrolled: açık bölümler üzerinde — koyu metin + frosted glass */
 nav.scrolled{background:rgba(248,246,240,0.92);backdrop-filter:blur(20px);box-shadow:0 1px 0 rgba(0,0,0,0.06)}
-.nav-logo{font-family:'Cinzel',serif;font-size:15px;font-weight:700;letter-spacing:0.18em;color:#0D0D0D;text-decoration:none}
+nav.scrolled .nav-logo{color:#0D0D0D}
+nav.scrolled .nav-links a{color:rgba(13,13,13,0.5)}
+nav.scrolled .nav-links a:hover{color:#0D0D0D}
+nav.scrolled .nav-cta{background:#0D0D0D;color:#F8F6F0}
+/* Default: koyu #indir bölümü üzerinde — beyaz metin */
+.nav-logo{font-family:'Cinzel',serif;font-size:15px;font-weight:700;letter-spacing:0.18em;color:#F8F6F0;text-decoration:none;transition:color 0.4s}
 .nav-logo em{color:#B8790A;font-style:normal}
 .nav-links{display:flex;gap:44px;list-style:none}
-.nav-links a{font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(13,13,13,0.5);text-decoration:none;transition:color 0.3s;font-weight:400}
-.nav-links a:hover{color:#0D0D0D}
+.nav-links a{font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(248,246,240,0.5);text-decoration:none;transition:color 0.3s;font-weight:400}
+.nav-links a:hover{color:#F8F6F0}
 .nav-cta{
   padding:11px 32px;
-  background:#0D0D0D;color:#F8F6F0;
+  background:rgba(248,246,240,0.15);color:#F8F6F0;border:1px solid rgba(248,246,240,0.25);
   font-size:11px;letter-spacing:0.15em;text-transform:uppercase;
   text-decoration:none;font-family:'DM Sans',sans-serif;font-weight:500;
   transition:all 0.3s;
 }
-.nav-cta:hover{background:#B8790A}
+.nav-cta:hover{background:#B8790A;border-color:#B8790A}
 
 /* ══ HERO ══ */
 .hero{
