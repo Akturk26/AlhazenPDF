@@ -12,8 +12,8 @@ html{scroll-behavior:smooth;font-size:16px}
 body{background:#F8F6F0;color:#0D0D0D;font-family:'DM Sans',sans-serif;overflow-x:hidden;cursor:none}
 
 /* CURSOR */
-.cur{position:fixed;width:10px;height:10px;border-radius:50%;background:#0D0D0D;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:exclusion;transition:transform 0.15s,background 0.3s}
-.cur-ring{position:fixed;width:36px;height:36px;border-radius:50%;border:1px solid rgba(13,13,13,0.3);pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all 0.18s ease}
+.cur{position:fixed;top:0;left:0;width:10px;height:10px;border-radius:50%;background:#0D0D0D;pointer-events:none;z-index:9999;will-change:transform;mix-blend-mode:exclusion;transition:background 0.3s}
+.cur-ring{position:fixed;top:0;left:0;width:36px;height:36px;border-radius:50%;border:1px solid rgba(13,13,13,0.3);pointer-events:none;z-index:9998;will-change:transform;transition:border-color 0.18s ease}
 
 /* NAV */
 nav{
@@ -958,30 +958,34 @@ footer{
 <script>
 // ── CURSOR ──
 const cur=document.getElementById('cur'),ring=document.getElementById('curRing');
-let mx=0,my=0,rx=0,ry=0;
-document.addEventListener('mousemove',e=>{
-  mx=e.clientX;my=e.clientY;
-  cur.style.left=mx+'px';cur.style.top=my+'px';
-});
-(function animRing(){rx+=(mx-rx)*0.1;ry+=(my-ry)*0.1;
-  ring.style.left=rx+'px';ring.style.top=ry+'px';
-  requestAnimationFrame(animRing);
+let mx=0,my=0,rx=0,ry=0,ringScale=1;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;},{passive:true});
+(function animCursor(){
+  rx+=(mx-rx)*0.1;ry+=(my-ry)*0.1;
+  cur.style.transform=`translate3d(${mx}px,${my}px,0) translate(-50%,-50%)`;
+  ring.style.transform=`translate3d(${rx}px,${ry}px,0) translate(-50%,-50%) scale(${ringScale})`;
+  requestAnimationFrame(animCursor);
 })();
 document.querySelectorAll('a,button').forEach(el=>{
-  el.addEventListener('mouseenter',()=>{ring.style.transform='translate(-50%,-50%) scale(2.5)';ring.style.borderColor='rgba(184,121,10,0.6)'});
-  el.addEventListener('mouseleave',()=>{ring.style.transform='translate(-50%,-50%) scale(1)';ring.style.borderColor='rgba(13,13,13,0.3)'});
+  el.addEventListener('mouseenter',()=>{ringScale=2.5;ring.style.borderColor='rgba(184,121,10,0.6)'});
+  el.addEventListener('mouseleave',()=>{ringScale=1;ring.style.borderColor='rgba(13,13,13,0.3)'});
 });
 
 // ── NAV SCROLL ──
 window.addEventListener('scroll',()=>{
   document.getElementById('nav').classList.toggle('scrolled',window.scrollY>60);
-});
+},{passive:true});
+
+// Ekran disindaki canvas'lar rAF dongusunu durdurur (performans)
+function observeVisibility(el,onChange){
+  new IntersectionObserver(([entry])=>onChange(entry.isIntersecting),{threshold:0.01}).observe(el);
+}
 
 // ── HERO CANVAS — Light & Mountain atmosphere ──
 (function(){
   const c=document.getElementById('heroCanvas');
   const ctx=c.getContext('2d');
-  let W,H,pts=[],t=0;
+  let W,H,pts=[],t=0,visible=true;
   function resize(){W=c.width=c.offsetWidth;H=c.height=c.offsetHeight;init()}
   function init(){
     pts=[];
@@ -1044,17 +1048,18 @@ window.addEventListener('scroll',()=>{
     ctx.fillStyle='#5A4020';ctx.fill();
     ctx.restore();
 
-    requestAnimationFrame(draw);
+    if(visible)requestAnimationFrame(draw);
   }
   new ResizeObserver(resize).observe(c.parentElement);
   resize();draw();
+  observeVisibility(c,v=>{visible=v;if(v)draw();});
 })();
 
 // ── ALPS CANVAS — Ice & Snow ──
 (function(){
   const c=document.getElementById('alpsCanvas');
   const ctx=c.getContext('2d');
-  let W,H,flakes=[],t=0;
+  let W,H,flakes=[],t=0,visible=true;
   function resize(){W=c.width=c.offsetWidth;H=c.height=c.offsetHeight;init()}
   function init(){
     flakes=[];
@@ -1101,16 +1106,17 @@ window.addEventListener('scroll',()=>{
     ctx.fillStyle='#fff';ctx.fill();
     ctx.restore();
 
-    requestAnimationFrame(draw);
+    if(visible)requestAnimationFrame(draw);
   }
   new ResizeObserver(resize).observe(c);resize();draw();
+  observeVisibility(c,v=>{visible=v;if(v)draw();});
 })();
 
 // ── OCEAN CANVAS — Deep waves ──
 (function(){
   const c=document.getElementById('oceanCanvas');
   const ctx=c.getContext('2d');
-  let W,H,t=0;
+  let W,H,t=0,visible=true;
   function resize(){W=c.width=c.offsetWidth;H=c.height=c.offsetHeight}
   function draw(){
     t+=0.008;ctx.clearRect(0,0,W,H);
@@ -1130,16 +1136,17 @@ window.addEventListener('scroll',()=>{
       ctx.lineTo(W,H);ctx.closePath();
       ctx.fillStyle=`rgba(0,80,140,${a})`;ctx.fill();
     });
-    requestAnimationFrame(draw);
+    if(visible)requestAnimationFrame(draw);
   }
   new ResizeObserver(resize).observe(c);resize();draw();
+  observeVisibility(c,v=>{visible=v;if(v)draw();});
 })();
 
 // ── AMAZON CANVAS — Fireflies ──
 (function(){
   const c=document.getElementById('amazonCanvas');
   const ctx=c.getContext('2d');
-  let W,H,flies=[],t=0;
+  let W,H,flies=[],t=0,visible=true;
   function resize(){W=c.width=c.offsetWidth;H=c.height=c.offsetHeight;init()}
   function init(){
     flies=[];
@@ -1178,16 +1185,17 @@ window.addEventListener('scroll',()=>{
       ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
       ctx.fillStyle=`rgba(180,255,200,${glow})`;ctx.fill();
     });
-    requestAnimationFrame(draw);
+    if(visible)requestAnimationFrame(draw);
   }
   new ResizeObserver(resize).observe(c);resize();draw();
+  observeVisibility(c,v=>{visible=v;if(v)draw();});
 })();
 
 // ── TOROS CANVAS — Dust & Earth ──
 (function(){
   const c=document.getElementById('torosCanvas');
   const ctx=c.getContext('2d');
-  let W,H,dust=[],t=0;
+  let W,H,dust=[],t=0,visible=true;
   function resize(){W=c.width=c.offsetWidth;H=c.height=c.offsetHeight;init()}
   function init(){
     dust=[];
@@ -1221,9 +1229,10 @@ window.addEventListener('scroll',()=>{
       ctx.beginPath();ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
       ctx.fillStyle=g;ctx.fill();
     });
-    requestAnimationFrame(draw);
+    if(visible)requestAnimationFrame(draw);
   }
   new ResizeObserver(resize).observe(c);resize();draw();
+  observeVisibility(c,v=>{visible=v;if(v)draw();});
 })();
 
 // ── TOROS PRICING TOGGLE ──
@@ -1262,11 +1271,16 @@ const obs=new IntersectionObserver(entries=>{
 document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(el=>obs.observe(el));
 
 // ── PARALLAX ──
+const heroParallax=document.querySelector('.hero-content');
+let parallaxTicking=false;
 window.addEventListener('scroll',()=>{
-  const sy=window.scrollY;
-  const hero=document.querySelector('.hero-content');
-  if(hero)hero.style.transform=`translateY(${sy*0.3}px)`;
-});
+  if(parallaxTicking)return;
+  parallaxTicking=true;
+  requestAnimationFrame(()=>{
+    if(heroParallax)heroParallax.style.transform=`translate3d(0,${window.scrollY*0.3}px,0)`;
+    parallaxTicking=false;
+  });
+},{passive:true});
 </script>
 </body>
 </html>
