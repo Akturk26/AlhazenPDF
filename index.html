@@ -29,8 +29,9 @@ nav.scrolled .nav-links a{color:rgba(13,13,13,0.5)}
 nav.scrolled .nav-links a:hover{color:#0D0D0D}
 nav.scrolled .nav-cta{background:#0D0D0D;color:#F8F6F0}
 /* Default: koyu #indir bölümü üzerinde — beyaz metin */
-.nav-logo{font-family:'Cinzel',serif;font-size:15px;font-weight:700;letter-spacing:0.18em;color:#F8F6F0;text-decoration:none;transition:color 0.4s}
+.nav-logo{font-family:'Cinzel',serif;font-size:15px;font-weight:700;letter-spacing:0.18em;color:#F8F6F0;text-decoration:none;transition:color 0.4s;display:flex;align-items:center;gap:10px}
 .nav-logo em{color:#B8790A;font-style:normal}
+.nav-logo-icon{width:28px;height:28px;object-fit:contain;flex-shrink:0}
 .nav-links{display:flex;gap:44px;list-style:none}
 .nav-links a{font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(248,246,240,0.5);text-decoration:none;transition:color 0.3s;font-weight:400}
 .nav-links a:hover{color:#F8F6F0}
@@ -456,6 +457,7 @@ footer{
 }
 .foot-logo{font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:#0A0A0A;margin-bottom:12px}
 .foot-logo em{color:#B8790A;font-style:normal}
+.foot-logo-img{height:44px;object-fit:contain;margin-bottom:14px}
 .foot-tagline{font-size:13px;color:rgba(13,13,13,0.4);line-height:1.7;max-width:260px}
 .foot-col-h{font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(13,13,13,0.35);margin-bottom:18px}
 .foot-col ul{list-style:none;display:flex;flex-direction:column;gap:10px}
@@ -506,7 +508,7 @@ footer{
 
 <!-- NAV -->
 <nav id="nav">
-  <a href="#" class="nav-logo">ALHAZEN<em>PDF</em></a>
+  <a href="#" class="nav-logo"><img src="images/alhazen-icon.png" alt="AlhazenPDF" class="nav-logo-icon">ALHAZEN<em>PDF</em></a>
   <ul class="nav-links">
     <li><a href="#alps">Araç PDF</a></li>
     <li><a href="#ocean">Özellikler</a></li>
@@ -920,8 +922,8 @@ footer{
 <footer>
   <div class="foot-top">
     <div>
-      <div class="foot-logo">ALHAZEN<em>PDF</em></div>
-      <p class="foot-tagline">İbn-ül Heysem'in optik bilimine saygıyla — araç ve emlak profesyonelleri için mobil PDF uygulaması.</p>
+      <img src="images/alhazen-logo-full.png" alt="AlhazenPDF — Araç, Emlak, Teknik Servis" class="foot-logo-img">
+      <p class="foot-tagline">İbn-ül Heysem'in optik bilimine saygıyla — galeri, emlak ve teknik servis işletmelerinin dijital iş ortağı.</p>
     </div>
     <div class="foot-col">
       <div class="foot-col-h">Uygulama</div>
