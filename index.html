@@ -44,6 +44,49 @@ nav.scrolled .nav-cta{background:#0D0D0D;color:#F8F6F0}
 }
 .nav-cta:hover{background:#B8790A;border-color:#B8790A}
 
+/* Portal (mevcut müşteri) girişi — ikincil, ana CTA ile yarışmaz */
+.nav-portal{position:relative}
+.nav-portal-btn{
+  background:none;border:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+  font-size:11px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;
+  color:rgba(248,246,240,0.55);
+  display:flex;align-items:center;gap:5px;
+  transition:color 0.3s;
+  padding:8px 4px;
+}
+.nav-portal-btn:hover{color:#F8F6F0}
+nav.scrolled .nav-portal-btn{color:rgba(13,13,13,0.5)}
+nav.scrolled .nav-portal-btn:hover{color:#0D0D0D}
+.portal-caret{font-size:9px;transition:transform 0.25s}
+.nav-portal.open .portal-caret{transform:rotate(180deg)}
+.nav-portal-menu{
+  position:absolute;top:calc(100% + 14px);right:0;
+  width:280px;
+  background:#fff;border-radius:14px;
+  box-shadow:0 24px 48px rgba(13,13,13,0.18),0 0 0 1px rgba(13,13,13,0.06);
+  padding:10px;
+  opacity:0;visibility:hidden;transform:translateY(-8px);
+  transition:opacity 0.25s,transform 0.25s,visibility 0.25s;
+  z-index:300;
+}
+.nav-portal.open .nav-portal-menu{opacity:1;visibility:visible;transform:translateY(0)}
+.portal-menu-label{
+  font-size:10px;letter-spacing:0.06em;color:rgba(13,13,13,0.4);
+  padding:8px 10px 10px;font-weight:500;
+  border-bottom:1px solid rgba(13,13,13,0.06);margin-bottom:6px;
+}
+.portal-menu-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px;border-radius:10px;
+  text-decoration:none;color:#0D0D0D;
+  transition:background 0.2s;
+}
+.portal-menu-item:hover{background:#F8F6F0}
+.portal-item-icon{font-size:20px;flex-shrink:0}
+.portal-item-title{display:block;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif}
+.portal-item-sub{display:block;font-size:11px;color:rgba(13,13,13,0.45);margin-top:1px}
+
 /* ══ HERO ══ */
 .hero{
   position:relative;height:100vh;overflow:hidden;
@@ -489,6 +532,8 @@ footer{
 @media(max-width:960px){
   nav{padding:20px 24px}
   .nav-links{display:none}
+  .portal-btn-label{font-size:9px}
+  .nav-portal-menu{width:min(280px,calc(100vw - 48px))}
   .hero-content{padding:0 24px}
   .hero-num{right:24px}
   .alps-content,.amazon-content,.ocean-content,.toros-content,.ibn,.foot-top{padding-left:24px;padding-right:24px}
@@ -515,6 +560,26 @@ footer{
     <li><a href="#amazon">Paylaşım</a></li>
     <li><a href="#toros">Fiyat</a></li>
   </ul>
+  <div class="nav-portal">
+    <button class="nav-portal-btn" id="portalBtn" onclick="togglePortalMenu(event)">
+      <span class="portal-btn-label">Müşteri Girişi</span> <span class="portal-caret">▾</span>
+    </button>
+    <div class="nav-portal-menu" id="portalMenu">
+      <div class="portal-menu-label">Zaten müşterimiz misiniz? Web portalınıza girin</div>
+      <a href="https://galeri.alhazenpdf.com" target="_blank" rel="noopener noreferrer" class="portal-menu-item">
+        <span class="portal-item-icon">🚗</span>
+        <span><span class="portal-item-title">Galeri Portalı</span><span class="portal-item-sub">Araç filosu &amp; ekspertiz</span></span>
+      </a>
+      <a href="https://emlak.alhazenpdf.com" target="_blank" rel="noopener noreferrer" class="portal-menu-item">
+        <span class="portal-item-icon">🏠</span>
+        <span><span class="portal-item-title">Emlak Portalı</span><span class="portal-item-sub">Portföy &amp; müşteri eşleştirme</span></span>
+      </a>
+      <a href="https://servis.alhazenpdf.com" target="_blank" rel="noopener noreferrer" class="portal-menu-item">
+        <span class="portal-item-icon">🔧</span>
+        <span><span class="portal-item-title">Teknik Servis Portalı</span><span class="portal-item-sub">İş emri &amp; cari hesap</span></span>
+      </a>
+    </div>
+  </div>
   <a href="#indir" class="nav-cta">Ücretsiz İndir</a>
 </nav>
 
@@ -977,6 +1042,18 @@ document.querySelectorAll('a,button').forEach(el=>{
 window.addEventListener('scroll',()=>{
   document.getElementById('nav').classList.toggle('scrolled',window.scrollY>60);
 },{passive:true});
+
+// ── PORTAL (MÜŞTERİ GİRİŞİ) DROPDOWN ──
+function togglePortalMenu(e){
+  e.stopPropagation();
+  document.querySelector('.nav-portal').classList.toggle('open');
+}
+document.addEventListener('click',(e)=>{
+  const portal=document.querySelector('.nav-portal');
+  if(portal && portal.classList.contains('open') && !portal.contains(e.target)){
+    portal.classList.remove('open');
+  }
+});
 
 // Ekran disindaki canvas'lar rAF dongusunu durdurur (performans)
 function observeVisibility(el,onChange){
