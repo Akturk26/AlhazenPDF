@@ -251,15 +251,19 @@
 const SUPABASE_URL = 'https://cfebfglgrlbzdmhrwmra.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_XyzQZvg5jFBGsSPuj_3U_A_MyGRo2V3';
 
+function normPlaka(s) {
+  return s ? s.toUpperCase().trim().replace(/\s+/g, '') : s;
+}
+
 function getPlakFromUrl() {
   const path = window.location.pathname;
   const parts = path.split('/').filter(Boolean);
   const idx = parts.indexOf('servis');
-  if (idx >= 0 && parts[idx + 1]) return decodeURIComponent(parts[idx + 1]).toUpperCase().trim();
+  if (idx >= 0 && parts[idx + 1]) return normPlaka(decodeURIComponent(parts[idx + 1]));
   const params = new URLSearchParams(window.location.search);
-  if (params.get('plaka')) return decodeURIComponent(params.get('plaka')).toUpperCase().trim();
+  if (params.get('plaka')) return normPlaka(decodeURIComponent(params.get('plaka')));
   const last = parts[parts.length - 1];
-  return (last && last !== 'servis.html' && last !== 'servis') ? decodeURIComponent(last).toUpperCase().trim() : null;
+  return (last && last !== 'servis.html' && last !== 'servis') ? normPlaka(decodeURIComponent(last)) : null;
 }
 
 function formatDate(iso) {
