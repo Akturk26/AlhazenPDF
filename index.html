@@ -245,6 +245,21 @@ section[id]{scroll-margin-top:100px}
 .yenilik-name{font-family:'Cinzel',serif;font-size:16px;font-weight:600;color:#fff;margin-bottom:10px}
 .yenilik-desc{font-size:12.5px;line-height:1.7;color:rgba(255,255,255,0.4);font-weight:300}
 
+.agi-banner{
+  max-width:1100px;margin:0 auto 44px;
+  background:linear-gradient(135deg,rgba(212,160,48,0.14),rgba(212,160,48,0.03));
+  border:1px solid rgba(212,160,48,0.35);
+  padding:36px 40px;
+  display:flex;align-items:center;gap:28px;
+  position:relative;overflow:hidden;
+}
+.agi-banner::before{content:'';position:absolute;top:-50%;right:-8%;width:320px;height:320px;background:radial-gradient(circle,rgba(212,160,48,0.18),transparent 70%);pointer-events:none}
+.agi-icon{width:60px;height:60px;border-radius:50%;background:rgba(212,160,48,0.15);border:1px solid rgba(212,160,48,0.4);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;position:relative;z-index:1}
+.agi-body{position:relative;z-index:1}
+.agi-badge{display:inline-block;padding:4px 12px;background:#D4A030;color:#1A1006;font-size:9px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px}
+.agi-title{font-family:'Cinzel',serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:8px}
+.agi-desc{font-size:13.5px;line-height:1.7;color:rgba(255,255,255,0.5);font-weight:300;max-width:640px}
+
 /* ══ ALPS SECTION ══ */
 .alps{
   position:relative;overflow:hidden;
@@ -608,6 +623,7 @@ footer{
   .alps-content,.amazon-content{grid-template-columns:1fr;gap:48px}
   .ortaklik-content{grid-template-columns:1fr;gap:48px}
   .benefit-grid{grid-template-columns:1fr}
+  .agi-banner{flex-direction:column;text-align:center;padding:32px 24px}
   .ocean-grid,.yenilik-grid{grid-template-columns:1fr}
   .feat-list{grid-template-columns:1fr}
   .foot-top{grid-template-columns:1fr;gap:32px}
@@ -806,6 +822,16 @@ footer{
     <h2 class="section-big-title reveal">Sahadan<br>Doğan Özellikler.</h2>
     <p class="section-body reveal">Galericilerin gerçek talepleriyle şekillenen, sürekli gelişen bir platform.</p>
   </div>
+
+  <div class="agi-banner reveal">
+    <div class="agi-icon">🌐</div>
+    <div class="agi-body">
+      <span class="agi-badge">Sadece Üyelere Özel</span>
+      <div class="agi-title">Galericiler Arası Alış-Satış Ağı</div>
+      <p class="agi-desc">Yalnızca AlhazenPDF kullanan galericilerin görebildiği kapalı bir ağ. Diğer galerilerin satıştaki araçlarını görün, fiyatı ve ekspertizi tek bakışta karşılaştırın, tek tıkla WhatsApp'tan doğrudan iletişime geçin — aracınızı daha hızlı elden çıkarın, ihtiyacınız olanı daha hızlı bulun.</p>
+    </div>
+  </div>
+
   <div class="yenilik-grid reveal">
     <div class="yenilik-card">
       <span class="yenilik-badge">Yeni</span>
