@@ -89,10 +89,11 @@ nav.scrolled .nav-portal-btn:hover{color:#0D0D0D}
 
 /* ══ HERO ══ */
 .hero{
-  position:relative;height:100vh;overflow:hidden;
+  position:relative;overflow:hidden;min-height:100vh;
   display:flex;align-items:center;justify-content:flex-start;
   background:#F0EDE4;
 }
+section[id]{scroll-margin-top:100px}
 
 /* Animated SVG mountain landscape */
 .hero-bg{
@@ -176,6 +177,72 @@ nav.scrolled .nav-portal-btn:hover{color:#0D0D0D}
 }
 .arrow-line{width:48px;height:1px;background:rgba(13,13,13,0.3);position:relative;overflow:hidden}
 .arrow-line::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:#B8790A;animation:sweep 2s ease-in-out infinite}
+
+/* ══ ORTAKLIK — İş Ortağınız ══ */
+.ortaklik{
+  position:relative;
+  background:#F8F6F0;
+  padding:140px 64px;
+}
+.ortaklik-content{
+  max-width:1300px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 1fr;gap:90px;align-items:start;
+}
+.ortaklik .nature-label{color:#8A6A1A}
+.ortaklik .section-big-title{color:#0D0D0D}
+.ortaklik-manifesto{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(17px,1.6vw,20px);
+  font-weight:300;font-style:italic;
+  color:rgba(13,13,13,0.65);
+  line-height:1.8;
+  max-width:480px;
+  margin-bottom:24px;
+}
+.ortaklik-manifesto strong{color:#0D0D0D;font-weight:500;font-style:normal}
+.ortaklik-stats{display:flex;gap:40px;margin-top:24px}
+.ost-val{font-family:'Cinzel',serif;font-size:30px;font-weight:900;color:#B8790A;line-height:1}
+.ost-lbl{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(13,13,13,0.4);margin-top:6px}
+
+.benefit-head{font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(13,13,13,0.45);margin-bottom:20px;font-weight:500}
+.benefit-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:rgba(13,13,13,0.08)}
+.benefit-card{
+  background:#F8F6F0;
+  padding:26px 22px;
+  transition:transform .3s ease, box-shadow .3s ease;
+}
+.benefit-card:hover{transform:translateY(-3px);box-shadow:0 20px 40px rgba(184,121,10,0.1)}
+.benefit-icon{font-size:22px;margin-bottom:12px;display:block}
+.benefit-title{font-family:'Cinzel',serif;font-size:12.5px;font-weight:700;letter-spacing:0.02em;color:#0D0D0D;margin-bottom:8px}
+.benefit-desc{font-size:12px;line-height:1.6;color:rgba(13,13,13,0.5);font-weight:300}
+
+/* ══ YENİLİKLER — Galeri Yönetim Paneli ══ */
+.yenilikler{
+  position:relative;overflow:hidden;
+  padding:140px 64px;
+  background:linear-gradient(160deg,#1A1006 0%,#241708 35%,#150D04 70%,#0A0602 100%);
+}
+.yenilikler-head{max-width:700px;margin:0 auto 70px;text-align:center}
+.yenilikler .nature-label{color:#D4A030;justify-content:center}
+.yenilikler .section-big-title{color:#fff}
+.yenilikler .section-body{color:rgba(255,255,255,0.45);margin:0 auto;text-align:center;max-width:560px}
+.yenilik-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:2px;background:rgba(255,255,255,0.06);
+  border:1px solid rgba(212,160,48,0.15);
+  max-width:1100px;margin:0 auto;
+}
+.yenilik-card{
+  background:rgba(20,13,5,0.7);
+  padding:38px 30px;
+  position:relative;
+  transition:background .4s;
+}
+.yenilik-card:hover{background:rgba(40,26,10,0.85)}
+.yenilik-badge{font-size:9px;letter-spacing:0.25em;color:rgba(212,160,48,0.55);text-transform:uppercase;margin-bottom:20px;display:block}
+.yenilik-icon{font-size:26px;margin-bottom:14px;display:block}
+.yenilik-name{font-family:'Cinzel',serif;font-size:16px;font-weight:600;color:#fff;margin-bottom:10px}
+.yenilik-desc{font-size:12.5px;line-height:1.7;color:rgba(255,255,255,0.4);font-weight:300}
 
 /* ══ ALPS SECTION ══ */
 .alps{
@@ -536,9 +603,11 @@ footer{
   .nav-portal-menu{width:min(280px,calc(100vw - 48px))}
   .hero-content{padding:0 24px}
   .hero-num{right:24px}
-  .alps-content,.amazon-content,.ocean-content,.toros-content,.ibn,.foot-top{padding-left:24px;padding-right:24px}
+  .alps-content,.amazon-content,.ocean-content,.toros-content,.ibn,.foot-top,.ortaklik,.yenilikler{padding-left:24px;padding-right:24px}
   .alps-content,.amazon-content{grid-template-columns:1fr;gap:48px}
-  .ocean-grid{grid-template-columns:1fr}
+  .ortaklik-content{grid-template-columns:1fr;gap:48px}
+  .benefit-grid{grid-template-columns:1fr}
+  .ocean-grid,.yenilik-grid{grid-template-columns:1fr}
   .feat-list{grid-template-columns:1fr}
   .foot-top{grid-template-columns:1fr;gap:32px}
   .foot-bottom{flex-direction:column;gap:8px;text-align:center}
@@ -555,9 +624,9 @@ footer{
 <nav id="nav">
   <a href="#" class="nav-logo"><img src="images/alhazen-icon.png" alt="AlhazenPDF" class="nav-logo-icon">ALHAZEN<em>PDF</em></a>
   <ul class="nav-links">
-    <li><a href="#alps">Araç PDF</a></li>
+    <li><a href="#ortaklik">Neden Biz</a></li>
     <li><a href="#ocean">Özellikler</a></li>
-    <li><a href="#amazon">Paylaşım</a></li>
+    <li><a href="#yenilikler">Yenilikler</a></li>
     <li><a href="#toros">Fiyat</a></li>
   </ul>
   <div class="nav-portal">
@@ -622,7 +691,7 @@ footer{
   </div>
 
   <div class="hero-content">
-    <div class="hero-tag">Araç & Emlak Profesyonelleri İçin</div>
+    <div class="hero-tag">Galeri · Emlak · Teknik Servis İçin B2B SaaS</div>
     <h1 class="hero-h1">
       <span class="line1">FARKINI<br>ORTAYA<br>KOY</span>
       <span class="line2">AlhazenPDF ile Profesyonel Belgeler</span>
@@ -646,6 +715,38 @@ footer{
   <div class="scroll-arrow">
     <div class="arrow-line"></div>
     <span>Kaydır</span>
+  </div>
+</section>
+
+<!-- ══ ORTAKLIK — İş Ortağınız ══ -->
+<section class="ortaklik" id="ortaklik">
+  <div class="ortaklik-content">
+    <div class="reveal-left">
+      <div class="nature-label">🤝 Amacımız · Biz Kimiz</div>
+      <h2 class="section-big-title">İşletmenizin<br>Dijital Ortağı.</h2>
+      <p class="ortaklik-manifesto">
+        AlhazenPDF, galeri, emlak ve teknik servis işletmelerinin <strong>sahadaki gerçek ihtiyaçlarından</strong> doğdu. Excel tabloları, elden ele dolaşan fişler, dağınık WhatsApp yazışmaları yerine — tek çatı altında, kurumsal görünen ve birlikte çalışan bir sistem kurduk.
+      </p>
+      <p class="ortaklik-manifesto">
+        Amacımız basit: sizi <strong>kağıt işinden kurtarıp</strong>, işinizi büyütmeye odaklanmanızı sağlamak. Eskişehir'den çıktık, bugün sahadaki gerçek işletmelerin günlük iş ortağıyız.
+      </p>
+      <div class="ortaklik-stats reveal">
+        <div><div class="ost-val">3</div><div class="ost-lbl">İş Kolu</div></div>
+        <div><div class="ost-val">50+</div><div class="ost-lbl">Profesyonel Tema</div></div>
+        <div><div class="ost-val">☁</div><div class="ost-lbl">Bulutta Senkron</div></div>
+      </div>
+    </div>
+    <div class="reveal-right">
+      <div class="benefit-head">Bizimle Çalışırsanız Ne Kazanırsınız?</div>
+      <div class="benefit-grid">
+        <div class="benefit-card"><span class="benefit-icon">⏱</span><div class="benefit-title">Zaman Kazanın</div><p class="benefit-desc">Saatler süren rapor ve teklif hazırlığı saniyelere iner.</p></div>
+        <div class="benefit-card"><span class="benefit-icon">🏢</span><div class="benefit-title">Kurumsal İmaj</div><p class="benefit-desc">Firma logonuz ve marka renkleriniz her PDF çıktısında.</p></div>
+        <div class="benefit-card"><span class="benefit-icon">📈</span><div class="benefit-title">Gerçek Kârlılık</div><p class="benefit-desc">Alış, gider ve satış tek ekranda; kâr otomatik hesaplanır.</p></div>
+        <div class="benefit-card"><span class="benefit-icon">👥</span><div class="benefit-title">Ekip Yönetimi</div><p class="benefit-desc">Yetkili ekleyin, rol bazlı erişimle mali verinizi koruyun.</p></div>
+        <div class="benefit-card"><span class="benefit-icon">💳</span><div class="benefit-title">Tahsilat Takibi</div><p class="benefit-desc">Çek/senet vadelerini kaçırmadan önce sistem hatırlatır.</p></div>
+        <div class="benefit-card"><span class="benefit-icon">☁</span><div class="benefit-title">Bulutta Senkron</div><p class="benefit-desc">Mobil ve web aynı anda güncel, veri kaybı yaşanmaz.</p></div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -693,6 +794,53 @@ footer{
           <div class="card-brand">ALHAZENPDF</div>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ YENİLİKLER — Galeri Yönetim Paneli ══ -->
+<section class="yenilikler" id="yenilikler">
+  <div class="yenilikler-head">
+    <div class="nature-label reveal">✨ Yeni · Galeri Yönetim Paneli</div>
+    <h2 class="section-big-title reveal">Sahadan<br>Doğan Özellikler.</h2>
+    <p class="section-body reveal">Galericilerin gerçek talepleriyle şekillenen, sürekli gelişen bir platform.</p>
+  </div>
+  <div class="yenilik-grid reveal">
+    <div class="yenilik-card">
+      <span class="yenilik-badge">Yeni</span>
+      <span class="yenilik-icon">💰</span>
+      <div class="yenilik-name">Gerçek Kâr Takibi</div>
+      <p class="yenilik-desc">Alış fiyatı ve giderler otomatik düşülür, gerçek kârınız anlık görünür.</p>
+    </div>
+    <div class="yenilik-card">
+      <span class="yenilik-badge">Yeni</span>
+      <span class="yenilik-icon">🔐</span>
+      <div class="yenilik-name">Rol Bazlı Yetkilendirme</div>
+      <p class="yenilik-desc">Ekibiniz araç ekler, mali tabloları yalnızca siz görürsünüz.</p>
+    </div>
+    <div class="yenilik-card">
+      <span class="yenilik-badge">Yeni</span>
+      <span class="yenilik-icon">🧾</span>
+      <div class="yenilik-name">Çek / Senet Takibi</div>
+      <p class="yenilik-desc">Vadesi yaklaşan ödemeleri kaçırmadan, tek ekrandan yönetin.</p>
+    </div>
+    <div class="yenilik-card">
+      <span class="yenilik-badge">Yeni</span>
+      <span class="yenilik-icon">📺</span>
+      <div class="yenilik-name">TV Vitrin Modu</div>
+      <p class="yenilik-desc">Galerinizdeki ekranda araçlarınız otomatik slayt olarak dönsün.</p>
+    </div>
+    <div class="yenilik-card">
+      <span class="yenilik-badge">Yeni</span>
+      <span class="yenilik-icon">📝</span>
+      <div class="yenilik-name">Satış Sözleşmesi</div>
+      <p class="yenilik-desc">Tek tıkla hazır, yasal geçerliliğe uygun sözleşme PDF'i.</p>
+    </div>
+    <div class="yenilik-card">
+      <span class="yenilik-badge">Yeni</span>
+      <span class="yenilik-icon">🏷</span>
+      <div class="yenilik-name">Firma Markalı Çıktılar</div>
+      <p class="yenilik-desc">Logonuz her rapor, vitrin föyü ve sözleşmede yer alır.</p>
     </div>
   </div>
 </section>
