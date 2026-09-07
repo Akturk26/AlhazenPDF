@@ -366,18 +366,10 @@
   <div class="hero-badge">Galerici · Teknik Servis · Emlak</div>
   <h1>PLAN &amp;<br>FİYATLANDIRMA</h1>
   <p>Satış takibi, PDF oluşturma ve takım çalışması — tüm bunlar tek uygulamada.</p>
-  <div class="toggle-wrap">
-    <div class="toggle-bg">
-      <button class="toggle-btn active" id="btn-aylik" onclick="setToggle('aylik')">Aylık</button>
-      <button class="toggle-btn" id="btn-yillik" onclick="setToggle('yillik')">
-        Yıllık <span class="save-badge">2 AY BEDAVA</span>
-      </button>
-    </div>
-  </div>
 </div>
 
 <section class="plans-section">
-  <p style="text-align:center;font-size:12px;color:var(--gray-400);margin-bottom:32px;">Tüm fiyatlar KDV dahildir · Dilediğiniz zaman iptal edin</p>
+  <p style="text-align:center;font-size:12px;color:var(--gray-400);margin-bottom:32px;">Fiyat teklifi için bizimle iletişime geçin · Dilediğiniz zaman iptal edin</p>
 
   <div class="plans-grid">
 
@@ -409,11 +401,8 @@
       <div class="plan-desc">Kişisel kullanım</div>
       <div class="plan-price">
         <div class="price-main">
-          <span class="amount amber" id="bireysel-amount">₺179,99</span>
-          <span class="period" id="bireysel-period">/ ay</span>
+          <span class="amount amber" style="font-size:16px;">Fiyat için iletişime geçin</span>
         </div>
-        <div class="price-annual-note" id="bireysel-note" style="display:none">₺179,99/ay yerine</div>
-        <div class="free-badge" id="bireysel-save" style="display:none">🎉 2 ay bedava</div>
       </div>
       <div class="plan-divider"></div>
       <ul class="plan-features">
@@ -435,11 +424,8 @@
       <div class="plan-desc">Tek galeri, tek kullanıcı</div>
       <div class="plan-price">
         <div class="price-main">
-          <span class="amount indigo" id="solo-amount">₺419,99</span>
-          <span class="period" id="solo-period">/ ay</span>
+          <span class="amount indigo" style="font-size:16px;">Fiyat için iletişime geçin</span>
         </div>
-        <div class="price-annual-note" id="solo-note" style="display:none">₺419,99/ay yerine</div>
-        <div class="free-badge" id="solo-save" style="display:none">🎉 2 ay bedava</div>
       </div>
       <div class="plan-divider"></div>
       <ul class="plan-features">
@@ -461,11 +447,8 @@
       <div class="plan-desc">Patron + 3 yetkili</div>
       <div class="plan-price">
         <div class="price-main">
-          <span class="amount green" id="takim-amount">₺719,99</span>
-          <span class="period" id="takim-period">/ ay</span>
+          <span class="amount green" style="font-size:16px;">Fiyat için iletişime geçin</span>
         </div>
-        <div class="price-annual-note" id="takim-note" style="display:none">₺719,99/ay yerine</div>
-        <div class="free-badge" id="takim-save" style="display:none">🎉 2 ay bedava</div>
       </div>
       <div class="plan-divider"></div>
       <ul class="plan-features">
@@ -529,26 +512,6 @@
     <a href="https://alhazenpdf.com/gizlilik">Gizlilik Politikası</a>
   </p>
 </footer>
-
-<script>
-  const PRICES = {
-    aylik:  { bireysel: '₺179,99', solo: '₺419,99', takim: '₺719,99', period: '/ ay' },
-    yillik: { bireysel: '₺1.799,99', solo: '₺4.199,99', takim: '₺7.199,99', period: '/ yıl' },
-  };
-
-  function setToggle(mode) {
-    const isYillik = mode === 'yillik';
-    document.getElementById('btn-aylik').classList.toggle('active', !isYillik);
-    document.getElementById('btn-yillik').classList.toggle('active', isYillik);
-    const p = PRICES[mode];
-    ['bireysel', 'solo', 'takim'].forEach(function(plan) {
-      document.getElementById(plan + '-amount').textContent = p[plan];
-      document.getElementById(plan + '-period').textContent = p.period;
-      document.getElementById(plan + '-note').style.display  = isYillik ? 'block' : 'none';
-      document.getElementById(plan + '-save').style.display  = isYillik ? 'inline-flex' : 'none';
-    });
-  }
-</script>
 
 </body>
 </html>

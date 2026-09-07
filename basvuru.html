@@ -359,7 +359,6 @@ textarea.form-input{resize:vertical;min-height:80px;line-height:1.5;}
           <div class="plan-opt-desc">1 kullanıcı · Tüm özellikler</div>
         </div>
       </div>
-      <div class="plan-opt-price" id="soloPrice">₺300/ay</div>
     </div>
     <div class="plan-opt" data-plan="takim" onclick="selectPlan(this)">
       <div class="plan-opt-inner">
@@ -369,7 +368,6 @@ textarea.form-input{resize:vertical;min-height:80px;line-height:1.5;}
           <div class="plan-opt-desc" id="takimDesc">1 patron + 3 yetkili · Bulut</div>
         </div>
       </div>
-      <div class="plan-opt-price" id="takimPrice">₺500/ay</div>
     </div>
   </div>
 
@@ -450,18 +448,10 @@ textarea.form-input{resize:vertical;min-height:80px;line-height:1.5;}
 <div class="toast" id="toast">Lütfen zorunlu alanları doldurun</div>
 
 <script>
-const PLANS = {
-  galeri: {
-    solo:  { name:'Galeri Solo',  price:'₺300/ay', takimName:'Galeri Takım', takimPrice:'₺500/ay', takimDesc:'1 patron + 3 yetkili · Bulut' },
-    servis:{ name:'Servis Solo',  price:'₺200/ay', takimName:'Servis Takım', takimPrice:'₺350/ay', takimDesc:'1 patron + 2 yetkili · Bulut' },
-    emlak: { name:'Emlak Solo',   price:'₺300/ay', takimName:'Emlak Ofis',   takimPrice:'₺500/ay', takimDesc:'1 patron + 3 danışman · Bulut' },
-  }
-};
-
-const PRICES = {
-  galeri: { solo:'₺300/ay', takim:'₺500/ay', takimName:'Galeri Takım', takimDesc:'1 patron + 3 yetkili · Bulut' },
-  servis: { solo:'₺200/ay', takim:'₺350/ay', takimName:'Servis Takım', takimDesc:'1 patron + 2 yetkili · Bulut' },
-  emlak:  { solo:'₺300/ay', takim:'₺500/ay', takimName:'Emlak Ofis',   takimDesc:'1 patron + 3 danışman · Bulut' },
+const PLAN_INFO = {
+  galeri: { takimName:'Galeri Takım', takimDesc:'1 patron + 3 yetkili · Bulut' },
+  servis: { takimName:'Servis Takım', takimDesc:'1 patron + 2 yetkili · Bulut' },
+  emlak:  { takimName:'Emlak Ofis',   takimDesc:'1 patron + 3 danışman · Bulut' },
 };
 
 const CAT_NAMES = { galeri:'Araç Galerisi', servis:'Teknik Servis', emlak:'Emlak Ofisi' };
@@ -483,9 +473,7 @@ function selectPlan(el) {
 }
 
 function updatePrices() {
-  const p = PRICES[selectedCat];
-  document.getElementById('soloPrice').textContent  = p.solo;
-  document.getElementById('takimPrice').textContent = p.takim;
+  const p = PLAN_INFO[selectedCat];
   document.getElementById('takimName').textContent  = p.takimName;
   document.getElementById('takimDesc').textContent  = p.takimDesc;
 }
@@ -509,10 +497,8 @@ function handleSubmit() {
     return;
   }
 
-  const p = PRICES[selectedCat];
-  const planLabel = selectedPlan === 'solo'
-    ? `Solo (${p.solo})`
-    : `${p.takimName} (${p.takim})`;
+  const p = PLAN_INFO[selectedCat];
+  const planLabel = selectedPlan === 'solo' ? 'Solo' : p.takimName;
 
   const msg = [
     `Merhaba, AlhazenPDF *${CAT_NAMES[selectedCat]} — ${planLabel}* planı hakkında bilgi almak istiyorum.`,
