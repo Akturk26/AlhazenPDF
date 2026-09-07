@@ -25,7 +25,7 @@
 
 <span class="badge">Türkçe</span>
 <h1>AlhazenPDF — KVKK Aydınlatma Metni</h1>
-<p class="updated">Son Güncelleme: 30 Temmuz 2026</p>
+<p class="updated">Son Güncelleme: 7 Eylül 2026</p>
 
 <p>İşbu Aydınlatma Metni, 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") madde 10 uyarınca, AlhazenPDF mobil uygulaması ("Uygulama") kapsamında işlenen kişisel verileriniz hakkında sizi bilgilendirmek amacıyla hazırlanmıştır.</p>
 
@@ -37,8 +37,8 @@
   <tr><th>Veri Kategorisi</th><th>Örnekler</th><th>Ne Zaman Toplanır</th></tr>
   <tr><td>Kimlik / İletişim</td><td>E-posta adresi</td><td>Hesap oluşturma (Teknik Servis, Takım modülleri)</td></tr>
   <tr><td>Hesap / İşlem Güvenliği</td><td>Kullanıcı kimliği (UUID)</td><td>Otomatik, hesap oluşturma sırasında</td></tr>
-  <tr><td>Mesleki / İşletme Verisi</td><td>Galeri/garaj/şirket adı, çalışan (takım üyesi) bilgileri</td><td>Takım/şirket profili oluşturma</td></tr>
-  <tr><td>Müşteri Kayıt Verisi</td><td>Araç plakası, şasi no, müşteri adı/telefonu, servis/expertiz kayıtları, emlak ilan bilgileri</td><td>Uygulama içi kayıt oluşturma</td></tr>
+  <tr><td>Mesleki / İşletme Verisi</td><td>Galeri/emlak/servis/yedek parça işletme adı, logo, telefon, çalışan (takım üyesi) bilgileri</td><td>Takım/şirket profili oluşturma</td></tr>
+  <tr><td>Müşteri Kayıt Verisi</td><td>Araç plakası, şasi no, müşteri adı/telefonu, servis/expertiz kayıtları, emlak ilan bilgileri, yedek parça stok/OEM kayıtları, cari hesaplar</td><td>Uygulama içi kayıt oluşturma</td></tr>
   <tr><td>Abonelik / Satın Alma</td><td>Abonelik planı, satın alma durumu (ödeme kartı bilgisi Uygulama'ya ulaşmaz)</td><td>Ücretli plan satın alma</td></tr>
   <tr><td>Görsel Veri</td><td>Araç/emlak fotoğrafları</td><td>Kamera/galeri izniyle, PDF oluşturma</td></tr>
 </table>
@@ -47,8 +47,9 @@
 <h2>3. Kişisel Verilerin İşlenme Amaçları</h2>
 <ul>
   <li>Uygulama hesabınızın oluşturulması ve kimlik doğrulaması</li>
-  <li>Galeri/servis/emlak kayıtlarınızın saklanması ve cihazlar arası senkronizasyonu</li>
+  <li>Galeri/servis/emlak/yedek parça kayıtlarınızın saklanması ve cihazlar arası senkronizasyonu</li>
   <li>Takım/şirket üyeleri arasında yetkilendirme ve ortak veri paylaşımının sağlanması</li>
+  <li>Tercih ettiğiniz takdirde, ağ özellikleri (Galericiler Arası Araç Ağı, Parçacılar Arası Ağ, Parça Sorgula) üzerinden aynı sektördeki diğer işletmelerle iş bağlantısı kurulmasının sağlanması</li>
   <li>Abonelik planınızın doğrulanması ve ilgili özelliklerin açılması</li>
   <li>Muayene/sigorta/bakım hatırlatma bildirimlerinin gönderilmesi</li>
   <li>Teknik destek taleplerinin yanıtlanması</li>
@@ -58,7 +59,9 @@
 <p>Kişisel verileriniz, KVKK madde 5/2 kapsamında; bir sözleşmenin kurulması veya ifasıyla doğrudan ilgili olması, hukuki yükümlülüğün yerine getirilmesi ve açık rızanızın bulunması hukuki sebeplerine dayanılarak işlenmektedir.</p>
 
 <h2>5. Kişisel Verilerin Aktarılması</h2>
-<p>Bulut tabanlı modüllere ait veriler, alt yüklenici sıfatıyla <strong>Supabase Inc.</strong> altyapısında barındırılır; tüm iletişim TLS şifrelemesiyle korunur. Abonelik/ödeme doğrulaması için <strong>RevenueCat</strong>, <strong>Apple App Store</strong> ve <strong>Google Play</strong> ile sınırlı, işlemin gerektirdiği ölçüde veri paylaşılır. Verileriniz, yukarıda sayılanlar dışında üçüncü kişilerle paylaşılmaz veya satılmaz. Kullanılan altyapı sağlayıcılarının sunucuları yurt dışında bulunabilir; bu durumda aktarım KVKK'nın öngördüğü esaslara uygun şekilde gerçekleştirilir.</p>
+<p>Bulut tabanlı modüllere ait veriler, alt yüklenici sıfatıyla <strong>Supabase Inc.</strong> altyapısında barındırılır; tüm iletişim TLS şifrelemesiyle korunur. Abonelik/ödeme doğrulaması için <strong>RevenueCat</strong>, <strong>Apple App Store</strong> ve <strong>Google Play</strong> ile sınırlı, işlemin gerektirdiği ölçüde veri paylaşılır. Kullanılan altyapı sağlayıcılarının sunucuları yurt dışında bulunabilir; bu durumda aktarım KVKK'nın öngördüğü esaslara uygun şekilde gerçekleştirilir.</p>
+<p><strong>Platformdaki diğer işletmelerle paylaşım:</strong> Galericiler Arası Araç Ağı, Parçacılar Arası Ağ ve Teknik Servis Parça Sorgula özellikleri açıkken, yalnızca <em>yayına açtığınız</em> araç/parça ilanlarınıza ait işletme adı, telefon, ürün/araç bilgisi ve satış fiyatı — aynı ağdaki diğer işletmelere görüntülenir hale gelir. Alış fiyatı, gider, gerçek kâr, çek/senet ve cari hesap kayıtlarınız, kendi müşterilerinizin bilgileri ve takım üyesi verileriniz bu ağlar üzerinden hiçbir zaman paylaşılmaz. Bir kaydı ağda yayınlamak/yayından kaldırmak tamamen sizin kontrolünüzdedir.</p>
+<p>Verileriniz, yukarıda sayılanlar dışında üçüncü kişilerle paylaşılmaz veya satılmaz.</p>
 
 <h2>6. Saklama Süresi</h2>
 <p>Kişisel verileriniz, hesabınız aktif olduğu sürece veya ilgili mevzuatın öngördüğü süre boyunca saklanır. Hesap silme talebinizin ardından veriler makul süre içinde (en geç 7 iş günü) kalıcı olarak silinir.</p>
@@ -78,7 +81,7 @@
 </ul>
 
 <h2>8. Başvuru Yöntemi</h2>
-<p>Haklarınızı kullanmak için taleplerinizi <a href="mailto:alhazenpdf@gmail.com">alhazenpdf@gmail.com</a> adresine, kimliğinizi tevsik edici bilgilerle birlikte iletebilirsiniz. Başvurularınız en geç 30 gün içinde yanıtlanır. Uygulama içinden Teknik Servis hesabınızı doğrudan silmek için: Ayarlar → Teknik Servis → "Hesabı Kalıcı Olarak Sil".</p>
+<p>Haklarınızı kullanmak için taleplerinizi <a href="mailto:alhazenpdf@gmail.com">alhazenpdf@gmail.com</a> adresine, kimliğinizi tevsik edici bilgilerle birlikte iletebilirsiniz. Başvurularınız en geç 30 gün içinde yanıtlanır. Uygulama içinden işletme türünüzden bağımsız olarak hesabınızı doğrudan silmek için: Ayarlar → Tehlikeli Alan → "Hesabı Kalıcı Olarak Sil".</p>
 
 <hr>
 <p style="color:#888;font-size:12px;margin-top:40px">AlhazenPDF — Alhazen © 2026</p>

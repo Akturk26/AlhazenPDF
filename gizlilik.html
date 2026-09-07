@@ -11,7 +11,11 @@
   h3 { color: #4F46E5; margin-top: 24px; }
   .badge { display: inline-block; background: #EEF2FF; color: #4F46E5; padding: 2px 10px; border-radius: 20px; font-size: 13px; margin-bottom: 8px; }
   .warn { background: #FFF8E7; border-left: 4px solid #ECC85A; padding: 12px 16px; border-radius: 6px; margin: 16px 0; }
+  .ok { background: #EEF9F1; border-left: 4px solid #3DBA7C; padding: 12px 16px; border-radius: 6px; margin: 16px 0; }
   .updated { color: #888; font-size: 13px; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+  th, td { border: 1px solid #e5e5e5; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #EEF2FF; color: #4F46E5; }
   hr { border: none; border-top: 1px solid #eee; margin: 40px 0; }
   ul { padding-left: 20px; }
   li { margin-bottom: 6px; }
@@ -23,15 +27,15 @@
 <!-- TÜRKÇE -->
 <span class="badge">Türkçe</span>
 <h1>AlhazenPDF — Gizlilik Politikası</h1>
-<p class="updated">Son Güncelleme: 18 Mayıs 2025</p>
+<p class="updated">Son Güncelleme: 7 Eylül 2026</p>
 
 <h2>1. Genel Bakış</h2>
-<p>AlhazenPDF, araç galerisi, emlak, kurumsal ve CV belgesi oluşturma için geliştirilmiş bir PDF üretim uygulamasıdır. Temel PDF oluşturma işlevleri tamamen cihaz üzerinde gerçekleşir; internet bağlantısı veya sunucu iletişimi gerektirmez.</p>
-<p>Ancak uygulama, isteğe bağlı olarak kullanılabilecek <strong>Teknik Servis</strong> modülünü içermektedir. Bu modül bulut altyapısı kullandığından farklı veri işleme koşullarına tabidir.</p>
+<p>AlhazenPDF, araç galerisi, emlak ofisi, teknik servis ve yedek parça işletmeleri için geliştirilmiş bir mobil uygulama ve web portalları bütünüdür. Uygulamayı ücretsiz/bireysel PDF üretim aracı olarak kullanabilir, ya da işletmeniz için bulut tabanlı bir hesap (Galeri, Emlak, Teknik Servis veya Yedek Parça) açabilirsiniz.</p>
+<p>Bulut hesabınız <strong>mobil uygulama</strong> ve buna karşılık gelen <strong>web portalından</strong> (örn. galeri.alhazenpdf.com, emlak.alhazenpdf.com, servis.alhazenpdf.com, parca.alhazenpdf.com) aynı veriye erişir — ikisi de aynı gizlilik kurallarına tabidir.</p>
 
 <h2>2. Toplanan Veriler</h2>
 
-<h3>A) PDF Oluşturma Modülü (Araç, Emlak, CV, Kurumsal)</h3>
+<h3>A) Yerel PDF Oluşturma (Hesap Gerektirmez)</h3>
 <ul>
   <li>Fotoğraflar ve girilen bilgiler yalnızca cihazınızda işlenir.</li>
   <li>Hiçbir veri sunucuya gönderilmez.</li>
@@ -39,49 +43,73 @@
   <li>13 yaş altı çocuklardan veri toplanmaz.</li>
 </ul>
 
-<h3>B) Teknik Servis Modülü (İsteğe Bağlı)</h3>
-<div class="warn">Bu modül yalnızca Teknik Servis özelliğini kullanan garaj sahipleri için geçerlidir. Kayıt olmayan kullanıcılar bu kapsamın dışındadır.</div>
-<p>Teknik Servis modülüne kayıt olduğunuzda aşağıdaki veriler toplanır:</p>
+<h3>B) Bulut İşletme Hesapları (Galeri, Emlak, Teknik Servis, Yedek Parça)</h3>
+<div class="warn">Bu bölüm yalnızca mobil uygulamadan bir işletme hesabı (Galeri, Emlak, Teknik Servis veya Yedek Parça) oluşturan kullanıcılar için geçerlidir. Sadece yerel PDF modülünü kullanan kullanıcılar bu kapsamın dışındadır.</div>
+<p>Bir işletme hesabı oluşturduğunuzda aşağıdaki veriler <strong>Supabase</strong> (supabase.com) bulut altyapısında saklanır, tüm iletişim TLS şifrelemesiyle korunur:</p>
 <ul>
   <li><strong>E-posta adresi</strong> — hesap oluşturma ve kimlik doğrulama için</li>
   <li><strong>Kullanıcı kimliği (UUID)</strong> — Supabase tarafından otomatik atanır</li>
-  <li><strong>Garaj adı</strong> — profil bilgisi olarak saklanır</li>
-  <li><strong>Servis kayıtları</strong> — araç plakası, şasi no, müşteri adı/telefonu, yapılan işlemler, bakım geçmişi</li>
+  <li><strong>İşletme bilgileri</strong> — işletme adı, logo, iletişim telefonu</li>
+  <li><strong>Ekip üyesi bilgileri</strong> — takıma davet ettiğiniz yetkililerin e-posta adresleri ve rolleri</li>
+  <li><strong>İş kaydı verileri</strong> — iş kolunuza göre değişir:
+    <ul>
+      <li><em>Galeri:</em> araç plakası, marka/model, alış-satış fiyatı, giderler, ekspertiz notları, çek/senet kayıtları, müşteri iletişim bilgileri</li>
+      <li><em>Emlak:</em> portföy ilanları, mülk bilgileri, danışman/müşteri iletişim bilgileri</li>
+      <li><em>Teknik Servis:</em> araç plakası/şasi no, müşteri adı-telefonu, yapılan işlemler, bakım geçmişi, cari hesaplar</li>
+      <li><em>Yedek Parça:</em> parça stoğu, OEM kodları, alış-satış fiyatı, tamirhane/müşteri cari hesapları</li>
+    </ul>
+  </li>
 </ul>
-<p>Bu veriler <strong>Supabase</strong> (supabase.com) bulut altyapısında saklanır. Tüm iletişim TLS şifrelemesiyle korunur. Veriler üçüncü taraflarla paylaşılmaz.</p>
+<p>Veriler üçüncü taraf hizmet sağlayıcılarla (Supabase altyapı, RevenueCat/Apple/Google abonelik doğrulama) yalnızca işlemin gerektirdiği ölçüde paylaşılır, satılmaz.</p>
 
-<h2>3. Hesap Silme</h2>
-<p>Teknik Servis hesabınızı ve tüm verilerinizi kalıcı olarak silebilirsiniz:</p>
+<h2>3. Aynı Platformdaki Diğer İşletmeler ile Veri Paylaşımı</h2>
+<div class="ok">AlhazenPDF, aynı iş kolundaki işletmelerin (galericiler, yedek parçacılar, teknik servisler) birbiriyle ticari amaçla iletişime geçebilmesi için isteğe bağlı "ağ" özellikleri sunar: <strong>Galericiler Arası Araç Ağı</strong>, <strong>Parçacılar Arası Ağ</strong> ve <strong>Teknik Servis Parça Sorgula</strong>.</div>
+<p>Bu özellikler etkinken, işletmenizin <strong>yayına açık</strong> ilan/stok kayıtlarından şu bilgiler aynı ağdaki diğer işletmelere (ör. başka bir galerici veya teknik servis) görüntülenebilir hale gelir:</p>
 <ul>
-  <li><strong>Uygulama içinden:</strong> Ayarlar → Teknik Servis → "Hesabı Kalıcı Olarak Sil"</li>
+  <li>İşletme adı ve iletişim telefonu (WhatsApp üzerinden iletişime geçilebilmesi için)</li>
+  <li>Araç/parça bilgileri: marka, model, plaka/OEM kodu, durum, satış fiyatı, stok adedi</li>
+</ul>
+<p>Aşağıdaki veriler bu ağ özellikleri üzerinden <strong>hiçbir zaman</strong> başka bir işletmeyle paylaşılmaz:</p>
+<ul>
+  <li>Alış fiyatı, giderler, gerçek kâr, çek/senet ve cari hesap kayıtları</li>
+  <li>Kendi müşterilerinizin adı/telefonu</li>
+  <li>Ekip üyelerinizin bilgileri</li>
+</ul>
+<p>Bir aracı/parçayı ağda görünür yapıp yapmama kontrolü tamamen sizdedir (ilan/stok kaydında "yayınla" seçeneği); istediğiniz zaman yayından kaldırabilirsiniz.</p>
+
+<h2>4. Hesap Silme</h2>
+<p>Hangi işletme türünde olursa olsun, hesabınızı ve tüm verilerinizi kalıcı olarak silebilirsiniz:</p>
+<ul>
+  <li><strong>Uygulama içinden:</strong> Ayarlar → Tehlikeli Alan → "Hesabı Kalıcı Olarak Sil"</li>
   <li><strong>E-posta ile:</strong> <a href="mailto:alhazenpdf@gmail.com">alhazenpdf@gmail.com</a> adresine "Hesap Silme Talebi" konusuyla yazın. 7 iş günü içinde işleme alınır.</li>
 </ul>
 <p>Silme işlemi geri alınamaz. Ek saklama süresi uygulanmaz.</p>
 
-<h2>4. İzinler</h2>
+<h2>5. İzinler</h2>
 <ul>
-  <li><strong>Kamera:</strong> Araç/emlak fotoğrafı çekmek için (PDF modülü)</li>
+  <li><strong>Kamera:</strong> Araç/emlak/parça fotoğrafı çekmek için</li>
   <li><strong>Depolama:</strong> PDF kaydetmek ve görsellere erişmek için</li>
-  <li><strong>İnternet:</strong> Yalnızca Teknik Servis modülü tarafından kullanılır</li>
+  <li><strong>İnternet:</strong> Bulut işletme hesapları ve ağ özellikleri tarafından kullanılır</li>
 </ul>
 
-<h2>5. İletişim</h2>
+<h2>6. İletişim</h2>
 <p>Sorularınız için: <a href="mailto:alhazenpdf@gmail.com">alhazenpdf@gmail.com</a></p>
+<p>Kişisel verilerinizin işlenmesine ilişkin detaylı bilgi için <a href="kvkk.html">KVKK Aydınlatma Metni</a>'ni de inceleyebilirsiniz.</p>
 
 <hr>
 
 <!-- ENGLISH -->
 <span class="badge">English</span>
 <h1>AlhazenPDF — Privacy Policy</h1>
-<p class="updated">Last Updated: May 18, 2025</p>
+<p class="updated">Last Updated: September 7, 2026</p>
 
 <h2>1. Overview</h2>
-<p>AlhazenPDF is a PDF generation app for vehicle listings, real estate, corporate, and CV documents. Core PDF features work entirely on-device with no internet connection or server communication required.</p>
-<p>The app also includes an optional <strong>Technical Service</strong> module that uses cloud infrastructure and is subject to different data processing conditions.</p>
+<p>AlhazenPDF is a mobile app and set of web portals built for vehicle dealerships, real estate offices, auto repair shops, and spare-parts dealers. You can use the app as a free/personal PDF generation tool, or create a cloud-based business account (Dealership, Real Estate, Auto Service, or Spare Parts).</p>
+<p>Your cloud account is accessed from both the <strong>mobile app</strong> and its matching <strong>web portal</strong> (e.g. galeri.alhazenpdf.com, emlak.alhazenpdf.com, servis.alhazenpdf.com, parca.alhazenpdf.com) — both are subject to the same privacy practices described here.</p>
 
 <h2>2. Data Collection</h2>
 
-<h3>A) PDF Generation Module (Vehicle, Real Estate, CV, Corporate)</h3>
+<h3>A) Local PDF Generation (No Account Required)</h3>
 <ul>
   <li>Photos and entered information are processed on your device only.</li>
   <li>No data is sent to any server.</li>
@@ -89,35 +117,58 @@
   <li>No data is collected from children under 13.</li>
 </ul>
 
-<h3>B) Technical Service Module (Optional)</h3>
-<div class="warn">This module applies only to garage owners who use the Technical Service feature. Users who do not register are not subject to this section.</div>
-<p>When you register for the Technical Service module, the following data is collected:</p>
+<h3>B) Cloud Business Accounts (Dealership, Real Estate, Auto Service, Spare Parts)</h3>
+<div class="warn">This section applies only to users who create a business account (Dealership, Real Estate, Auto Service, or Spare Parts) from the mobile app. Users who only use the local PDF module are not subject to this section.</div>
+<p>When you create a business account, the following data is stored on <strong>Supabase</strong> (supabase.com) cloud infrastructure, protected by TLS encryption throughout:</p>
 <ul>
   <li><strong>Email address</strong> — for account creation and authentication</li>
   <li><strong>User ID (UUID)</strong> — automatically assigned by Supabase</li>
-  <li><strong>Garage name</strong> — stored as profile information</li>
-  <li><strong>Service records</strong> — license plate, chassis number, customer name/phone, service history</li>
+  <li><strong>Business information</strong> — business name, logo, contact phone number</li>
+  <li><strong>Team member information</strong> — email addresses and roles of staff you invite</li>
+  <li><strong>Business records</strong> — varies by business type:
+    <ul>
+      <li><em>Dealership:</em> license plate, make/model, purchase/sale price, expenses, inspection notes, installment/check records, customer contact info</li>
+      <li><em>Real Estate:</em> property listings, listing details, agent/customer contact info</li>
+      <li><em>Auto Service:</em> license plate/chassis number, customer name/phone, service performed, maintenance history, customer ledgers</li>
+      <li><em>Spare Parts:</em> parts inventory, OEM codes, purchase/sale price, workshop/customer ledgers</li>
+    </ul>
+  </li>
 </ul>
-<p>This data is stored on <strong>Supabase</strong> (supabase.com) cloud infrastructure. All communication is protected by TLS encryption. Data is not shared with third parties.</p>
+<p>Data is shared with third-party service providers (Supabase infrastructure, RevenueCat/Apple/Google for subscription verification) only to the extent required, and is never sold.</p>
 
-<h2>3. Account Deletion</h2>
-<p>You can permanently delete your Technical Service account and all associated data:</p>
+<h2>3. Data Sharing With Other Businesses on the Platform</h2>
+<div class="ok">AlhazenPDF offers optional "network" features that let businesses in the same trade (dealerships, spare-parts dealers, auto service shops) reach out to each other for business purposes: the <strong>Inter-Dealer Vehicle Network</strong>, the <strong>Inter-Dealer Parts Network</strong>, and <strong>Auto Service Parts Lookup</strong>.</div>
+<p>While these features are active, the following information from your <strong>published</strong> listings/inventory may become visible to other businesses in the same network:</p>
 <ul>
-  <li><strong>In-app:</strong> Settings → Technical Service → "Permanently Delete Account"</li>
+  <li>Business name and contact phone number (so they can reach you via WhatsApp)</li>
+  <li>Vehicle/part details: make, model, plate/OEM code, condition, sale price, stock quantity</li>
+</ul>
+<p>The following is <strong>never</strong> shared with other businesses through these network features:</p>
+<ul>
+  <li>Purchase price, expenses, real profit, installment/check and customer ledger records</li>
+  <li>Your own customers' names/phone numbers</li>
+  <li>Your team members' information</li>
+</ul>
+<p>You control whether a vehicle/part is visible on the network (a "publish" toggle on the listing/stock entry) and can unpublish it at any time.</p>
+
+<h2>4. Account Deletion</h2>
+<p>Regardless of business type, you can permanently delete your account and all associated data:</p>
+<ul>
+  <li><strong>In-app:</strong> Settings → Danger Zone → "Permanently Delete Account"</li>
   <li><strong>By email:</strong> Send a request to <a href="mailto:alhazenpdf@gmail.com">alhazenpdf@gmail.com</a> with subject "Account Deletion Request". Processed within 7 business days.</li>
 </ul>
 <p>Deletion is irreversible. No additional retention period applies.</p>
 
-<h2>4. Permissions</h2>
+<h2>5. Permissions</h2>
 <ul>
-  <li><strong>Camera:</strong> For capturing vehicle/property photos (PDF module)</li>
+  <li><strong>Camera:</strong> For capturing vehicle/property/part photos</li>
   <li><strong>Storage:</strong> For saving PDFs and accessing images</li>
-  <li><strong>Internet:</strong> Used exclusively by the Technical Service module</li>
+  <li><strong>Internet:</strong> Used by cloud business accounts and network features</li>
 </ul>
 
-<h2>5. Contact</h2>
+<h2>6. Contact</h2>
 <p>For questions: <a href="mailto:alhazenpdf@gmail.com">alhazenpdf@gmail.com</a></p>
 
-<p style="color:#888;font-size:12px;margin-top:40px">AlhazenPDF — Alhazen © 2025</p>
+<p style="color:#888;font-size:12px;margin-top:40px">AlhazenPDF — Alhazen © 2026</p>
 </body>
 </html>
